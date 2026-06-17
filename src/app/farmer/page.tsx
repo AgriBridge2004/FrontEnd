@@ -1,5 +1,10 @@
-import { redirect } from "next/navigation";
+import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
 
-export default function FarmerIndexPage() {
-  redirect("/farmer/dashboard");
+export default function FarmerPage() {
+  return (
+    <PlaceholderPage
+      description="A future entry point for farmer tools, listings, and deal activity."
+      title="Farmer"
+    />
+  );
 }

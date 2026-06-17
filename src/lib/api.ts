@@ -12,7 +12,7 @@ import {
   reviews,
   rfqs,
   users,
-} from "@/data/mock-data";
+} from "@/lib/mock-data";
 
 const wait = async () => {
   await new Promise((resolve) => setTimeout(resolve, 20));

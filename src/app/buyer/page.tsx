@@ -1,5 +1,10 @@
-import { redirect } from "next/navigation";
+import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
 
-export default function BuyerIndexPage() {
-  redirect("/buyer/dashboard");
+export default function BuyerPage() {
+  return (
+    <PlaceholderPage
+      description="A future entry point for buyer tools, sourcing, and deal management."
+      title="Buyer"
+    />
+  );
 }

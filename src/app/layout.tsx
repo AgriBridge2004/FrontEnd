@@ -5,12 +5,12 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "AgriBridge",
   description:
-    "A trusted B2B agricultural trade platform connecting farmers with commercial buyers.",
+    "منصة رقمية موثوقة تربط المزارعين بالمشترين التجاريين.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html dir="rtl" lang="ar">
       <body>{children}</body>
     </html>
   );

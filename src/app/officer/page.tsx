@@ -1,5 +1,10 @@
-import { redirect } from "next/navigation";
+import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
 
-export default function OfficerIndexPage() {
-  redirect("/officer/dashboard");
+export default function OfficerPage() {
+  return (
+    <PlaceholderPage
+      description="A future entry point for quality officer assignments and reports."
+      title="Quality Officer"
+    />
+  );
 }

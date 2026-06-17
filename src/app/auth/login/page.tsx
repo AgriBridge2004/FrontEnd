@@ -1,6 +1,6 @@
 import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
 
-export default function LoginPage() {
+export default function AuthLoginPage() {
   return (
     <PlaceholderPage
       description="A future authentication page for existing AgriBridge users."

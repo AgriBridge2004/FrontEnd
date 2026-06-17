@@ -2,7 +2,7 @@
 
 AgriBridge is a clean Next.js + React + TypeScript + Tailwind CSS skeleton for a trusted B2B agricultural trade platform. It connects farmers with commercial buyers and includes placeholders for quality officer and admin workflows.
 
-The backend is not connected yet. All pages use mock data from `src/data/mock-data.ts`, and future backend integration should start from the placeholder API layer in `src/lib/api.ts`.
+The backend is not connected yet. All pages use mock data from `src/lib/mock-data.ts`, and future backend integration should start from the placeholder API layer in `src/lib/api.ts`.
 
 ## Tech Stack
 
@@ -56,8 +56,7 @@ src/
     layout/            AppHeader, PublicNavbar, DashboardSidebar, DashboardShell
     shared/            PageHeader, cards, badges, table, empty state
     ui/                Button, Input, Select, Textarea, FormField, Modal
-  data/                Mock farmers, buyers, listings, RFQs, deals, inspections
-  lib/                 API placeholders, navigation, auth placeholder, format helpers
+  lib/                 API placeholders, mock data, navigation, auth placeholder, format helpers
   types/               Shared TypeScript domain types
 ```
 

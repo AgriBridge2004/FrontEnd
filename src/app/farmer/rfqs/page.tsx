@@ -1,22 +1,10 @@
-import { PageHeader } from "@/components/shared/PageHeader";
-import { RFQCard } from "@/components/shared/RFQCard";
-import { api } from "@/lib/api";
+import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
 
-export default async function FarmerRFQsPage() {
-  const rfqs = await api.rfqs.list();
-
+export default function FarmerRfqsPage() {
   return (
-    <div className="grid gap-6">
-      <PageHeader
-        eyebrow="RFQs"
-        title="Buyer requests for quote"
-        description="Review buyer demand and prepare quote workflows for future API-backed submissions."
-      />
-      <div className="grid gap-4">
-        {rfqs.map((rfq) => (
-          <RFQCard key={rfq.id} rfq={rfq} />
-        ))}
-      </div>
-    </div>
+    <PlaceholderPage
+      description="A future workspace for reviewing buyer purchase requests and submitting quotes."
+      title="Farmer RFQs"
+    />
   );
 }
