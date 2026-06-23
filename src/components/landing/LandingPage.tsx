@@ -1,27 +1,25 @@
-import { AboutSection } from "@/components/landing/AboutSection";
-import { FeaturesSection } from "@/components/landing/FeaturesSection";
-import { FinalCtaSection } from "@/components/landing/FinalCtaSection";
+import { ContactCTA } from "@/components/landing/ContactCTA";
+import { FAQSection } from "@/components/landing/FAQSection";
+import { FloatingFeatures } from "@/components/landing/FloatingFeatures";
+import { Footer } from "@/components/landing/Footer";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
-import { LandingFooter } from "@/components/landing/LandingFooter";
-import { LandingNavbar } from "@/components/landing/LandingNavbar";
+import { Navbar } from "@/components/landing/Navbar";
 import { StatsSection } from "@/components/landing/StatsSection";
-import { TeamSection } from "@/components/landing/TeamSection";
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#f7f8f7] text-slate-950" dir="rtl">
-      <LandingNavbar />
+    <div className="min-h-screen bg-white text-slate-900" dir="ltr">
+      <Navbar />
       <main>
         <HeroSection />
-        <FeaturesSection />
+        <FloatingFeatures />
         <HowItWorksSection />
-        <AboutSection />
         <StatsSection />
-        <TeamSection />
-        <FinalCtaSection />
+        <FAQSection />
+        <ContactCTA />
       </main>
-      <LandingFooter />
+      <Footer />
     </div>
   );
 }
