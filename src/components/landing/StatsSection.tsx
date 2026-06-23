@@ -1,32 +1,33 @@
+import Image from "next/image";
+
 const stats = [
-  { value: "+10,000", label: "مزارع" },
-  { value: "+5,000", label: "مشتري" },
-  { value: "+50,000", label: "صفقة" },
-  { value: "+20,000", label: "طن منتجات" },
-  { value: "95%", label: "نسبة رضا" },
-  { value: "15", label: "محافظة" },
+  { value: "12,500+", label: "Verified Suppliers" },
+  { value: "3,200+", label: "Active Buyers" },
+  { value: "8,500+", label: "Products Listed" },
+  { value: "45+", label: "Countries Connected" },
 ];
 
 export function StatsSection() {
   return (
-    <section className="bg-white py-16 sm:py-20">
-      <div className="mx-auto max-w-6xl px-5">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-4xl font-black text-emerald-950 sm:text-5xl">تأثيرنا بالأرقام</h2>
-        </div>
-
-        <div className="mt-14 grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-6">
-          {stats.map((stat) => (
-            <div className="text-center" key={stat.label}>
-              <p className="text-4xl font-black leading-none text-emerald-800 sm:text-5xl">
-                {stat.value}
-              </p>
-              <p className="mt-4 text-sm font-bold text-slate-700">{stat.label}</p>
+    <section className="relative overflow-hidden bg-emerald-950 py-24 text-white">
+      <Image
+        alt="Commercial agriculture professional in a field"
+        className="object-cover object-center"
+        fill
+        sizes="100vw"
+        src="/images/landing/stats-background.png"
+      />
+      <div className="absolute inset-0 bg-[#0A4D2E80] " />
+      <div className="relative z-10 mx-auto grid max-w-5xl gap-10 px-6 text-center sm:grid-cols-2 lg:grid-cols-4 lg:px-10">
+        {stats.map((item) => (
+          <div key={item.label}>
+            <div className="text-4xl font-black tracking-tight sm:text-5xl">{item.value}</div>
+            <div className="mt-5 text-[11px] font-black uppercase tracking-[0.14em] text-white/70">
+              {item.label}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-      <div className="mt-14 h-8 bg-emerald-950" />
     </section>
   );
 }
