@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, Leaf, Play, Send, Tractor } from "lucide-react";
+import { BadgeCheck, Leaf, Play, Send } from "lucide-react";
 
 const columns = [
   {
@@ -45,11 +46,16 @@ export function Footer() {
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-10 border-b border-white/10 pb-9 lg:grid-cols-[1.9fr_repeat(5,1fr)]">
           <div>
-            <Link className="flex items-center gap-3" href="/">
-              <span className="grid size-10 place-items-center rounded-lg bg-white text-emerald-950">
-                <Tractor className="size-6" strokeWidth={2.4} />
+            <Link className="flex items-center focus:outline-none focus:ring-2 focus:ring-white/50" href="/">
+              <span className="relative block h-10 w-[151px]">
+                <Image
+                  alt="AgriBridge logo"
+                  className="object-contain"
+                  fill
+                  sizes="151px"
+                  src="/images/brand/agribridge-logo.png"
+                />
               </span>
-              <span className="text-2xl font-black tracking-tight">AgriBridge</span>
             </Link>
             <p className="mt-6 max-w-sm text-base font-medium leading-7 text-white/70">
               AgriBridge is a secure B2B marketplace connecting farmers and commercial buyers for

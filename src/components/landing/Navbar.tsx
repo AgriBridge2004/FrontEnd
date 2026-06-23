@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { ChevronDown, Menu, Tractor, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 const links = [
@@ -17,11 +18,17 @@ export function Navbar() {
   return (
     <header className="absolute inset-x-0 top-0 z-50">
       <nav className="mx-auto flex h-24 max-w-7xl items-center justify-between px-6 lg:px-10">
-        <Link className="flex items-center gap-3 text-white" href="/">
-          <span className="grid size-11 place-items-center rounded-lg bg-white text-emerald-950 shadow-sm">
-            <Tractor className="size-6" strokeWidth={2.4} />
+        <Link className="flex items-center focus:outline-none focus:ring-2 focus:ring-white/60" href="/">
+          <span className="relative block h-10 w-[151px]">
+            <Image
+              alt="AgriBridge logo"
+              className="object-contain"
+              fill
+              priority
+              sizes="151px"
+              src="/images/brand/agribridge-logo.png"
+            />
           </span>
-          <span className="text-2xl font-black tracking-tight">AgriBridge</span>
         </Link>
 
         <div className="hidden items-center gap-9 text-sm font-bold text-white/80 lg:flex">
@@ -50,13 +57,13 @@ export function Navbar() {
           </div>
           <Link
             className="inline-flex h-11 items-center justify-center rounded-full border border-white/35 px-7 text-sm font-bold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/60"
-            href="/login"
+            href="/auth/login"
           >
             Login
           </Link>
           <Link
             className="inline-flex h-11 items-center justify-center rounded-full bg-white px-7 text-sm font-black text-emerald-950 shadow-sm transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-white/60"
-            href="/register"
+            href="/auth/register"
           >
             Get Started
           </Link>
@@ -89,13 +96,13 @@ export function Navbar() {
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <Link
               className="inline-flex h-11 items-center justify-center rounded-full border border-white/30 font-bold transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/60"
-              href="/login"
+              href="/auth/login"
             >
               Login
             </Link>
             <Link
               className="inline-flex h-11 items-center justify-center rounded-full bg-white font-black text-emerald-950 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-white/60"
-              href="/register"
+              href="/auth/register"
             >
               Get Started
             </Link>
