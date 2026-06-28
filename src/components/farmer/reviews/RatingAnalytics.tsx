@@ -3,7 +3,7 @@ import { performanceAreas } from "@/components/farmer/reviews/reviews.mock";
 
 export function RatingAnalytics() {
   return (
-    <aside className="h-fit rounded-lg border border-emerald-100 bg-white p-6 shadow-sm">
+    <aside className="h-fit rounded-lg border border-emerald-100 bg-white p-6 shadow-sm transition-all duration-200 hover:border-emerald-200 hover:bg-emerald-50/30 hover:shadow-md">
       <h2 className="text-base font-medium text-slate-950">Rating Distribution</h2>
       <RatingDistribution />
 

@@ -5,7 +5,7 @@ import { StarRating } from "@/components/farmer/reviews/StarRating";
 export function ReviewStats() {
   return (
     <section className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <article className="rounded-lg border border-emerald-100 bg-white p-6 shadow-sm">
+      <article className="rounded-lg border border-emerald-100 bg-white p-6 shadow-sm transition-all duration-200 hover:border-emerald-200 hover:bg-emerald-50/30 hover:shadow-md">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-600">Overall Rating</p>
         <div className="mt-3 flex items-end justify-center gap-2">
           <span className="text-4xl font-black text-slate-950">4.8</span>
@@ -17,7 +17,7 @@ export function ReviewStats() {
         <p className="mt-2 text-center text-xs font-medium text-slate-600">Top 5% of farmers this month</p>
       </article>
 
-      <article className="rounded-lg border border-emerald-100 bg-white p-6 shadow-sm">
+      <article className="rounded-lg border border-emerald-100 bg-white p-6 shadow-sm transition-all duration-200 hover:border-emerald-200 hover:bg-emerald-50/30 hover:shadow-md">
         <div className="flex items-start justify-between">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-600">Total Reviews</p>
           <Star className="size-5 text-emerald-800" />
@@ -29,7 +29,7 @@ export function ReviewStats() {
         </p>
       </article>
 
-      <article className="rounded-lg border border-emerald-100 bg-white p-6 shadow-sm">
+      <article className="rounded-lg border border-emerald-100 bg-white p-6 shadow-sm transition-all duration-200 hover:border-emerald-200 hover:bg-emerald-50/30 hover:shadow-md">
         <div className="flex items-start justify-between">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-600">Response Rate</p>
           <MessageSquare className="size-5 text-emerald-800" />
@@ -40,7 +40,7 @@ export function ReviewStats() {
         </div>
       </article>
 
-      <article className="rounded-lg border border-emerald-100 bg-white p-6 shadow-sm">
+      <article className="rounded-lg border border-emerald-100 bg-white p-6 shadow-sm transition-all duration-200 hover:border-red-200 hover:bg-red-50/10 hover:shadow-md">
         <div className="flex items-start justify-between">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-600">Flagged Reviews</p>
           <Flag className="size-5 text-red-600" />

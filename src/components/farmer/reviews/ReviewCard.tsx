@@ -17,7 +17,7 @@ export function ReviewCard({ review, onRespond }: ReviewCardProps) {
   }
 
   return (
-    <article className="rounded-lg border border-emerald-100 bg-white p-6 shadow-sm">
+    <article className="rounded-lg border border-emerald-100 bg-white p-6 shadow-sm transition-all duration-200 hover:border-emerald-200 hover:bg-emerald-50/30 hover:shadow-md">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <BuyerInfo review={review} />
         <div className="flex shrink-0 items-center gap-3 sm:flex-col sm:items-end">
@@ -88,7 +88,7 @@ function Score({ label, value }: { label: string; value: number }) {
 
 function FlaggedReviewCard({ review }: { review: FarmerReview }) {
   return (
-    <article className="rounded-lg border border-red-200 bg-red-50/20 p-6 shadow-sm">
+    <article className="rounded-lg border border-red-200 bg-red-50/20 p-6 shadow-sm transition-all duration-200 hover:border-red-300 hover:bg-red-50/30 hover:shadow-md">
       <div className="flex items-center gap-3 text-red-700">
         <AlertCircle className="size-5" />
         <h2 className="text-sm font-black uppercase tracking-[0.2em]">Under Investigation</h2>
