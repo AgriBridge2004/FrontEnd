@@ -8,11 +8,15 @@ import { farmerDashboardUser } from "@/lib/mock-data";
 
 type FarmerTopbarProps = {
   onMenuClick: () => void;
+  onSearchChange?: (value: string) => void;
+  searchValue?: string;
   searchPlaceholder?: string;
 };
 
 export function FarmerTopbar({
   onMenuClick,
+  onSearchChange,
+  searchValue,
   searchPlaceholder = "Search listing, contracts, or buyers...",
 }: FarmerTopbarProps) {
   return (
@@ -31,7 +35,9 @@ export function FarmerTopbar({
           <Search className="size-[18px] shrink-0 text-slate-600" />
           <input
             className="h-full min-w-0 flex-1 bg-transparent text-[13px] font-medium text-slate-700 outline-none placeholder:text-slate-500"
+            onChange={(event) => onSearchChange?.(event.target.value)}
             placeholder={searchPlaceholder}
+            value={searchValue}
             type="search"
           />
         </div>
@@ -71,7 +77,9 @@ export function FarmerTopbar({
           <Search className="size-4 shrink-0 text-slate-600" />
           <input
             className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-500"
+            onChange={(event) => onSearchChange?.(event.target.value)}
             placeholder={searchPlaceholder}
+            value={searchValue}
             type="search"
           />
         </div>

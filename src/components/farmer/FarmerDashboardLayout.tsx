@@ -10,10 +10,18 @@ import { FarmerTopbar } from "@/components/farmer/FarmerTopbar";
 type FarmerDashboardLayoutProps = {
   children: ReactNode;
   hideTopbar?: boolean;
+  onSearchChange?: (value: string) => void;
+  searchValue?: string;
   searchPlaceholder?: string;
 };
 
-export function FarmerDashboardLayout({ children, hideTopbar = false, searchPlaceholder }: FarmerDashboardLayoutProps) {
+export function FarmerDashboardLayout({
+  children,
+  hideTopbar = false,
+  onSearchChange,
+  searchPlaceholder,
+  searchValue,
+}: FarmerDashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // TODO: Protect farmer routes after backend auth/session is finalized.
@@ -32,7 +40,12 @@ export function FarmerDashboardLayout({ children, hideTopbar = false, searchPlac
             <Menu className="size-5" />
           </button>
         ) : (
-          <FarmerTopbar onMenuClick={() => setIsSidebarOpen(true)} searchPlaceholder={searchPlaceholder} />
+          <FarmerTopbar
+            onMenuClick={() => setIsSidebarOpen(true)}
+            onSearchChange={onSearchChange}
+            searchPlaceholder={searchPlaceholder}
+            searchValue={searchValue}
+          />
         )}
         {children}
       </div>
