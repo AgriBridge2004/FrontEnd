@@ -1,10 +1,12 @@
+
+
 import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
 
-export default function MarketplaceListingPage() {
+export default function MarketplacePage() {
   return (
     <PlaceholderPage
-      description="A future detail page for crop information, quality data, and seller context."
-      title="Marketplace Listing"
+      description="A future marketplace for browsing trusted agricultural products and offers."
+      title="Marketplace"
     />
   );
 }

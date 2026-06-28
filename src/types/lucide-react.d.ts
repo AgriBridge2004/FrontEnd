@@ -1,0 +1,36 @@
+declare module 'lucide-react' {
+  export const Building2: any;
+  export const Check: any;
+  export const Eye: any;
+  export const EyeOff: any;
+  export const Tractor: any;
+  export const ArrowLeft: any;
+  export const Info: any;
+  export const Lock: any;
+  export const Mail: any;
+  export const MessageSquare: any;
+  export const ChevronDown: any;
+  export const Menu: any;
+  export const X: any;
+  export const Handshake: any;
+  export const Search: any;
+  export const ShieldCheck: any;
+  export const UserPlus: any;
+  export const ArrowRight: any;
+  export const BadgeCheck: any;
+  export const Leaf: any;
+  export const Play: any;
+  export const Send: any;
+  export const ClipboardList: any;
+  export const FileText: any;
+  export const Truck: any;
+  export const SlidersHorizontal: any;
+  export const MapPin: any;
+  export const Package2: any;
+  export const Grid2x2: any;
+  export const List: any;
+  export const ChevronLeft: any;
+  export const ChevronRight: any;
+  export const CircleCheckBig: any;
+  export const CalendarDays: any;
+}
