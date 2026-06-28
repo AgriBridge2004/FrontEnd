@@ -2,22 +2,60 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Lock, Mail, MessageSquare } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Lock, Mail } from "lucide-react";
 import { FormEvent, useState } from "react";
 
 import { AuthLanguageSwitch } from "@/components/auth/AuthLanguageSwitch";
 import { AuthSidePanel } from "@/components/auth/AuthSidePanel";
+import { GoogleIcon } from "@/components/auth/GoogleIcon";
 import { PasswordInput } from "@/components/auth/PasswordInput";
+import { loginUser } from "@/lib/auth-api";
+import { storeAuthSession } from "@/lib/auth-storage";
 
 export function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [googleMessage, setGoogleMessage] = useState("");
+  const isGoogleAuthEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true";
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    // TODO: Connect this form to the authentication backend.
+    setErrorMessage("");
+
+    if (!email.trim() || !password) {
+      setErrorMessage("Please enter your email and password.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await loginUser({ email: email.trim(), password });
+      storeAuthSession(response);
+      // TODO: Add role-based dashboard redirect after the authenticated app flow is finalized.
+      router.push("/");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  function handleGoogleSignIn() {
+    setGoogleMessage("");
+
+    // TODO: Google login needs a Google OAuth Client ID and a backend endpoint to verify the Google token or handle the OAuth callback.
+    if (!isGoogleAuthEnabled) {
+      setGoogleMessage("Google sign-in is not configured yet.");
+      return;
+    }
+
+    setGoogleMessage("Google sign-in is not configured yet.");
   }
 
   return (
@@ -123,11 +161,18 @@ export function LoginPage() {
                 </div>
 
                 <button
-                  className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-full bg-emerald-800 px-7 text-sm font-black text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-800 focus:ring-offset-2"
+                  className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-full bg-emerald-800 px-7 text-sm font-black text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-800 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
+                  disabled={isSubmitting}
                   type="submit"
                 >
-                  Sign In
+                  {isSubmitting ? "Signing In..." : "Sign In"}
                 </button>
+
+                {errorMessage ? (
+                  <p className="mt-3 rounded-lg bg-rose-50 px-3.5 py-2.5 text-xs font-semibold text-rose-600">
+                    {errorMessage}
+                  </p>
+                ) : null}
 
                 <div className="my-5 flex items-center gap-3 text-xs font-medium text-slate-400">
                   <span className="h-px flex-1 bg-slate-200" />
@@ -135,13 +180,20 @@ export function LoginPage() {
                   <span className="h-px flex-1 bg-slate-200" />
                 </div>
 
-                <Link
+                <button
                   className="inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-full border-2 border-emerald-800 bg-white px-7 text-sm font-black text-emerald-800 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-800 focus:ring-offset-2"
-                  href="/auth/otp"
+                  onClick={handleGoogleSignIn}
+                  type="button"
                 >
-                  <MessageSquare className="size-4" strokeWidth={2.2} />
-                  Sign in with OTP
-                </Link>
+                  <GoogleIcon />
+                  Sign in with Google
+                </button>
+
+                {googleMessage ? (
+                  <p className="mt-3 rounded-lg bg-amber-50 px-3.5 py-2.5 text-xs font-semibold text-amber-700">
+                    {googleMessage}
+                  </p>
+                ) : null}
               </form>
 
               <p className="mt-6 text-center text-sm font-medium text-slate-600">

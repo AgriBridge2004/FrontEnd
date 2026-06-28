@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Lock, RefreshCcw } from "lucide-react";
 import { FormEvent, useMemo, useState } from "react";
 
 import { AuthSidePanel } from "@/components/auth/AuthSidePanel";
 import { PasswordInput } from "@/components/auth/PasswordInput";
+import { resetPassword } from "@/lib/auth-api";
 
 type PasswordRequirement = {
   label: string;
@@ -15,11 +16,15 @@ type PasswordRequirement = {
 
 export function ResetPasswordPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") ?? "";
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const requirements = useMemo<PasswordRequirement[]>(
     () => [
@@ -36,20 +41,37 @@ export function ResetPasswordPage() {
   const hasConfirmPassword = confirmPassword.trim().length > 0;
   const passwordsMatch = newPassword === confirmPassword;
   const shouldShowMatchError = hasNewPassword && hasConfirmPassword && !passwordsMatch;
-  const isFormValid = hasNewPassword && hasConfirmPassword && allRequirementsMet && passwordsMatch;
+  const hasToken = token.trim().length > 0;
+  const tokenErrorMessage = hasToken ? "" : "Invalid or missing reset token.";
+  const isFormValid = hasToken && hasNewPassword && hasConfirmPassword && allRequirementsMet && passwordsMatch;
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
 
     if (!isFormValid) {
+      setErrorMessage("Please complete the password requirements.");
       return;
     }
 
-    // TODO: Connect this form to the reset password backend.
-    setSuccessMessage("Password updated successfully.");
-    window.setTimeout(() => {
-      router.push("/auth/login");
-    }, 800);
+    if (!hasToken) {
+      setErrorMessage(tokenErrorMessage);
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await resetPassword({ token, newPassword });
+      setSuccessMessage(response.message ?? "Password updated successfully.");
+      window.setTimeout(() => {
+        router.push("/auth/login");
+      }, 800);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to update password. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -153,12 +175,24 @@ export function ResetPasswordPage() {
                   </p>
                 ) : null}
 
+                {errorMessage ? (
+                  <p className="mt-4 rounded-lg bg-rose-50 px-3.5 py-2.5 text-sm font-semibold text-rose-600">
+                    {errorMessage}
+                  </p>
+                ) : null}
+
+                {!errorMessage && tokenErrorMessage ? (
+                  <p className="mt-4 rounded-lg bg-rose-50 px-3.5 py-2.5 text-sm font-semibold text-rose-600">
+                    {tokenErrorMessage}
+                  </p>
+                ) : null}
+
                 <button
                   className="mt-5 inline-flex h-12 w-full items-center justify-center rounded-lg bg-green-800 px-6 text-base font-black text-white shadow-lg shadow-green-900/20 transition hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-800 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
-                  disabled={!isFormValid}
+                  disabled={!isFormValid || isSubmitting}
                   type="submit"
                 >
-                  Update Password
+                  {isSubmitting ? "Updating..." : "Update Password"}
                 </button>
               </form>
 

@@ -2,18 +2,28 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Check } from "lucide-react";
 import { ClipboardEvent, FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 
 import { AuthSidePanel } from "@/components/auth/AuthSidePanel";
 import { OTPInput } from "@/components/auth/OTPInput";
+import { resendOtp, verifyOtp } from "@/lib/auth-api";
 
 const OTP_LENGTH = 6;
 const INITIAL_SECONDS = 4 * 60 + 32;
 
 export function OtpPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") ?? "";
+  const flow = searchParams.get("flow") ?? "";
   const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(""));
   const [secondsLeft, setSecondsLeft] = useState(INITIAL_SECONDS);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   useEffect(() => {
@@ -74,18 +84,69 @@ export function OtpPage() {
     }
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const code = digits.join("");
-    void code;
-    // TODO: Connect this form to the OTP verification backend.
+
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (!email) {
+      setErrorMessage("Email is missing. Please restart the verification flow.");
+      return;
+    }
+
+    if (code.length !== OTP_LENGTH) {
+      setErrorMessage("Please enter the 6-digit verification code.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await verifyOtp({ email, otp: code });
+
+      if (flow === "forgot-password") {
+        const resetToken =
+          response.resetToken ?? response.reset_token ?? response.token ?? response.data?.resetToken ?? response.data?.reset_token ?? response.data?.token;
+
+        if (resetToken) {
+          router.push(`/auth/reset-password?token=${encodeURIComponent(resetToken)}`);
+          return;
+        }
+
+        setSuccessMessage(response.message ?? "OTP verified. Please use the reset link sent to your email.");
+        return;
+      }
+
+      router.push("/auth/login");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to verify code. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
-  function handleResend() {
-    setDigits(Array(OTP_LENGTH).fill(""));
-    setSecondsLeft(INITIAL_SECONDS);
-    focusInput(0);
-    // TODO: Connect resend action to the backend.
+  async function handleResend() {
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (!email) {
+      setErrorMessage("Email is missing. Please restart the verification flow.");
+      return;
+    }
+
+    try {
+      setIsResending(true);
+      const response = await resendOtp({ email });
+      setDigits(Array(OTP_LENGTH).fill(""));
+      setSecondsLeft(INITIAL_SECONDS);
+      focusInput(0);
+      setSuccessMessage(response.message ?? "Verification code resent successfully.");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to resend code. Please try again.");
+    } finally {
+      setIsResending(false);
+    }
   }
 
   return (
@@ -153,21 +214,35 @@ export function OtpPage() {
                 </p>
 
                 <button
-                  className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md bg-emerald-800 px-7 text-sm font-black text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-800 focus:ring-offset-2"
+                  className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md bg-emerald-800 px-7 text-sm font-black text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-800 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
+                  disabled={isSubmitting}
                   type="submit"
                 >
-                  Verify Code
+                  {isSubmitting ? "Verifying..." : "Verify Code"}
                 </button>
+
+                {errorMessage ? (
+                  <p className="mt-3 rounded-lg bg-rose-50 px-3.5 py-2.5 text-xs font-semibold text-rose-600">
+                    {errorMessage}
+                  </p>
+                ) : null}
+
+                {successMessage ? (
+                  <p className="mt-3 rounded-lg bg-emerald-50 px-3.5 py-2.5 text-xs font-semibold text-emerald-700">
+                    {successMessage}
+                  </p>
+                ) : null}
               </form>
 
               <p className="mt-7 text-sm font-medium text-slate-500">
                 Didn&apos;t receive code?{" "}
                 <button
-                  className="font-black text-emerald-700 transition hover:text-emerald-950 focus:outline-none focus:ring-2 focus:ring-emerald-700/30"
+                  className="font-black text-emerald-700 transition hover:text-emerald-950 focus:outline-none focus:ring-2 focus:ring-emerald-700/30 disabled:cursor-not-allowed disabled:text-slate-400"
+                  disabled={isResending}
                   onClick={handleResend}
                   type="button"
                 >
-                  Resend
+                  {isResending ? "Resending..." : "Resend"}
                 </button>
               </p>
 

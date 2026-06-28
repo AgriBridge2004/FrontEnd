@@ -9,6 +9,7 @@ import { FormEvent, useState } from "react";
 import { AuthLanguageSwitch } from "@/components/auth/AuthLanguageSwitch";
 import { AuthSidePanel } from "@/components/auth/AuthSidePanel";
 import { PasswordInput } from "@/components/auth/PasswordInput";
+import { registerUser } from "@/lib/auth-api";
 
 type Role = "farmer" | "buyer";
 
@@ -16,6 +17,13 @@ const roles = [
   { id: "farmer" as const, label: "Farmer", icon: Tractor },
   { id: "buyer" as const, label: "Buyer", icon: Building2 },
 ];
+
+const PASSWORD_ERROR_MESSAGE =
+  "Password must be at least 8 characters and include an uppercase letter, a number, and a special character (@, #, $).";
+
+function isStrongPassword(value: string) {
+  return value.length >= 8 && /[A-Z]/.test(value) && /\d/.test(value) && /[@#$]/.test(value);
+}
 
 export function RegisterPage() {
   const router = useRouter();
@@ -28,11 +36,56 @@ export function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    // TODO: Connect this form to the registration backend.
-    router.push("/auth/otp");
+    if (isSubmitting) {
+      return;
+    }
+
+    setErrorMessage("");
+    const trimmedEmail = email.trim();
+
+    if (!selectedRole || !fullName.trim() || !trimmedEmail || !phoneNumber.trim() || !password || !confirmPassword) {
+      setErrorMessage("Please fill in all required fields.");
+      return;
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(trimmedEmail)) {
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMessage("Passwords do not match.");
+      return;
+    }
+
+    if (!isStrongPassword(password)) {
+      setErrorMessage(PASSWORD_ERROR_MESSAGE);
+      return;
+    }
+
+    if (!termsAccepted) {
+      setErrorMessage("Please accept the terms and conditions.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await registerUser({
+        email: trimmedEmail,
+        password,
+        role: selectedRole,
+      });
+      router.push(`/auth/otp?email=${encodeURIComponent(trimmedEmail)}&flow=register`);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to create account. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -175,11 +228,18 @@ export function RegisterPage() {
                 </label>
 
                 <button
-                  className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-xl bg-emerald-800 px-6 text-xs font-black text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-800 focus:ring-offset-2 sm:text-sm"
+                  className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-xl bg-emerald-800 px-6 text-xs font-black text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-800 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none sm:text-sm"
+                  disabled={isSubmitting}
                   type="submit"
                 >
-                  Create Account
+                  {isSubmitting ? "Creating Account..." : "Create Account"}
                 </button>
+
+                {errorMessage ? (
+                  <p className="mt-3 rounded-lg bg-rose-50 px-3.5 py-2.5 text-xs font-semibold text-rose-600">
+                    {errorMessage}
+                  </p>
+                ) : null}
               </form>
 
               <p className="mt-4 text-center text-[11px] font-medium text-slate-500 sm:text-xs">
