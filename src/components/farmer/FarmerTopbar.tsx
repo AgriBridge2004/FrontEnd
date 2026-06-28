@@ -8,9 +8,13 @@ import { farmerDashboardUser } from "@/lib/mock-data";
 
 type FarmerTopbarProps = {
   onMenuClick: () => void;
+  searchPlaceholder?: string;
 };
 
-export function FarmerTopbar({ onMenuClick }: FarmerTopbarProps) {
+export function FarmerTopbar({
+  onMenuClick,
+  searchPlaceholder = "Search listing, contracts, or buyers...",
+}: FarmerTopbarProps) {
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white">
       <div className="flex h-16 items-center gap-3 px-4 sm:px-5 lg:px-7">
@@ -27,7 +31,7 @@ export function FarmerTopbar({ onMenuClick }: FarmerTopbarProps) {
           <Search className="size-[18px] shrink-0 text-slate-600" />
           <input
             className="h-full min-w-0 flex-1 bg-transparent text-[13px] font-medium text-slate-700 outline-none placeholder:text-slate-500"
-            placeholder="Search listing, contracts, or buyers..."
+            placeholder={searchPlaceholder}
             type="search"
           />
         </div>
@@ -67,7 +71,7 @@ export function FarmerTopbar({ onMenuClick }: FarmerTopbarProps) {
           <Search className="size-4 shrink-0 text-slate-600" />
           <input
             className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-500"
-            placeholder="Search listing, contracts, or buyers..."
+            placeholder={searchPlaceholder}
             type="search"
           />
         </div>

@@ -8,9 +8,10 @@ import { FarmerTopbar } from "@/components/farmer/FarmerTopbar";
 
 type FarmerDashboardLayoutProps = {
   children: ReactNode;
+  searchPlaceholder?: string;
 };
 
-export function FarmerDashboardLayout({ children }: FarmerDashboardLayoutProps) {
+export function FarmerDashboardLayout({ children, searchPlaceholder }: FarmerDashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // TODO: Protect farmer routes after backend auth/session is finalized.
@@ -19,7 +20,7 @@ export function FarmerDashboardLayout({ children }: FarmerDashboardLayoutProps) 
       <FarmerSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       <div className="min-w-0 lg:pl-[232px]">
-        <FarmerTopbar onMenuClick={() => setIsSidebarOpen(true)} />
+        <FarmerTopbar onMenuClick={() => setIsSidebarOpen(true)} searchPlaceholder={searchPlaceholder} />
         {children}
       </div>
     </main>
