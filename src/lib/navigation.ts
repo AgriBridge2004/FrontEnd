@@ -7,8 +7,8 @@ export type NavItem = {
 
 export const publicNavItems: NavItem[] = [
   { label: "Marketplace", href: "/marketplace" },
-  { label: "Login", href: "/login" },
-  { label: "Register", href: "/register" },
+  { label: "Login", href: "/auth/login" },
+  { label: "Register", href: "/auth/register" },
 ];
 
 export const dashboardNavItems: Record<UserRole, NavItem[]> = {

@@ -4,8 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "AgriBridge",
-  description:
-    "منصة رقمية موثوقة تربط المزارعين بالمشترين التجاريين.",
+  description: "A trusted digital marketplace connecting farmers with commercial buyers.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

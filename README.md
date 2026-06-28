@@ -53,12 +53,16 @@ npm.cmd run dev
 src/
   app/                 App Router pages and role routes
   components/
+    auth/              Auth pages and shared auth UI
+    landing/           Landing page sections
     layout/            AppHeader, PublicNavbar, DashboardSidebar, DashboardShell
     shared/            PageHeader, cards, badges, table, empty state
     ui/                Button, Input, Select, Textarea, FormField, Modal
   lib/                 API placeholders, mock data, navigation, auth placeholder, format helpers
   types/               Shared TypeScript domain types
 ```
+
+See [`PROJECT_STRUCTURE.md`](./PROJECT_STRUCTURE.md) for the short team guide.
 
 ## Available Pages
 
@@ -67,10 +71,12 @@ Public:
 - `/`
 - `/marketplace`
 - `/marketplace/listing-1`
+- `/auth/login`
+- `/auth/register`
+- `/auth/forgot-password`
+- `/auth/otp`
 - `/login`
 - `/register`
-- `/verify-otp`
-- `/forgot-password`
 
 Farmer:
 
