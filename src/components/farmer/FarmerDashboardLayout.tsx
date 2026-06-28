@@ -2,16 +2,18 @@
 
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { Menu } from "lucide-react";
 
 import { FarmerSidebar } from "@/components/farmer/FarmerSidebar";
 import { FarmerTopbar } from "@/components/farmer/FarmerTopbar";
 
 type FarmerDashboardLayoutProps = {
   children: ReactNode;
+  hideTopbar?: boolean;
   searchPlaceholder?: string;
 };
 
-export function FarmerDashboardLayout({ children, searchPlaceholder }: FarmerDashboardLayoutProps) {
+export function FarmerDashboardLayout({ children, hideTopbar = false, searchPlaceholder }: FarmerDashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // TODO: Protect farmer routes after backend auth/session is finalized.
@@ -20,7 +22,18 @@ export function FarmerDashboardLayout({ children, searchPlaceholder }: FarmerDas
       <FarmerSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       <div className="min-w-0 lg:pl-[232px]">
-        <FarmerTopbar onMenuClick={() => setIsSidebarOpen(true)} searchPlaceholder={searchPlaceholder} />
+        {hideTopbar ? (
+          <button
+            aria-label="Open sidebar"
+            className="fixed left-4 top-4 z-30 grid size-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm lg:hidden"
+            onClick={() => setIsSidebarOpen(true)}
+            type="button"
+          >
+            <Menu className="size-5" />
+          </button>
+        ) : (
+          <FarmerTopbar onMenuClick={() => setIsSidebarOpen(true)} searchPlaceholder={searchPlaceholder} />
+        )}
         {children}
       </div>
     </main>

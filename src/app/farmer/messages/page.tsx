@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { FarmerMessagesPage } from "@/components/farmer/messages/FarmerMessagesPage";
 
-export default function FarmerMessagesPage() {
-  return (
-    <PlaceholderPage
-      description="A future inbox for farmer conversations with buyers and quality officers."
-      title="Farmer Messages"
-    />
-  );
+export default function FarmerMessagesRoute() {
+  return <FarmerMessagesPage />;
 }
