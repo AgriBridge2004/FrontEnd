@@ -18,6 +18,7 @@ type AuthSidePanelProps = {
   bottomClassName?: string;
   titleClassName?: string;
   descriptionClassName?: string;
+  showDecorativeDots?: boolean;
   children?: ReactNode;
 };
 
@@ -35,6 +36,7 @@ export function AuthSidePanel({
   bottomClassName = "pb-10",
   titleClassName = "max-w-sm text-4xl font-black leading-tight tracking-tight text-white xl:text-[42px]",
   descriptionClassName = "mt-3 text-sm font-medium text-white/85 xl:text-base",
+  showDecorativeDots = true,
   children,
 }: AuthSidePanelProps) {
   return (
@@ -67,7 +69,7 @@ export function AuthSidePanel({
         <div className={bottomClassName}>
           <h1 className={titleClassName}>{title}</h1>
           <p className={descriptionClassName}>{description}</p>
-          <AuthDecorativeDots />
+          {showDecorativeDots ? <AuthDecorativeDots /> : null}
         </div>
       </div>
     </section>
