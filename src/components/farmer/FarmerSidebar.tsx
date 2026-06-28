@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import {
   Bell,
   CreditCard,
@@ -36,6 +37,8 @@ type FarmerSidebarProps = {
 };
 
 export function FarmerSidebar({ isOpen, onClose }: FarmerSidebarProps) {
+  const pathname = usePathname();
+
   return (
     <>
       {isOpen ? (
@@ -75,7 +78,7 @@ export function FarmerSidebar({ isOpen, onClose }: FarmerSidebarProps) {
         <nav className="mt-9 grid gap-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = item.label === "Dashboard";
+            const isActive = pathname === item.href;
 
             return (
               <Link
