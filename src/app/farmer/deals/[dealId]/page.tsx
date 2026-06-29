@@ -1,10 +1,11 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { DealDetailsPage } from "@/components/farmer/deals/details/DealDetailsPage";
 
-export default function FarmerDealDetailsPage() {
-  return (
-    <PlaceholderPage
-      title="Farmer Deal Details"
-      description="This placeholder will show deal details, inspection status, payment progress, and delivery history once backend deal workflows are connected."
-    />
-  );
+type FarmerDealDetailsRouteProps = {
+  params: {
+    dealId: string;
+  };
+};
+
+export default function FarmerDealDetailsRoute({ params }: FarmerDealDetailsRouteProps) {
+  return <DealDetailsPage dealId={params.dealId} />;
 }
