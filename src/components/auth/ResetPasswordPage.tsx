@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Lock, RefreshCcw } from "lucide-react";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 
 import { AuthSidePanel } from "@/components/auth/AuthSidePanel";
 import { PasswordInput } from "@/components/auth/PasswordInput";
@@ -25,6 +25,7 @@ export function ResetPasswordPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   const requirements = useMemo<PasswordRequirement[]>(
     () => [
@@ -47,6 +48,10 @@ export function ResetPasswordPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSubmittingRef.current) {
+      return;
+    }
+
     setErrorMessage("");
     setSuccessMessage("");
 
@@ -61,6 +66,7 @@ export function ResetPasswordPage() {
     }
 
     try {
+      isSubmittingRef.current = true;
       setIsSubmitting(true);
       const response = await resetPassword({ token, newPassword });
       setSuccessMessage(response.message ?? "Password updated successfully.");
@@ -70,6 +76,7 @@ export function ResetPasswordPage() {
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to update password. Please try again.");
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   }

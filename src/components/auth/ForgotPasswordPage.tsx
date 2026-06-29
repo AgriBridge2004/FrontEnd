@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Info, Lock, Mail } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 
 import { AuthLanguageSwitch } from "@/components/auth/AuthLanguageSwitch";
 import { AuthSidePanel } from "@/components/auth/AuthSidePanel";
@@ -14,9 +14,14 @@ export function ForgotPasswordPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const isSubmittingRef = useRef(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSubmittingRef.current) {
+      return;
+    }
+
     setErrorMessage("");
     setSuccessMessage("");
 
@@ -26,12 +31,14 @@ export function ForgotPasswordPage() {
     }
 
     try {
+      isSubmittingRef.current = true;
       setIsSubmitting(true);
       await forgotPassword({ email: email.trim() });
       setSuccessMessage("If an account exists for this email, a reset link has been sent.");
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to send reset email. Please try again.");
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   }

@@ -25,6 +25,8 @@ export function OtpPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const isSubmittingRef = useRef(false);
+  const isResendingRef = useRef(false);
 
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -86,6 +88,10 @@ export function OtpPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSubmittingRef.current) {
+      return;
+    }
+
     const code = digits.join("");
 
     setErrorMessage("");
@@ -102,6 +108,7 @@ export function OtpPage() {
     }
 
     try {
+      isSubmittingRef.current = true;
       setIsSubmitting(true);
       const response = await verifyOtp({ email, otp: code });
 
@@ -122,11 +129,16 @@ export function OtpPage() {
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to verify code. Please try again.");
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   }
 
   async function handleResend() {
+    if (isResendingRef.current) {
+      return;
+    }
+
     setErrorMessage("");
     setSuccessMessage("");
 
@@ -136,6 +148,7 @@ export function OtpPage() {
     }
 
     try {
+      isResendingRef.current = true;
       setIsResending(true);
       const response = await resendOtp({ email });
       setDigits(Array(OTP_LENGTH).fill(""));
@@ -145,6 +158,7 @@ export function OtpPage() {
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to resend code. Please try again.");
     } finally {
+      isResendingRef.current = false;
       setIsResending(false);
     }
   }

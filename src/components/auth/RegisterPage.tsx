@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Building2, Check, Tractor } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 
 import { AuthLanguageSwitch } from "@/components/auth/AuthLanguageSwitch";
 import { AuthSidePanel } from "@/components/auth/AuthSidePanel";
@@ -38,10 +38,11 @@ export function RegisterPage() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const isSubmittingRef = useRef(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isSubmitting) {
+    if (isSubmittingRef.current) {
       return;
     }
 
@@ -74,6 +75,7 @@ export function RegisterPage() {
     }
 
     try {
+      isSubmittingRef.current = true;
       setIsSubmitting(true);
       await registerUser({
         email: trimmedEmail,
@@ -84,6 +86,7 @@ export function RegisterPage() {
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to create account. Please try again.");
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   }

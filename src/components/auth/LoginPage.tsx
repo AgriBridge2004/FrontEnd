@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Lock, Mail } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 
 import { AuthLanguageSwitch } from "@/components/auth/AuthLanguageSwitch";
 import { AuthSidePanel } from "@/components/auth/AuthSidePanel";
@@ -12,6 +12,27 @@ import { GoogleIcon } from "@/components/auth/GoogleIcon";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { loginUser } from "@/lib/auth-api";
 import { storeAuthSession } from "@/lib/auth-storage";
+import type { AuthResponse } from "@/types/auth";
+
+function getResponseRole(response: AuthResponse) {
+  return response.role ?? response.data?.role ?? response.user?.role ?? response.data?.user?.role;
+}
+
+function getDashboardHref(role: ReturnType<typeof getResponseRole>) {
+  if (role === "buyer") {
+    return "/buyer/dashboard";
+  }
+
+  if (role === "quality_officer" || role === "officer") {
+    return "/officer/dashboard";
+  }
+
+  if (role === "admin") {
+    return "/admin/dashboard";
+  }
+
+  return "/farmer/dashboard";
+}
 
 export function LoginPage() {
   const router = useRouter();
@@ -22,10 +43,15 @@ export function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [googleMessage, setGoogleMessage] = useState("");
+  const isSubmittingRef = useRef(false);
   const isGoogleAuthEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSubmittingRef.current) {
+      return;
+    }
+
     setErrorMessage("");
 
     if (!email.trim() || !password) {
@@ -34,14 +60,15 @@ export function LoginPage() {
     }
 
     try {
+      isSubmittingRef.current = true;
       setIsSubmitting(true);
       const response = await loginUser({ email: email.trim(), password });
       storeAuthSession(response);
-      // TODO: Add role-based dashboard redirect after the authenticated app flow is finalized.
-      router.push("/");
+      router.push(getDashboardHref(getResponseRole(response)));
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   }

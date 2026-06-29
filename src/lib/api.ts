@@ -14,7 +14,7 @@ import {
   users,
 } from "@/lib/mock-data";
 
-const DEFAULT_TIMEOUT_MS = 20_000;
+const DEFAULT_API_TIMEOUT_MS = 60_000;
 
 type ApiRequestDebugOptions = {
   label: string;
@@ -28,19 +28,35 @@ type ApiRequestOptions = Omit<RequestInit, "body"> & {
 };
 
 export class ApiError extends Error {
-  status: number;
-  details: unknown;
+  status?: number;
+  code?: string;
+  details?: unknown;
 
-  constructor(message: string, status: number, details?: unknown) {
+  constructor(message: string, status?: number, code?: string, details?: unknown) {
     super(message);
     this.name = "ApiError";
     this.status = status;
+    this.code = code;
     this.details = details;
   }
 }
 
 function getApiBaseUrl() {
-  return process.env.NEXT_PUBLIC_API_BASE_URL?.trim().replace(/\/$/, "") ?? "";
+  return process.env.NEXT_PUBLIC_API_BASE_URL?.trim().replace(/\/+$/, "") ?? "";
+}
+
+function getApiTimeoutMs() {
+  const configuredTimeout = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS);
+
+  if (Number.isFinite(configuredTimeout) && configuredTimeout > 0) {
+    return configuredTimeout;
+  }
+
+  return DEFAULT_API_TIMEOUT_MS;
+}
+
+function buildApiUrl(baseUrl: string, path: string) {
+  return `${baseUrl}/${path.replace(/^\/+/, "")}`;
 }
 
 function getErrorMessage(data: unknown, fallback: string) {
@@ -65,7 +81,11 @@ function getErrorMessage(data: unknown, fallback: string) {
 
 function getStatusErrorMessage(status: number, data: unknown) {
   if (status === 409) {
-    return "Email already exists.";
+    return "Email already exists. Please sign in instead.";
+  }
+
+  if (status === 401) {
+    return "Invalid email or password.";
   }
 
   if (status === 500) {
@@ -121,7 +141,7 @@ async function parseResponse(response: Response) {
 
 function debugLog(label: string, data: unknown) {
   if (process.env.NODE_ENV === "development") {
-    console.log(label, data);
+    console.debug(label, data);
   }
 }
 
@@ -129,24 +149,21 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   const baseUrl = getApiBaseUrl();
 
   if (!baseUrl) {
-    throw new ApiError("NEXT_PUBLIC_API_BASE_URL is not configured.", 0);
+    throw new ApiError("NEXT_PUBLIC_API_BASE_URL is not configured.", undefined, "CONFIGURATION_ERROR");
   }
 
-  const { body, debug, headers, timeoutMs = DEFAULT_TIMEOUT_MS, ...requestOptions } = options;
-  const url = `${baseUrl}${path}`;
+  const { body, debug, headers, method = "GET", timeoutMs = getApiTimeoutMs(), ...requestOptions } = options;
+  const url = buildApiUrl(baseUrl, path);
   const controller = new AbortController();
   const timeout = globalThis.setTimeout(() => controller.abort(), timeoutMs);
+  const logLabel = debug?.label ? `[api:${debug.label}]` : "[api]";
 
-  if (debug) {
-    debugLog(`[api:${debug.label}] request`, {
-      url,
-      payload: debug.body ?? body,
-    });
-  }
+  debugLog(`${logLabel} request`, { method, url });
 
   try {
     const response = await fetch(url, {
       ...requestOptions,
+      method,
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
@@ -158,15 +175,10 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
 
     const data = await parseResponse(response);
 
-    if (debug) {
-      debugLog(`[api:${debug.label}] response`, {
-        status: response.status,
-        body: data,
-      });
-    }
+    debugLog(`${logLabel} response`, { method, url, status: response.status });
 
     if (!response.ok) {
-      throw new ApiError(getStatusErrorMessage(response.status, data), response.status, data);
+      throw new ApiError(getStatusErrorMessage(response.status, data), response.status, undefined, data);
     }
 
     return data as T;
@@ -176,10 +188,16 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     }
 
     if (error && typeof error === "object" && "name" in error && error.name === "AbortError") {
-      throw new ApiError("Request timed out. Please try again.", 0);
+      debugLog(`${logLabel} timeout`, { method, url, timeoutMs });
+      throw new ApiError("Request timed out. Please try again.", undefined, "TIMEOUT");
     }
 
-    throw new ApiError("Unable to connect to the server. Please try again.", 0, error);
+    throw new ApiError(
+      "Unable to connect to the server. Please check the API configuration.",
+      undefined,
+      "NETWORK_ERROR",
+      error,
+    );
   } finally {
     globalThis.clearTimeout(timeout);
   }
