@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { FarmerDealsPage } from "@/components/farmer/deals/FarmerDealsPage";
 
-export default function FarmerDealsPage() {
-  return (
-    <PlaceholderPage
-      description="A future workspace for farmer contracts, inspections, payments, and deliveries."
-      title="Farmer Deals"
-    />
-  );
+export default function FarmerDealsRoute() {
+  return <FarmerDealsPage />;
 }
