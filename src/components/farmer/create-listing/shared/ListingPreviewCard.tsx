@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageIcon } from "lucide-react";
 
+import { uploadPhotoOptions } from "@/components/farmer/create-listing/create-listing.mock";
 import type { CreateListingDraft } from "@/components/farmer/create-listing/create-listing.types";
 
 type ListingPreviewCardProps = {
@@ -8,7 +9,8 @@ type ListingPreviewCardProps = {
 };
 
 export function ListingPreviewCard({ draft }: ListingPreviewCardProps) {
-  const imageSrc = draft.photos[0];
+  const imageSrc = draft.photos.find(Boolean);
+  const fallbackImageSrc = uploadPhotoOptions[0]?.placeholderImage;
 
   return (
     <section className="overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm transition-all duration-200 hover:border-emerald-200 hover:bg-emerald-50/20 hover:shadow-md">
@@ -16,11 +18,11 @@ export function ListingPreviewCard({ draft }: ListingPreviewCardProps) {
         <span className="absolute left-3 top-3 z-10 rounded bg-emerald-100 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-emerald-900">
           Preview
         </span>
-        {imageSrc ? (
+        {imageSrc || fallbackImageSrc ? (
           <img
             alt={`${draft.productName || "Uploaded product"} listing preview`}
             className="h-full w-full object-cover"
-            src={imageSrc}
+            src={imageSrc || fallbackImageSrc}
           />
         ) : (
           <div className="grid h-full place-items-center text-slate-300">

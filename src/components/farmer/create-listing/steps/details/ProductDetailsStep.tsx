@@ -3,7 +3,7 @@
 import { ArrowRight, Save } from "lucide-react";
 
 import { ProductPhotoUpload } from "@/components/farmer/create-listing/steps/details/ProductPhotoUpload";
-import { productOptions, qualityGradeOptions, uploadPhotoOptions } from "@/components/farmer/create-listing/create-listing.mock";
+import { qualityGradeOptions, uploadPhotoOptions } from "@/components/farmer/create-listing/create-listing.mock";
 import type { CreateListingDraft } from "@/components/farmer/create-listing/create-listing.types";
 import { cn } from "@/lib/cn";
 
@@ -36,21 +36,15 @@ export function ProductDetailsStep({
       <div className="mt-7 grid gap-5 md:grid-cols-2">
         <label className="grid gap-2">
           <span className="text-xs font-black uppercase tracking-wide text-slate-600">Product Name</span>
-          <select
+          <input
             className={cn(
-              "h-11 rounded-lg border bg-white px-4 text-sm font-medium text-slate-800 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100",
+              "h-11 rounded-lg border bg-white px-4 text-sm font-medium text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100",
               errors.productName ? "border-red-300" : "border-slate-300",
             )}
             onChange={(event) => onChange({ ...draft, productName: event.target.value })}
+            placeholder="Enter product name"
             value={draft.productName}
-          >
-            <option value="">Select a product...</option>
-            {productOptions.map((product) => (
-              <option key={product} value={product}>
-                {product}
-              </option>
-            ))}
-          </select>
+          />
           {errors.productName ? <span className="text-xs font-semibold text-red-600">{errors.productName}</span> : null}
         </label>
 
@@ -99,8 +93,8 @@ export function ProductDetailsStep({
       </div>
 
       <div className="mt-7 grid gap-3">
-        <span className="text-xs font-black uppercase tracking-wide text-slate-600">Product Photos (Upload up to 3)</span>
-        <ProductPhotoUpload photos={uploadPhotoOptions} onPhotosChange={onPhotosChange} />
+        <span className="text-xs font-black uppercase tracking-wide text-slate-600">Product Photos (Upload up to 10)</span>
+        <ProductPhotoUpload photos={uploadPhotoOptions} uploadedPhotoUrls={draft.photos} onPhotosChange={onPhotosChange} />
       </div>
 
       <div className="mt-8 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">

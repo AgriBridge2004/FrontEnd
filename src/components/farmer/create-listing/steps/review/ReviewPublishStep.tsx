@@ -147,7 +147,7 @@ type ReviewCardProps = {
 };
 
 function ProductSummaryCard({ draft, onEdit }: ReviewCardProps) {
-  const imageSrc = draft.photos[0] || uploadPhotoOptions[0].src;
+  const imageSrc = draft.photos.find(Boolean) || uploadPhotoOptions[0].placeholderImage;
   const certifications = draft.logistics.certifications.filter((certification) => certification.status !== "pending");
 
   return (

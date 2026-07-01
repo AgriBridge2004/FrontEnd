@@ -17,8 +17,9 @@ export type CreateListingDraft = {
 };
 
 export type UploadPhotoOption = {
+  id: string;
   label: string;
-  src: string;
+  placeholderImage: string;
 };
 
 export type BulkPricingTier = {

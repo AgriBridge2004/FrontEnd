@@ -34,6 +34,7 @@ export function CreateListingPage() {
   const [toastMessage, setToastMessage] = useState("");
   const publishTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const photoPreviewUrlsRef = useRef<string[]>([]);
 
   useEffect(() => {
     return () => {
@@ -43,18 +44,23 @@ export function CreateListingPage() {
       if (toastTimeoutRef.current) {
         clearTimeout(toastTimeoutRef.current);
       }
+      photoPreviewUrlsRef.current.forEach((previewUrl) => {
+        if (previewUrl) {
+          URL.revokeObjectURL(previewUrl);
+        }
+      });
     };
   }, []);
 
   const completeness = useMemo(() => {
     const completedFields = [draft.productName, draft.qualityGrade, draft.harvestDate].filter(Boolean).length;
-    const photoBoost = draft.photos.length > 0 ? 5 : 0;
+    const photoBoost = draft.photos.some(Boolean) ? 5 : 0;
     const pricingBoost = isPricingComplete ? 25 : 0;
     const logisticsBoost = isLogisticsComplete ? 20 : 0;
     return Math.min(90, 25 + completedFields * 10 + photoBoost + pricingBoost + logisticsBoost);
   }, [
     draft.harvestDate,
-    draft.photos.length,
+    draft.photos,
     draft.productName,
     draft.qualityGrade,
     isLogisticsComplete,
@@ -209,6 +215,12 @@ export function CreateListingPage() {
   }
 
   function handleDiscardDraft() {
+    photoPreviewUrlsRef.current.forEach((previewUrl) => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    });
+    photoPreviewUrlsRef.current = [];
     localStorage.removeItem("agribridge:create-listing-draft");
     setDraft(initialCreateListingDraft);
     setIsDiscardModalOpen(false);
@@ -245,6 +257,7 @@ export function CreateListingPage() {
               onContinue={handleContinue}
               onPhotosChange={(previewUrls) => {
                 // TODO: Connect product photo upload to backend/cloud storage later.
+                photoPreviewUrlsRef.current = previewUrls;
                 setDraft((currentDraft) => ({ ...currentDraft, photos: previewUrls }));
               }}
               onSaveDraft={handleSaveDraft}

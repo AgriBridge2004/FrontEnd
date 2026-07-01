@@ -1,33 +1,27 @@
 import type { CreateListingDraft, UploadPhotoOption } from "@/components/farmer/create-listing/create-listing.types";
 
-export const productOptions = [
-  "Tomatoes",
-  "Olives",
-  "Wheat",
-  "Potatoes",
-  "Cucumbers",
-  "Dates",
-  "Olive Oil",
-  "Herbs",
-];
-
 export const qualityGradeOptions = [
-  "Grade A (Premium)",
-  "Grade B (Standard)",
-  "Organic Certified",
-  "Export Quality",
+  "Class A",
+  "Class B",
+  "Class C",
 ];
 
 export const uploadPhotoOptions: UploadPhotoOption[] = [
-  { label: "Tomato", src: "/images/farmer/create-listing/tomato-upload.jpg" },
-  { label: "Olive", src: "/images/farmer/create-listing/olive-upload.jpg" },
-  { label: "Wheat", src: "/images/farmer/create-listing/wheat-upload.jpg" },
+  ...Array.from({ length: 10 }, (_, index) => {
+    const slotNumber = index + 1;
+
+    return {
+      id: `listing-photo-${slotNumber}`,
+      label: `Product photo ${slotNumber}`,
+      placeholderImage: `/images/farmer/create-listing/placeholders/listing-photo-placeholder-${slotNumber}.jpg`,
+    };
+  }),
 ];
 
 export const initialCreateListingDraft: CreateListingDraft = {
   productName: "",
   variety: "",
-  qualityGrade: "Grade A (Premium)",
+  qualityGrade: "Class A",
   harvestDate: "",
   photos: [],
   pricing: {
