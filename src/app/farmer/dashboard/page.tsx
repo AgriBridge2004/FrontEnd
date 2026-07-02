@@ -17,7 +17,10 @@ import {
   farmerStats,
   farmerUpcomingTasks,
 } from "@/lib/mock-data";
+import { ApiError } from "@/lib/api";
 import { getFarmerStats } from "@/lib/farmer-api";
+import { getStoredUser } from "@/lib/auth-storage";
+import { getFarmerDisplayName } from "@/lib/farmer-display";
 import type { FarmerDashboardStats } from "@/types/farmer";
 
 function mapDashboardStatsToCards(stats: FarmerDashboardStats) {
@@ -36,6 +39,7 @@ export default function FarmerDashboardPage() {
   const [dashboardStats, setDashboardStats] = useState(farmerStats);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [statsError, setStatsError] = useState("");
+  const [farmerName, setFarmerName] = useState("Farmer");
 
   const loadDashboardStats = useCallback(async () => {
     setIsLoadingStats(true);
@@ -45,6 +49,12 @@ export default function FarmerDashboardPage() {
       const stats = await getFarmerStats();
       setDashboardStats(mapDashboardStatsToCards(stats));
     } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        // TODO: Backend may return 404 from documented GET /listings/my before a farmer profile/listing resource exists.
+        setDashboardStats(farmerStats);
+        return;
+      }
+
       setStatsError(error instanceof Error ? error.message : "Unable to connect to the server.");
     } finally {
       setIsLoadingStats(false);
@@ -52,6 +62,9 @@ export default function FarmerDashboardPage() {
   }, []);
 
   useEffect(() => {
+    const storedUser = getStoredUser();
+
+    setFarmerName(getFarmerDisplayName(storedUser));
     void loadDashboardStats();
   }, [loadDashboardStats]);
 
@@ -61,7 +74,7 @@ export default function FarmerDashboardPage() {
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <h1 className="text-[22px] font-black tracking-tight text-slate-950 sm:text-2xl">
-              Good morning, Ahmed <span className="text-emerald-600">🌱</span>
+              Good morning, {farmerName} <span className="text-emerald-600">🌱</span>
             </h1>
             <p className="mt-1 text-sm font-medium text-slate-500">
               Here&apos;s what&apos;s happening with your farm today.

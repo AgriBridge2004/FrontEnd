@@ -13,6 +13,31 @@ function getResponseRole(response: AuthResponse) {
   return response.role ?? response.data?.role ?? getResponseUser(response)?.role;
 }
 
+function getStringField(source: Record<string, unknown> | undefined, key: string) {
+  const value = source?.[key];
+
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function normalizeAuthUser(response: AuthResponse): AuthUser | undefined {
+  const responseUser = getResponseUser(response) ?? {};
+  const email = getStringField(responseUser, "email") ?? getStringField(response, "email") ?? getStringField(response.data, "email");
+  const role = getResponseRole(response);
+  const user: AuthUser = {
+    ...responseUser,
+    email,
+    role,
+  };
+
+  delete user.password;
+
+  if (!Object.values(user).some((value) => value !== undefined && value !== "")) {
+    return undefined;
+  }
+
+  return user;
+}
+
 export function storeAuthSession(response: AuthResponse) {
   if (typeof window === "undefined") {
     return;
@@ -20,7 +45,7 @@ export function storeAuthSession(response: AuthResponse) {
 
   const accessToken = response.accessToken ?? response.access_token ?? response.token ?? response.data?.accessToken ?? response.data?.access_token ?? response.data?.token;
   const refreshToken = response.refreshToken ?? response.refresh_token ?? response.data?.refreshToken ?? response.data?.refresh_token;
-  const user = getResponseUser(response);
+  const user = normalizeAuthUser(response);
   const role = getResponseRole(response);
 
   // TODO: Replace localStorage token handling with secure httpOnly cookie/session strategy later.
@@ -73,6 +98,21 @@ export function getStoredRole() {
   }
 
   return getStoredUser()?.role ?? window.localStorage.getItem(ROLE_KEY);
+}
+
+export function updateStoredUser(updates: Partial<AuthUser>) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const currentUser = getStoredUser() ?? {};
+  const nextUser = { ...currentUser, ...updates };
+
+  window.localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+
+  if (nextUser.role) {
+    window.localStorage.setItem(ROLE_KEY, nextUser.role);
+  }
 }
 
 export function clearAuthSession() {

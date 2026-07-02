@@ -1,7 +1,10 @@
 import { apiRequest } from "@/lib/api";
+import type { Listing, ListingStatus, ListingType, QualityGrade } from "@/types";
 import type { CreateFarmerListingPayload, FarmerListing, FarmerListingStatus } from "@/types/listing";
 
 type ApiListingRecord = Record<string, unknown>;
+
+const DEFAULT_LISTING_IMAGE = "/images/farmer/create-listing/placeholders/listing-photo-placeholder-1.jpg";
 
 type ApiListingsResponse =
   | ApiListingRecord[]
@@ -30,6 +33,10 @@ function asNumber(value: unknown) {
   }
 
   return undefined;
+}
+
+function asDateString(value: unknown, fallback = "Not available") {
+  return asString(value, fallback);
 }
 
 function mapStatus(value: unknown): FarmerListingStatus {
@@ -63,10 +70,45 @@ function mapImages(value: unknown): string[] {
   return [];
 }
 
+function mapListingType(value: unknown): ListingType {
+  const normalizedType = asString(value, "fresh_produce").toLowerCase();
+
+  if (["fresh_produce", "processed_goods", "grains", "livestock", "inputs"].includes(normalizedType)) {
+    return normalizedType as ListingType;
+  }
+
+  return "fresh_produce";
+}
+
+function mapMarketplaceStatus(value: unknown): ListingStatus {
+  const normalizedStatus = asString(value, "active").toLowerCase();
+
+  if (["draft", "active", "reserved", "sold", "inactive"].includes(normalizedStatus)) {
+    return normalizedStatus as ListingStatus;
+  }
+
+  return "active";
+}
+
+function mapQualityGrade(value: unknown): QualityGrade | undefined {
+  const normalizedGrade = asString(value).toUpperCase();
+
+  if (["A", "B", "C"].includes(normalizedGrade)) {
+    return normalizedGrade as QualityGrade;
+  }
+
+  if (normalizedGrade === "REJECTED") {
+    return "Rejected";
+  }
+
+  return undefined;
+}
+
 export function mapListingFromApi(apiListing: unknown): FarmerListing {
   const listing = asRecord(apiListing);
   const id = String(listing.id ?? listing._id ?? listing.uuid ?? "");
-  const productName = asString(listing.productName ?? listing.name ?? listing.title ?? listing.category, "Untitled listing");
+  // TODO: Backend response fields are not fully documented; using safe fallback names.
+  const productName = asString(listing.productName ?? listing.name ?? listing.title ?? listing.category, "Unnamed Listing");
   const images = mapImages(listing.images ?? listing.imageUrls ?? listing.photos ?? listing.image ?? listing.imageUrl);
   const price = asNumber(listing.price ?? listing.unitPrice ?? listing.pricePerUnit);
   const quantity = asNumber(listing.qty ?? listing.quantity ?? listing.totalQuantity);
@@ -89,6 +131,38 @@ export function mapListingFromApi(apiListing: unknown): FarmerListing {
   };
 }
 
+export function mapMarketplaceListingFromApi(apiListing: unknown): Listing {
+  const listing = asRecord(apiListing);
+  const id = String(listing.id ?? listing._id ?? listing.uuid ?? "");
+  const images = mapImages(listing.images ?? listing.imageUrls ?? listing.photos ?? listing.image ?? listing.imageUrl);
+  const name = asString(listing.title ?? listing.name ?? listing.productName ?? listing.category, "Unnamed Listing");
+  const quantity = asNumber(listing.qty ?? listing.quantity ?? listing.totalQuantity) ?? 0;
+  const rawUnit = asString(listing.unit, "kg");
+  const unit: Listing["unit"] = ["kg", "ton", "box", "crate", "liter"].includes(rawUnit) ? (rawUnit as Listing["unit"]) : "kg";
+  const price = asNumber(listing.price ?? listing.unitPrice ?? listing.pricePerUnit) ?? 0;
+
+  return {
+    id,
+    farmerId: String(listing.farmerId ?? "unknown-farmer"),
+    title: name,
+    type: mapListingType(listing.type ?? listing.productType),
+    crop: asString(listing.crop ?? listing.category ?? listing.productName ?? listing.name, name),
+    description: asString(listing.description, "No description provided."),
+    quantity,
+    unit,
+    pricePerUnit: price,
+    currency: "USD",
+    location: asString(listing.location ?? listing.region, "Location not provided"),
+    harvestDate: asDateString(listing.harvestDate ?? listing.harvestedAt ?? listing.expiry),
+    availableFrom: asDateString(listing.availableFrom ?? listing.createdAt ?? listing.updatedAt),
+    status: mapMarketplaceStatus(listing.status),
+    qualityGrade: mapQualityGrade(listing.qualityGrade ?? listing.grade),
+    certifications: Array.isArray(listing.certifications) ? listing.certifications.filter((item): item is string => typeof item === "string") : [],
+    // TODO: Backend may omit listing images; using stable local fallback image.
+    imageUrl: images[0] ?? DEFAULT_LISTING_IMAGE,
+  };
+}
+
 function mapListingsResponse(response: ApiListingsResponse): FarmerListing[] {
   const records = Array.isArray(response)
     ? response
@@ -106,6 +180,13 @@ function unwrapListingResponse(response: unknown) {
 export async function getFarmerListings() {
   const response = await apiRequest<ApiListingsResponse>("/listings/my", { auth: true });
   return mapListingsResponse(response);
+}
+
+export async function getPublicListings() {
+  const response = await apiRequest<ApiListingsResponse>("/listings");
+  const records = Array.isArray(response) ? response : response.listings ?? response.data ?? response.items ?? [];
+
+  return records.map(mapMarketplaceListingFromApi).filter((listing) => listing.id);
 }
 
 export async function getFarmerListingById(id: string) {

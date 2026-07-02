@@ -14,200 +14,25 @@ import {
   users,
 } from "@/lib/mock-data";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://backend-rog8.onrender.com";
-const API_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS ?? 60000);
+export const DEFAULT_API_TIMEOUT_MS = 60_000;
 
-export class ApiError extends Error {
-  status?: number;
-
-  constructor(message: string, status?: number) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
-  }
-}
-
-type ApiRequestOptions = Omit<RequestInit, "body"> & {
-  body?: unknown;
-  auth?: boolean;
-};
-
-function getStoredAuthToken() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const tokenKeys = [
-    "agribridge:auth-token",
-    "agribridge:access-token",
-    "agribridge:token",
-    "accessToken",
-    "token",
-  ];
-
-  for (const key of tokenKeys) {
-    const token = window.localStorage.getItem(key);
-    if (token) {
-      return token;
-    }
-  }
-
-  return null;
-}
-
-export function clearStoredAuth() {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  [
-    "agribridge:auth-token",
-    "agribridge:access-token",
-    "agribridge:token",
-    "agribridge:user",
-    "accessToken",
-    "token",
-    "user",
-  ].forEach((key) => window.localStorage.removeItem(key));
-}
-
-export function redirectToLogin() {
-  if (typeof window !== "undefined") {
-    window.location.assign("/auth/login");
-  }
-}
-
-function getErrorMessage(status?: number, fallback?: string) {
-  if (fallback) {
-    return fallback;
-  }
-
-  switch (status) {
-    case 400:
-      return "Please check the submitted data and try again.";
-    case 401:
-      return "Your session has expired. Please sign in again.";
-    case 403:
-      return "You do not have permission to access this resource.";
-    case 404:
-      return "Requested resource was not found.";
-    case 409:
-      return "This resource already exists.";
-    case 500:
-      return "Server error. Please try again later.";
-    default:
-      return "Unable to connect to the server.";
-  }
-}
-
-function removeUndefinedFields(value: unknown): unknown {
-  if (Array.isArray(value)) {
-    return value.map(removeUndefinedFields);
-  }
-
-  if (value && typeof value === "object" && !(value instanceof File) && !(value instanceof FormData)) {
-    return Object.fromEntries(
-      Object.entries(value)
-        .filter(([, entryValue]) => entryValue !== undefined)
-        .map(([key, entryValue]) => [key, removeUndefinedFields(entryValue)]),
-    );
-  }
-
-  return value;
-}
-
-async function parseResponseBody(response: Response) {
-  const text = await response.text();
-
-  if (!text) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(text) as unknown;
-  } catch {
-    return text;
-  }
-}
-
-function getApiUrl(path: string) {
-  return `${API_BASE_URL.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
-}
-
-export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
-  const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
-  const url = getApiUrl(path);
-  const token = getStoredAuthToken();
-  const headers = new Headers(options.headers);
-  const isFormData = options.body instanceof FormData;
-  const { auth, body, ...requestOptions } = options;
-
-  if (auth && !token) {
-    redirectToLogin();
-    throw new ApiError("Your session has expired. Please sign in again.", 401);
-  }
-
-  if (auth && token) {
-    headers.set("Authorization", `Bearer ${token}`);
-  }
-
-  if (body !== undefined && !isFormData) {
-    headers.set("Content-Type", "application/json");
-  }
-
-  const requestBody: BodyInit | undefined =
-    body === undefined
-      ? undefined
-      : isFormData
-        ? (body as FormData)
-        : JSON.stringify(removeUndefinedFields(body));
-
-  try {
-    const response = await fetch(url, {
-      ...requestOptions,
-      body: requestBody,
-      headers,
-      signal: controller.signal,
-    });
-
-    if (process.env.NODE_ENV === "development") {
-      console.info("[api]", options.method ?? "GET", url, response.status);
-    }
-
-    const responseBody = await parseResponseBody(response);
-
-    if (!response.ok) {
-      const backendMessage =
-        responseBody && typeof responseBody === "object" && "message" in responseBody
-          ? String((responseBody as { message?: unknown }).message)
-          : undefined;
-
-      if (response.status === 401) {
-        clearStoredAuth();
-        redirectToLogin();
-      }
-
-      throw new ApiError(getErrorMessage(response.status, backendMessage), response.status);
-    }
-
-    return responseBody as T;
-  } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
-    }
-
-    if (error instanceof DOMException && error.name === "AbortError") {
-      throw new ApiError("Request timed out. Please try again.");
-    }
-
-    throw new ApiError("Unable to connect to the server.");
-  } finally {
-    window.clearTimeout(timeoutId);
-  }
-}
-
-const DEFAULT_API_TIMEOUT_MS = 60_000;
+const DEFAULT_API_BASE_URL = "https://backend-rog8.onrender.com";
+const AUTH_TOKEN_KEYS = [
+  "agribridge_access_token",
+  "agribridge:auth-token",
+  "agribridge:access-token",
+  "agribridge:token",
+  "accessToken",
+  "token",
+];
+const AUTH_STORAGE_KEYS = [
+  ...AUTH_TOKEN_KEYS,
+  "agribridge_refresh_token",
+  "agribridge_user",
+  "agribridge_role",
+  "agribridge:user",
+  "user",
+];
 
 type ApiRequestDebugOptions = {
   label: string;
@@ -215,6 +40,7 @@ type ApiRequestDebugOptions = {
 };
 
 type ApiRequestOptions = Omit<RequestInit, "body"> & {
+  auth?: boolean;
   body?: unknown;
   debug?: ApiRequestDebugOptions;
   timeoutMs?: number;
@@ -235,7 +61,7 @@ export class ApiError extends Error {
 }
 
 function getApiBaseUrl() {
-  return process.env.NEXT_PUBLIC_API_BASE_URL?.trim().replace(/\/+$/, "") ?? "";
+  return (process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL).replace(/\/+$/, "");
 }
 
 function getApiTimeoutMs() {
@@ -250,6 +76,60 @@ function getApiTimeoutMs() {
 
 function buildApiUrl(baseUrl: string, path: string) {
   return `${baseUrl}/${path.replace(/^\/+/, "")}`;
+}
+
+function isFormDataBody(value: unknown): value is FormData {
+  return typeof FormData !== "undefined" && value instanceof FormData;
+}
+
+function isFileBody(value: unknown): value is File {
+  return typeof File !== "undefined" && value instanceof File;
+}
+
+function getStoredAuthToken() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  for (const key of AUTH_TOKEN_KEYS) {
+    const token = window.localStorage.getItem(key);
+
+    if (token) {
+      return token;
+    }
+  }
+
+  return null;
+}
+
+function removeUndefinedFields(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(removeUndefinedFields);
+  }
+
+  if (value && typeof value === "object" && !isFileBody(value) && !isFormDataBody(value)) {
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([, entryValue]) => entryValue !== undefined)
+        .map(([key, entryValue]) => [key, removeUndefinedFields(entryValue)]),
+    );
+  }
+
+  return value;
+}
+
+export function clearStoredAuth() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  AUTH_STORAGE_KEYS.forEach((key) => window.localStorage.removeItem(key));
+}
+
+export function redirectToLogin() {
+  if (typeof window !== "undefined" && window.location.pathname !== "/auth/login") {
+    window.location.assign("/auth/login");
+  }
 }
 
 function getErrorMessage(data: unknown, fallback: string) {
@@ -274,7 +154,7 @@ function getErrorMessage(data: unknown, fallback: string) {
 
 function getStatusErrorMessage(status: number, data: unknown) {
   if (status === 409) {
-    return "Email already exists. Please sign in instead.";
+    return getErrorMessage(data, "This item already exists.");
   }
 
   if (status === 401) {
@@ -290,6 +170,22 @@ function getStatusErrorMessage(status: number, data: unknown) {
   }
 
   return getErrorMessage(data, "Something went wrong. Please try again.");
+}
+
+function getAuthenticatedStatusErrorMessage(status: number, data: unknown) {
+  if (status === 401) {
+    return "Your session has expired. Please sign in again.";
+  }
+
+  if (status === 403) {
+    return "You do not have permission to access this resource.";
+  }
+
+  if (status === 404) {
+    return "Requested resource was not found.";
+  }
+
+  return getStatusErrorMessage(status, data);
 }
 
 function formatErrorMessage(message: string, fallback: string) {
@@ -345,11 +241,32 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     throw new ApiError("NEXT_PUBLIC_API_BASE_URL is not configured.", undefined, "CONFIGURATION_ERROR");
   }
 
-  const { body, debug, headers, method = "GET", timeoutMs = getApiTimeoutMs(), ...requestOptions } = options;
+  const { auth = false, body, debug, headers, method = "GET", timeoutMs = getApiTimeoutMs(), ...requestOptions } = options;
   const url = buildApiUrl(baseUrl, path);
   const controller = new AbortController();
   const timeout = globalThis.setTimeout(() => controller.abort(), timeoutMs);
   const logLabel = debug?.label ? `[api:${debug.label}]` : "[api]";
+  const token = getStoredAuthToken();
+  const requestHeaders = new Headers(headers);
+  const isFormData = isFormDataBody(body);
+
+  requestHeaders.set("Accept", "application/json");
+
+  if (auth && !token) {
+    redirectToLogin();
+    throw new ApiError("Your session has expired. Please sign in again.", 401, "UNAUTHORIZED");
+  }
+
+  if (auth && token) {
+    requestHeaders.set("Authorization", `Bearer ${token}`);
+  }
+
+  if (body !== undefined && !isFormData && !requestHeaders.has("Content-Type")) {
+    requestHeaders.set("Content-Type", "application/json");
+  }
+
+  const requestBody: BodyInit | undefined =
+    body === undefined ? undefined : isFormData ? body : JSON.stringify(removeUndefinedFields(body));
 
   debugLog(`${logLabel} request`, { method, url });
 
@@ -357,12 +274,8 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     const response = await fetch(url, {
       ...requestOptions,
       method,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        ...headers,
-      },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      headers: requestHeaders,
+      body: requestBody,
       signal: controller.signal,
     });
 
@@ -371,7 +284,17 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     debugLog(`${logLabel} response`, { method, url, status: response.status });
 
     if (!response.ok) {
-      throw new ApiError(getStatusErrorMessage(response.status, data), response.status, undefined, data);
+      if (auth && response.status === 401) {
+        clearStoredAuth();
+        redirectToLogin();
+      }
+
+      throw new ApiError(
+        auth ? getAuthenticatedStatusErrorMessage(response.status, data) : getStatusErrorMessage(response.status, data),
+        response.status,
+        undefined,
+        data,
+      );
     }
 
     return data as T;

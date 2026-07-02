@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { BadgeCheck, Calendar, MapPin } from "lucide-react";
+import Link from "next/link";
+import { BadgeCheck, Calendar, MapPin, Pencil } from "lucide-react";
 
 import { StarRating } from "@/components/farmer/reviews/StarRating";
 import type { FarmerProfile } from "@/components/farmer/profile/profile.mock";
@@ -19,8 +20,9 @@ export function ProfileHeroCard({ profile }: ProfileHeroCardProps) {
           <Image alt={`${profile.name} avatar`} className="object-cover" fill sizes="144px" src={profile.avatar} />
         </span>
 
-        <div className="min-w-0">
-          <h1 className="text-2xl font-black tracking-tight text-slate-950">{profile.name}</h1>
+        <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-black tracking-tight text-slate-950">{profile.name}</h1>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <p className="font-black text-slate-700">{profile.farmName}</p>
             <BadgeCheck className="size-4 fill-emerald-700 text-white" />
@@ -45,6 +47,15 @@ export function ProfileHeroCard({ profile }: ProfileHeroCardProps) {
           </div>
 
           <p className="mt-4 max-w-4xl text-sm font-medium leading-6 text-slate-600">{profile.bio}</p>
+          </div>
+
+          <Link
+            className="inline-flex h-10 w-fit shrink-0 items-center justify-center gap-2 rounded-lg bg-emerald-800 px-5 text-sm font-black text-white shadow-sm transition hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
+            href="/farmer/profile/edit"
+          >
+            <Pencil className="size-4" />
+            Edit Profile
+          </Link>
         </div>
       </div>
     </section>
