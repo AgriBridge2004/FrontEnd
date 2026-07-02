@@ -2,21 +2,45 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ArrowLeft, Info, Lock, Mail } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 
 import { AuthLanguageSwitch } from "@/components/auth/AuthLanguageSwitch";
 import { AuthSidePanel } from "@/components/auth/AuthSidePanel";
+import { forgotPassword } from "@/lib/auth-api";
 
 export function ForgotPasswordPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const isSubmittingRef = useRef(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    // TODO: Connect this form to the password reset backend.
-    router.push("/auth/login");
+    if (isSubmittingRef.current) {
+      return;
+    }
+
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (!email.trim()) {
+      setErrorMessage("Please enter your email address.");
+      return;
+    }
+
+    try {
+      isSubmittingRef.current = true;
+      setIsSubmitting(true);
+      await forgotPassword({ email: email.trim() });
+      setSuccessMessage("If an account exists for this email, a reset link has been sent.");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to send reset email. Please try again.");
+    } finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -76,11 +100,24 @@ export function ForgotPasswordPage() {
                 </div>
 
                 <button
-                  className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-emerald-800 px-6 text-sm font-black text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-800 focus:ring-offset-2"
+                  className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-emerald-800 px-6 text-sm font-black text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-800 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
+                  disabled={isSubmitting}
                   type="submit"
                 >
-                  Send Reset Link
+                  {isSubmitting ? "Sending..." : "Send Reset Link"}
                 </button>
+
+                {errorMessage ? (
+                  <p className="mt-3 rounded-lg bg-rose-50 px-3.5 py-2.5 text-xs font-semibold text-rose-600">
+                    {errorMessage}
+                  </p>
+                ) : null}
+
+                {successMessage ? (
+                  <p className="mt-3 rounded-lg bg-emerald-50 px-3.5 py-2.5 text-xs font-semibold text-emerald-700">
+                    {successMessage}
+                  </p>
+                ) : null}
               </form>
 
               <Link

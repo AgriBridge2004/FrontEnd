@@ -207,6 +207,195 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   }
 }
 
+const DEFAULT_API_TIMEOUT_MS = 60_000;
+
+type ApiRequestDebugOptions = {
+  label: string;
+  body?: unknown;
+};
+
+type ApiRequestOptions = Omit<RequestInit, "body"> & {
+  body?: unknown;
+  debug?: ApiRequestDebugOptions;
+  timeoutMs?: number;
+};
+
+export class ApiError extends Error {
+  status?: number;
+  code?: string;
+  details?: unknown;
+
+  constructor(message: string, status?: number, code?: string, details?: unknown) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.code = code;
+    this.details = details;
+  }
+}
+
+function getApiBaseUrl() {
+  return process.env.NEXT_PUBLIC_API_BASE_URL?.trim().replace(/\/+$/, "") ?? "";
+}
+
+function getApiTimeoutMs() {
+  const configuredTimeout = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS);
+
+  if (Number.isFinite(configuredTimeout) && configuredTimeout > 0) {
+    return configuredTimeout;
+  }
+
+  return DEFAULT_API_TIMEOUT_MS;
+}
+
+function buildApiUrl(baseUrl: string, path: string) {
+  return `${baseUrl}/${path.replace(/^\/+/, "")}`;
+}
+
+function getErrorMessage(data: unknown, fallback: string) {
+  if (data && typeof data === "object") {
+    const record = data as Record<string, unknown>;
+
+    if (typeof record.message === "string") {
+      return formatErrorMessage(record.message, fallback);
+    }
+
+    if (Array.isArray(record.message)) {
+      return record.message.filter((item) => typeof item === "string").join(" ");
+    }
+
+    if (typeof record.error === "string") {
+      return record.error;
+    }
+  }
+
+  return fallback;
+}
+
+function getStatusErrorMessage(status: number, data: unknown) {
+  if (status === 409) {
+    return "Email already exists. Please sign in instead.";
+  }
+
+  if (status === 401) {
+    return "Invalid email or password.";
+  }
+
+  if (status === 500) {
+    return "Server error. Please try again later.";
+  }
+
+  if (status === 400) {
+    return getErrorMessage(data, "Something went wrong. Please check your information and try again.");
+  }
+
+  return getErrorMessage(data, "Something went wrong. Please try again.");
+}
+
+function formatErrorMessage(message: string, fallback: string) {
+  if (!message.trim()) {
+    return fallback;
+  }
+
+  const preMatch = message.match(/<pre>([\s\S]*?)<\/pre>/i);
+  const text = (preMatch?.[1] ?? message)
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return text || fallback;
+}
+
+async function parseResponse(response: Response) {
+  const contentType = response.headers.get("content-type");
+  const text = await response.text();
+
+  if (!text) {
+    return null;
+  }
+
+  if (contentType?.includes("application/json")) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { message: text };
+    }
+  }
+
+  return { message: text };
+}
+
+function debugLog(label: string, data: unknown) {
+  if (process.env.NODE_ENV === "development") {
+    console.debug(label, data);
+  }
+}
+
+export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
+  const baseUrl = getApiBaseUrl();
+
+  if (!baseUrl) {
+    throw new ApiError("NEXT_PUBLIC_API_BASE_URL is not configured.", undefined, "CONFIGURATION_ERROR");
+  }
+
+  const { body, debug, headers, method = "GET", timeoutMs = getApiTimeoutMs(), ...requestOptions } = options;
+  const url = buildApiUrl(baseUrl, path);
+  const controller = new AbortController();
+  const timeout = globalThis.setTimeout(() => controller.abort(), timeoutMs);
+  const logLabel = debug?.label ? `[api:${debug.label}]` : "[api]";
+
+  debugLog(`${logLabel} request`, { method, url });
+
+  try {
+    const response = await fetch(url, {
+      ...requestOptions,
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        ...headers,
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal: controller.signal,
+    });
+
+    const data = await parseResponse(response);
+
+    debugLog(`${logLabel} response`, { method, url, status: response.status });
+
+    if (!response.ok) {
+      throw new ApiError(getStatusErrorMessage(response.status, data), response.status, undefined, data);
+    }
+
+    return data as T;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    if (error && typeof error === "object" && "name" in error && error.name === "AbortError") {
+      debugLog(`${logLabel} timeout`, { method, url, timeoutMs });
+      throw new ApiError("Request timed out. Please try again.", undefined, "TIMEOUT");
+    }
+
+    throw new ApiError(
+      "Unable to connect to the server. Please check the API configuration.",
+      undefined,
+      "NETWORK_ERROR",
+      error,
+    );
+  } finally {
+    globalThis.clearTimeout(timeout);
+  }
+}
+
 const wait = async () => {
   await new Promise((resolve) => setTimeout(resolve, 20));
 };
