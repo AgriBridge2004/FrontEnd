@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { FarmerProfilePage } from "@/components/farmer/profile/FarmerProfilePage";
 
-export default function FarmerProfilePage() {
-  return (
-    <PlaceholderPage
-      description="A future page for farm details, certifications, and account settings."
-      title="Farmer Profile"
-    />
-  );
+export default function FarmerProfileRoute() {
+  return <FarmerProfilePage />;
 }

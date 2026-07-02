@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { FarmerListingsPage } from "@/components/farmer/listings/FarmerListingsPage";
 
-export default function FarmerListingsPage() {
-  return (
-    <PlaceholderPage
-      description="A future workspace for managing agricultural products and availability."
-      title="Farmer Listings"
-    />
-  );
+export default function FarmerListingsRoute() {
+  return <FarmerListingsPage />;
 }
