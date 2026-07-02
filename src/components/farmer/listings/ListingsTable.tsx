@@ -5,12 +5,14 @@ import { ListingStatusBadge } from "@/components/farmer/listings/ListingStatusBa
 import type { FarmerListing } from "@/components/farmer/listings/listings-types";
 
 type ListingsTableProps = {
+  emptyDescription?: string;
+  emptyTitle?: string;
   listings: FarmerListing[];
 };
 
-export function ListingsTable({ listings }: ListingsTableProps) {
+export function ListingsTable({ emptyDescription, emptyTitle, listings }: ListingsTableProps) {
   if (listings.length === 0) {
-    return <EmptyListings />;
+    return <EmptyListings description={emptyDescription} title={emptyTitle} />;
   }
 
   return (

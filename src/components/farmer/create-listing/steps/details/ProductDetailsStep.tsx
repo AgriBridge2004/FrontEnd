@@ -14,7 +14,7 @@ type ProductDetailsStepProps = {
   errors: ProductDetailsErrors;
   onChange: (draft: CreateListingDraft) => void;
   onContinue: () => void;
-  onPhotosChange: (previewUrls: string[]) => void;
+  onPhotosChange: (previewUrls: string[], files: Array<File | undefined>) => void;
   onSaveDraft: () => void;
 };
 

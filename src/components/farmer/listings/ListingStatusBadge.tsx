@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import type { FarmerListingStatus } from "@/lib/mock-data";
+import type { FarmerListingStatus } from "@/components/farmer/listings/listings-types";
 
 const statusStyles: Record<FarmerListingStatus, string> = {
   Active: "bg-emerald-50 text-emerald-700 ring-emerald-100",

@@ -16,6 +16,7 @@ import { ReviewPublishStep } from "@/components/farmer/create-listing/steps/revi
 import { ShippingBestPracticesSidebar } from "@/components/farmer/create-listing/steps/logistics/ShippingBestPracticesSidebar";
 import { initialCreateListingDraft } from "@/components/farmer/create-listing/create-listing.mock";
 import type { CreateListingDraft } from "@/components/farmer/create-listing/create-listing.types";
+import { createFarmerListing, uploadListingImages } from "@/lib/farmer-listings-api";
 
 type ProductDetailsErrors = Partial<Record<"productName" | "qualityGrade" | "harvestDate", string>>;
 
@@ -32,15 +33,12 @@ export function CreateListingPage() {
   const [isDiscardModalOpen, setIsDiscardModalOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-  const publishTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [photoFiles, setPhotoFiles] = useState<Array<File | undefined>>([]);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const photoPreviewUrlsRef = useRef<string[]>([]);
 
   useEffect(() => {
     return () => {
-      if (publishTimeoutRef.current) {
-        clearTimeout(publishTimeoutRef.current);
-      }
       if (toastTimeoutRef.current) {
         clearTimeout(toastTimeoutRef.current);
       }
@@ -185,7 +183,27 @@ export function CreateListingPage() {
     setCurrentStep((step) => Math.max(step - 1, 1));
   }
 
-  function handlePublish() {
+  function buildCreateListingPayload() {
+    return {
+      name: draft.productName.trim(),
+      productType: "Plant" as const,
+      category: draft.variety.trim() || draft.productName.trim(),
+      description: [
+        draft.variety.trim() ? `Variety: ${draft.variety.trim()}` : undefined,
+        draft.qualityGrade ? `Quality grade: ${draft.qualityGrade}` : undefined,
+        draft.harvestDate ? `Harvest date: ${draft.harvestDate}` : undefined,
+      ]
+        .filter(Boolean)
+        .join(". "),
+      qty: parsePositiveNumber(draft.pricing.totalQuantity),
+      unit: "kg",
+      price: parsePositiveNumber(draft.pricing.unitPrice),
+      location: draft.logistics.originLocation.trim(),
+      expiry: draft.harvestDate || undefined,
+    };
+  }
+
+  async function handlePublish() {
     const isDetailsValid = validateStep();
     const isPricingValid = validatePricing();
     const isLogisticsValid = validateLogistics();
@@ -203,15 +221,24 @@ export function CreateListingPage() {
     }
 
     setIsPublishing(true);
-    // TODO: Connect publish listing to backend API later.
-    publishTimeoutRef.current = setTimeout(() => {
+    try {
+      const listing = await createFarmerListing(buildCreateListingPayload());
+      const uploadedFiles = photoFiles.filter((file): file is File => Boolean(file));
+
+      if (listing.id && uploadedFiles.length > 0) {
+        await uploadListingImages(listing.id, uploadedFiles);
+      }
+
       setIsPublishing(false);
       setIsPricingComplete(true);
       setIsLogisticsComplete(true);
       showToast("Listing published successfully.");
       localStorage.removeItem("agribridge:create-listing-draft");
       router.push("/farmer/listings");
-    }, 900);
+    } catch (error) {
+      setIsPublishing(false);
+      showToast(error instanceof Error ? error.message : "Unable to publish listing.");
+    }
   }
 
   function handleDiscardDraft() {
@@ -255,9 +282,9 @@ export function CreateListingPage() {
                 }));
               }}
               onContinue={handleContinue}
-              onPhotosChange={(previewUrls) => {
-                // TODO: Connect product photo upload to backend/cloud storage later.
+              onPhotosChange={(previewUrls, files) => {
                 photoPreviewUrlsRef.current = previewUrls;
+                setPhotoFiles(files);
                 setDraft((currentDraft) => ({ ...currentDraft, photos: previewUrls }));
               }}
               onSaveDraft={handleSaveDraft}
