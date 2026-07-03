@@ -37,7 +37,7 @@ export function DashboardTopbar({
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white">
+    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white shadow-sm" dir="ltr">
       <div className="flex h-16 items-center gap-3 px-4 sm:px-5 lg:px-7">
         <button
           aria-label="Open sidebar"
@@ -51,11 +51,11 @@ export function DashboardTopbar({
         <div className="hidden h-11 w-full max-w-[386px] items-center gap-2.5 rounded-full border border-slate-300 bg-stone-50 px-4 md:flex">
           <Search className="size-[18px] shrink-0 text-slate-600" />
           <input
-            className="h-full min-w-0 flex-1 bg-transparent text-[13px] font-medium text-slate-700 outline-none placeholder:text-slate-500"
+            className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-500"
             onChange={(event) => onSearchChange?.(event.target.value)}
             placeholder={searchPlaceholder}
-            value={searchValue}
             type="search"
+            value={searchValue}
           />
         </div>
 
@@ -74,14 +74,14 @@ export function DashboardTopbar({
       </div>
 
       <div className="border-t border-slate-100 px-4 py-2.5 md:hidden">
-        <div className="flex h-10 items-center gap-3 rounded-full border border-slate-300 bg-stone-50 px-4">
-          <Search className="size-4 shrink-0 text-slate-600" />
+        <div className="flex h-10 items-center gap-3 rounded-full bg-slate-100 px-4 text-slate-500">
+          <Search className="size-4 shrink-0" />
           <input
-            className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-500"
+            className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-500"
             onChange={(event) => onSearchChange?.(event.target.value)}
             placeholder={searchPlaceholder}
-            value={searchValue}
             type="search"
+            value={searchValue}
           />
         </div>
       </div>

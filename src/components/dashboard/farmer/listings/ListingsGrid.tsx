@@ -3,12 +3,14 @@ import { ListingCard } from "@/components/dashboard/farmer/listings/ListingCard"
 import type { FarmerListing } from "@/components/dashboard/farmer/listings/listings-types";
 
 type ListingsGridProps = {
+  emptyDescription?: string;
+  emptyTitle?: string;
   listings: FarmerListing[];
 };
 
-export function ListingsGrid({ listings }: ListingsGridProps) {
+export function ListingsGrid({ emptyDescription, emptyTitle, listings }: ListingsGridProps) {
   if (listings.length === 0) {
-    return <EmptyListings />;
+    return <EmptyListings description={emptyDescription} title={emptyTitle} />;
   }
 
   return (

@@ -15,7 +15,7 @@ type ProductPhotoSlot = UploadPhotoOption & {
 type ProductPhotoUploadProps = {
   uploadedPhotoUrls: string[];
   photos: UploadPhotoOption[];
-  onPhotosChange: (previewUrls: string[]) => void;
+  onPhotosChange: (previewUrls: string[], files: Array<File | undefined>) => void;
 };
 
 export function ProductPhotoUpload({ uploadedPhotoUrls, photos, onPhotosChange }: ProductPhotoUploadProps) {
@@ -54,7 +54,8 @@ export function ProductPhotoUpload({ uploadedPhotoUrls, photos, onPhotosChange }
         slotIndex === index ? { ...slot, file, previewUrl } : slot,
       );
       const nextPreviewUrls = nextSlots.map((slot) => slot.previewUrl ?? "");
-      onPhotosChange(nextPreviewUrls);
+      const nextFiles = nextSlots.map((slot) => slot.file);
+      onPhotosChange(nextPreviewUrls, nextFiles);
       return nextSlots;
     });
 

@@ -1,10 +1,11 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { Navbar } from "@/components/landing/Navbar";
+import { MarketplacePage as MarketplacePageContent } from "@/components/marketplace/MarketplacePage";
 
 export default function MarketplacePage() {
   return (
-    <PlaceholderPage
-      description="A future marketplace for browsing trusted agricultural products and offers."
-      title="Marketplace"
-    />
+    <>
+      <Navbar authenticatedFarmerOnly />
+      <MarketplacePageContent />
+    </>
   );
 }

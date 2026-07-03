@@ -32,6 +32,10 @@ export type ResetPasswordRequest = {
 export type AuthUser = {
   id?: string;
   email?: string;
+  fullName?: string;
+  name?: string;
+  farmName?: string;
+  avatarUrl?: string;
   role?: UserRole | "officer";
   [key: string]: unknown;
 };

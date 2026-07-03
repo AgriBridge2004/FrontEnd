@@ -1,7 +1,6 @@
 import { AlertTriangle, CheckCircle, Eye, FileText } from "lucide-react";
 
 import { cn } from "@/lib/cn";
-import { farmerListingStats } from "@/lib/mock-data";
 
 const statIcons = {
   total: FileText,
@@ -17,10 +16,18 @@ const statIconStyles = {
   views: "bg-teal-50 text-teal-600",
 };
 
-export function ListingStats() {
+type ListingStatsProps = {
+  stats: Array<{
+    icon: string;
+    label: string;
+    value: string;
+  }>;
+};
+
+export function ListingStats({ stats }: ListingStatsProps) {
   return (
     <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {farmerListingStats.map((stat) => {
+      {stats.map((stat) => {
         const Icon = statIcons[stat.icon as keyof typeof statIcons] ?? FileText;
         const iconClassName = statIconStyles[stat.icon as keyof typeof statIconStyles] ?? statIconStyles.total;
 

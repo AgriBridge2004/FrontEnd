@@ -1,4 +1,4 @@
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { Edit3, Eye, FileText } from "lucide-react";
@@ -15,11 +15,9 @@ export function ListingCard({ listing }: ListingCardProps) {
   return (
     <article className="overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm transition hover:bg-emerald-50/20 hover:shadow-md">
       <div className="relative h-40 bg-emerald-50">
-        <Image
+        <img
           alt={`${listing.name} listing`}
-          className="object-cover"
-          fill
-          sizes="(min-width: 1280px) 300px, (min-width: 768px) 45vw, 100vw"
+          className="h-full w-full object-cover"
           src={listing.image}
         />
       </div>
