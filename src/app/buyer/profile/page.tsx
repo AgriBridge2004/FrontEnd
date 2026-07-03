@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { BuyerProfilePage } from "@/components/dashboard/buyer/profile/BuyerProfilePage";
 
-export default function BuyerProfilePage() {
-  return (
-    <PlaceholderPage
-      description="A future page for buyer company details, preferences, and account settings."
-      title="Buyer Profile"
-    />
-  );
+export default function Page() {
+  return <BuyerProfilePage />;
 }

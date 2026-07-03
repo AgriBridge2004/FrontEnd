@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { FarmerDashboardLayout } from "@/components/farmer/FarmerDashboardLayout";
+import { FarmerDashboardLayout } from "@/components/dashboard/farmer/FarmerDashboardLayout";
 
 export default function CreateListingPricingPlaceholderPage() {
   return (

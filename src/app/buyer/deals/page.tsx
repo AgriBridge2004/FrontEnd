@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { BuyerDealsPage } from "@/components/dashboard/buyer/deals/BuyerDealsPage";
 
-export default function BuyerDealsPage() {
-  return (
-    <PlaceholderPage
-      description="A future workspace for tracking buyer contracts, payments, and deliveries."
-      title="Buyer Deals"
-    />
-  );
+export default function Page() {
+  return <BuyerDealsPage />;
 }

@@ -1,4 +1,4 @@
-import { DealDetailsPage } from "@/components/farmer/deals/details/DealDetailsPage";
+import { DealDetailsPage } from "@/components/dashboard/farmer/deals/details/DealDetailsPage";
 
 type FarmerDealDetailsRouteProps = {
   params: {
