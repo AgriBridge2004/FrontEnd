@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { BuyerDashboardPage } from "@/components/dashboard/buyer/BuyerDashboardPage";
 
-export default function BuyerDashboardPage() {
-  return (
-    <PlaceholderPage
-      description="A future dashboard for buyer requests, active deals, and sourcing insights."
-      title="Buyer Dashboard"
-    />
-  );
+export default function Page() {
+  return <BuyerDashboardPage />;
 }

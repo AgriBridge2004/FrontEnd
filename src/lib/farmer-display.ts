@@ -1,4 +1,4 @@
-import type { FarmerProfile } from "@/components/farmer/profile/profile.mock";
+import type { FarmerProfile } from "@/components/dashboard/farmer/profile/profile.mock";
 import type { AuthUser } from "@/types/auth";
 
 export const DEFAULT_FARMER_AVATAR = "/images/farmer/profile/farmer-avatar.jpg";

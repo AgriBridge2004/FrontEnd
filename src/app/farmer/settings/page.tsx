@@ -1,4 +1,4 @@
-import { FarmerSettingsPage } from "@/components/farmer/settings/FarmerSettingsPage";
+import { FarmerSettingsPage } from "@/components/dashboard/farmer/settings/FarmerSettingsPage";
 
 export default function FarmerSettingsRoute() {
   return <FarmerSettingsPage />;

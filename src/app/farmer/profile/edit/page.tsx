@@ -1,4 +1,4 @@
-import { EditProfilePage } from "@/components/farmer/profile/edit/EditProfilePage";
+import { EditProfilePage } from "@/components/dashboard/farmer/profile/edit/EditProfilePage";
 
 export default function FarmerEditProfileRoute() {
   return <EditProfilePage />;

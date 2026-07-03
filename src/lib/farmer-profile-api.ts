@@ -1,4 +1,4 @@
-import type { EditFarmerProfileForm } from "@/components/farmer/profile/edit/edit-profile.types";
+import type { EditFarmerProfileForm } from "@/components/dashboard/farmer/profile/edit/edit-profile.types";
 import { apiRequest } from "@/lib/api";
 import { updateStoredUser } from "@/lib/auth-storage";
 import type { AuthUser } from "@/types/auth";
