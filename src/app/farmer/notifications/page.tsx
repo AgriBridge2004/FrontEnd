@@ -1,4 +1,4 @@
-import { FarmerNotificationsPage } from "@/components/farmer/notifications/FarmerNotificationsPage";
+import { FarmerNotificationsPage } from "@/components/dashboard/farmer/notifications/FarmerNotificationsPage";
 
 export default function FarmerNotificationsRoute() {
   return <FarmerNotificationsPage />;

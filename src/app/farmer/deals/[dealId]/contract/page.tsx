@@ -1,4 +1,4 @@
-import { DigitalContractPage } from "@/components/farmer/deals/contract/DigitalContractPage";
+import { DigitalContractPage } from "@/components/dashboard/farmer/deals/contract/DigitalContractPage";
 
 type FarmerContractRouteProps = {
   params: {
