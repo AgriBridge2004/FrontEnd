@@ -7,6 +7,7 @@ import { NotificationButton } from "@/components/dashboard/shared/NotificationBu
 import { UserMenu } from "@/components/dashboard/shared/UserMenu";
 
 type DashboardTopbarProps = {
+  hideSearch?: boolean;
   navLinks: Array<{ href: string; label: string }>;
   notificationCount?: number;
   onSearchChange?: (value: string) => void;
@@ -19,6 +20,7 @@ type DashboardTopbarProps = {
 };
 
 export function DashboardTopbar({
+  hideSearch = false,
   navLinks,
   notificationCount = 0,
   onMenuClick,
@@ -48,16 +50,18 @@ export function DashboardTopbar({
           <Menu className="size-5" />
         </button>
 
-        <div className="hidden h-11 w-full max-w-[386px] items-center gap-2.5 rounded-full border border-slate-300 bg-stone-50 px-4 md:flex">
-          <Search className="size-[18px] shrink-0 text-slate-600" />
-          <input
-            className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-500"
-            onChange={(event) => onSearchChange?.(event.target.value)}
-            placeholder={searchPlaceholder}
-            type="search"
-            value={searchValue}
-          />
-        </div>
+        {hideSearch ? null : (
+          <div className="hidden h-11 w-full max-w-[386px] items-center gap-2.5 rounded-full border border-slate-300 bg-stone-50 px-4 md:flex">
+            <Search className="size-[18px] shrink-0 text-slate-600" />
+            <input
+              className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-500"
+              onChange={(event) => onSearchChange?.(event.target.value)}
+              placeholder={searchPlaceholder}
+              type="search"
+              value={searchValue}
+            />
+          </div>
+        )}
 
         <nav className="ml-auto hidden h-full items-center gap-8 text-sm font-semibold text-slate-700 md:flex">
           {navLinks.map((link) => (
@@ -73,6 +77,7 @@ export function DashboardTopbar({
         </div>
       </div>
 
+      {hideSearch ? null : (
       <div className="border-t border-slate-100 px-4 py-2.5 md:hidden">
         <div className="flex h-10 items-center gap-3 rounded-full bg-slate-100 px-4 text-slate-500">
           <Search className="size-4 shrink-0" />
@@ -85,6 +90,7 @@ export function DashboardTopbar({
           />
         </div>
       </div>
+      )}
     </header>
   );
 }
