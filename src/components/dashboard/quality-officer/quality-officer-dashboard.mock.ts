@@ -8,7 +8,7 @@ import type {
 export const qualityOfficerStats: QualityOfficerStat[] = [
   {
     accent: "green",
-    footer: "Requires action ↗",
+    footer: "Requires action",
     icon: "assignments",
     id: "pending-assignments",
     label: "Pending Assignments",
@@ -16,7 +16,7 @@ export const qualityOfficerStats: QualityOfficerStat[] = [
   },
   {
     accent: "orange",
-    footer: "This week ↗",
+    footer: "This week",
     icon: "inspections",
     id: "weekly-inspections",
     label: "Weekly Inspections",
@@ -24,7 +24,7 @@ export const qualityOfficerStats: QualityOfficerStat[] = [
   },
   {
     accent: "lime",
-    footer: "This month ↗",
+    footer: "This month",
     icon: "reports",
     id: "reports-submitted",
     label: "Reports Submitted",

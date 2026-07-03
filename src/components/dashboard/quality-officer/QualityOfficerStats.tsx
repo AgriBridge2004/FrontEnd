@@ -1,4 +1,4 @@
-import { Banknote, CalendarDays, ClipboardList, FileText } from "lucide-react";
+import { ArrowUpRight, Banknote, CalendarDays, ClipboardList, FileText } from "lucide-react";
 
 import type { QualityOfficerStat } from "@/components/dashboard/quality-officer/quality-officer-dashboard.types";
 import { cn } from "@/lib/cn";
@@ -25,6 +25,7 @@ export function QualityOfficerStats({ stats }: QualityOfficerStatsProps) {
     <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {stats.map((stat) => {
         const Icon = iconMap[stat.icon];
+        const showTrendIcon = stat.id === "pending-assignments" || stat.id === "weekly-inspections" || stat.id === "reports-submitted";
 
         return (
           <article
@@ -38,8 +39,9 @@ export function QualityOfficerStats({ stats }: QualityOfficerStatsProps) {
               <div className="min-w-0">
                 <p className="text-[26px] font-black leading-none text-slate-950">{stat.value}</p>
                 <p className="mt-1 text-[11px] font-black uppercase tracking-[0.12em] text-slate-500">{stat.label}</p>
-                <p className={cn("mt-1.5 text-[11px] font-black", stat.footerTone === "orange" ? "text-orange-600" : "text-emerald-700")}>
-                  {stat.footer}
+                <p className={cn("mt-1.5 inline-flex items-center gap-1 text-[11px] font-black", stat.footerTone === "orange" ? "text-orange-600" : "text-emerald-700")}>
+                  <span>{stat.footer}</span>
+                  {showTrendIcon ? <ArrowUpRight className="size-3.5" strokeWidth={2.4} /> : null}
                 </p>
               </div>
             </div>
