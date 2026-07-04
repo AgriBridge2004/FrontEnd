@@ -263,8 +263,8 @@ export const PRODUCTS: Product[] = [
     descriptionEn: 'Premium handpicked olives from ancient olive groves of Ajloun, Jordan. Grown with traditional methods to preserve their pristine quality, robust flavor, and richness. Extremely rich in antioxidants and ideal for olive oil or pickling.',
     descriptionAr: 'زيتون بلدي ممتاز مقطوف يدوياً من كروم عجلون الأثرية في الأردن. يزرع بطرق تقليدية متوارثة للحفاظ على جودته العالية ونكهته الغنية وقيمته الغذائية. مثالي للتخليل أو لإنتاج زيت زيتون فاخر وعالي الجودة.',
     images: [
-      'https://images.unsplash.com/photo-1471193945509-9ad0617afabf?w=1000&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=800&auto=format&fit=crop&q=80'
+      '/images/marketplace/olives.jpg',
+      '/images/marketplace/olives2.jpg'
     ],
     verifiedFarmer: true,
     specs: {
@@ -318,8 +318,8 @@ export const PRODUCTS: Product[] = [
     descriptionEn: 'Pure and dried premium golden wheat grains harvested under perfect climatic conditions to guarantee the lowest level of moisture. Ground into clean flour of high nutritional value.',
     descriptionAr: 'حبوب قمح ذهبية نقية ومجففة بعناية فائقة، تم حصادها تحت ظروف مناخية مثالية لضمان أدنى مستويات الرطوبة. مثالي للطحن وصناعة الخبز الفاخر عالي القيمة الغذائية.',
     images: [
-      'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=1000&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=800&auto=format&fit=crop&q=80'
+      '/images/marketplace/قمح.jpg',
+      '/images/marketplace/قمح3.jpg'
     ],
     verifiedFarmer: true,
     specs: {
