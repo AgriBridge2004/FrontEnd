@@ -48,7 +48,7 @@ export function ListingCard({ listing }: ListingCardProps) {
           </div>
         </dl>
         <Link className={buttonClasses("secondary")} href={`/marketplace/${listing.id}`}>
-          View listing
+          View Details
         </Link>
       </div>
     </article>
