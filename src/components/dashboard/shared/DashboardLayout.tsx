@@ -15,7 +15,7 @@ type DashboardLayoutProps = {
   notificationCount?: number;
   onSearchChange?: (value: string) => void;
   profileHref: string;
-  role: "farmer" | "buyer" | "quality-officer";
+  role: "farmer" | "buyer" | "quality-officer" | "admin";
   searchPlaceholder: string;
   searchValue?: string;
   sidebarItems: DashboardSidebarItem[];
