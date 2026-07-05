@@ -1,102 +1,126 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
-import { ListingCard } from "@/components/shared/ListingCard";
-import { getPublicListings } from "@/lib/farmer-listings-api";
-import type { Listing } from "@/types";
+import { MarketplaceFilters } from "@/components/marketplace/MarketplaceFilters";
+import { MarketplaceHero } from "@/components/marketplace/MarketplaceHero";
+import { MarketplaceNavbar } from "@/components/marketplace/MarketplaceNavbar";
+import { MarketplaceProductGrid } from "@/components/marketplace/MarketplaceProductGrid";
+import { MarketplaceProductsHeader } from "@/components/marketplace/MarketplaceProductsHeader";
+import { MARKETPLACE_PRODUCTS } from "@/components/marketplace/marketplace.mock";
+import type { MarketplaceFiltersState, MarketplaceSortOption, MarketplaceViewMode } from "@/components/marketplace/marketplace.types";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { Pagination } from "@/components/shared/Pagination";
+
+const TOTAL_PRODUCTS_COUNT = 248;
+const TOTAL_PAGES = 25;
+
+const initialFilters: MarketplaceFiltersState = {
+  categories: [],
+  priceMax: 10,
+  quantityMax: 100000,
+  location: "All locations",
+  listingType: "Spot",
+  availableFrom: "",
+  availableTo: "",
+};
 
 export function MarketplacePage() {
-  const [listings, setListings] = useState<Listing[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [filters, setFilters] = useState<MarketplaceFiltersState>(initialFilters);
+  const [sort, setSort] = useState<MarketplaceSortOption>("Newest");
+  const [viewMode, setViewMode] = useState<MarketplaceViewMode>("grid");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const loadListings = useCallback(async () => {
-    setIsLoading(true);
-    setErrorMessage("");
+  function handleFiltersChange(nextFilters: MarketplaceFiltersState) {
+    setFilters(nextFilters);
+    setCurrentPage(1);
+  }
 
-    try {
-      const nextListings = await getPublicListings();
-      setListings(nextListings);
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Unable to load marketplace listings.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const products = useMemo(() => {
+    const filteredProducts = MARKETPLACE_PRODUCTS.filter((product) => {
+      const matchesCategory = filters.categories.length === 0 || filters.categories.includes(product.category);
+      const matchesPrice = product.price <= filters.priceMax;
+      const matchesQuantity = product.quantityValue <= filters.quantityMax;
+      const matchesLocation = filters.location === "All locations" || product.location === filters.location;
+      const matchesListingType = product.listingType === filters.listingType;
+      const matchesAvailability = isAvailableDuringRange(product.availableFrom, product.availableTo, filters.availableFrom, filters.availableTo);
 
-  useEffect(() => {
-    void loadListings();
-  }, [loadListings]);
+      return matchesCategory && matchesPrice && matchesQuantity && matchesLocation && matchesListingType && matchesAvailability;
+    });
+
+    return [...filteredProducts].sort((a, b) => {
+      if (sort === "Price: Low to High") {
+        return a.price - b.price;
+      }
+
+      if (sort === "Price: High to Low") {
+        return b.price - a.price;
+      }
+
+      if (sort === "Quantity") {
+        return b.quantityValue - a.quantityValue;
+      }
+
+      if (sort === "Rating") {
+        return b.rating - a.rating;
+      }
+
+      return 0;
+    });
+  }, [filters, sort]);
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-16 text-slate-950 sm:px-6 lg:px-8" dir="ltr">
-      <section className="mx-auto max-w-7xl">
-        <div className="mb-8">
-          <p className="text-sm font-bold uppercase tracking-wide text-emerald-700">AgriBridge</p>
-          <h1 className="mt-4 text-3xl font-black tracking-normal text-slate-950 sm:text-4xl">Marketplace</h1>
-          <p className="mt-4 max-w-2xl text-base leading-8 text-slate-600">
-            Browse trusted agricultural products and offers.
-          </p>
-        </div>
+    <div className="min-h-screen overflow-x-hidden bg-white text-slate-900" dir="ltr">
+      <MarketplaceNavbar />
+      <MarketplaceHero />
 
-        {isLoading ? (
-          <MarketplaceSkeleton />
-        ) : errorMessage ? (
-          <MarketplaceError message={errorMessage} onRetry={loadListings} />
-        ) : listings.length === 0 ? (
-          <MarketplaceEmpty />
-        ) : (
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {listings.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} />
-            ))}
-          </div>
-        )}
-      </section>
-    </main>
-  );
-}
+      <main className="mx-auto grid max-w-[1320px] grid-cols-1 gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[260px_1fr] lg:px-6">
+        <MarketplaceFilters filters={filters} onFiltersChange={handleFiltersChange} />
 
-function MarketplaceSkeleton() {
-  return (
-    <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-      {Array.from({ length: 6 }).map((_, index) => (
-        <div className="h-[430px] animate-pulse rounded-lg border border-slate-200 bg-white shadow-sm" key={index}>
-          <div className="aspect-[4/3] bg-slate-100" />
-          <div className="grid gap-3 p-5">
-            <div className="h-5 w-1/2 rounded bg-slate-100" />
-            <div className="h-7 w-3/4 rounded bg-slate-100" />
-            <div className="h-16 rounded bg-slate-100" />
-            <div className="h-11 rounded-full bg-slate-100" />
+        <section className="min-w-0">
+          <MarketplaceProductsHeader
+            productCount={TOTAL_PRODUCTS_COUNT}
+            sort={sort}
+            viewMode={viewMode}
+            onSortChange={(nextSort) => {
+              setSort(nextSort);
+              setCurrentPage(1);
+            }}
+            onViewModeChange={setViewMode}
+          />
+
+          <div className="mt-6">
+            {products.length > 0 ? (
+              <MarketplaceProductGrid products={products} viewMode={viewMode} />
+            ) : (
+              <EmptyState
+                description="Try adjusting your filters to see more verified products."
+                title="No products match these filters"
+              />
+            )}
           </div>
-        </div>
-      ))}
+
+          <Pagination
+            className="mt-10 pb-2"
+            currentPage={currentPage}
+            totalPages={TOTAL_PAGES}
+            onPageChange={setCurrentPage}
+          />
+        </section>
+      </main>
     </div>
   );
 }
 
-function MarketplaceError({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return (
-    <section className="rounded-2xl border border-red-100 bg-white p-6 text-center shadow-sm">
-      <p className="text-base font-black text-slate-950">Unable to load marketplace</p>
-      <p className="mt-2 text-sm font-semibold text-slate-500">{message}</p>
-      <button
-        className="mt-5 inline-flex h-10 items-center justify-center rounded-lg bg-emerald-800 px-5 text-sm font-black text-white transition hover:bg-emerald-900"
-        onClick={onRetry}
-        type="button"
-      >
-        Retry
-      </button>
-    </section>
-  );
-}
+function isAvailableDuringRange(productFrom: string, productTo: string, filterFrom: string, filterTo: string) {
+  if (!filterFrom && !filterTo) {
+    return true;
+  }
 
-function MarketplaceEmpty() {
-  return (
-    <section className="rounded-2xl border border-emerald-100 bg-white p-8 text-center shadow-sm">
-      <p className="text-base font-black text-slate-950">No listings found</p>
-      <p className="mt-2 text-sm font-semibold text-slate-500">Marketplace listings will appear here when farmers publish products.</p>
-    </section>
-  );
+  const productStart = new Date(productFrom).getTime();
+  const productEnd = new Date(productTo).getTime();
+  const rangeStart = filterFrom ? new Date(filterFrom).getTime() : Number.NEGATIVE_INFINITY;
+  const rangeEnd = filterTo ? new Date(filterTo).getTime() : Number.POSITIVE_INFINITY;
+
+  return productStart <= rangeEnd && productEnd >= rangeStart;
 }
