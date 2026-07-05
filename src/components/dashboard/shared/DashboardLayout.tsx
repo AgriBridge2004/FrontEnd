@@ -9,12 +9,13 @@ import { DashboardTopbar } from "@/components/dashboard/shared/DashboardTopbar";
 
 type DashboardLayoutProps = {
   children: ReactNode;
+  hideSearch?: boolean;
   hideTopbar?: boolean;
   navLinks: Array<{ href: string; label: string }>;
   notificationCount?: number;
   onSearchChange?: (value: string) => void;
   profileHref: string;
-  role: "farmer" | "buyer";
+  role: "farmer" | "buyer" | "quality-officer" | "admin";
   searchPlaceholder: string;
   searchValue?: string;
   sidebarItems: DashboardSidebarItem[];
@@ -24,6 +25,7 @@ type DashboardLayoutProps = {
 
 export function DashboardLayout({
   children,
+  hideSearch = false,
   hideTopbar = false,
   navLinks,
   notificationCount,
@@ -53,6 +55,7 @@ export function DashboardLayout({
           </button>
         ) : (
           <DashboardTopbar
+            hideSearch={hideSearch}
             navLinks={navLinks}
             notificationCount={notificationCount}
             onMenuClick={() => setIsSidebarOpen(true)}
