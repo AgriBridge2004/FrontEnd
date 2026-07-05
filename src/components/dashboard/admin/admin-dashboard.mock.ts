@@ -1,5 +1,7 @@
 import type {
   AdminActionRequiredItem,
+  AdminChartData,
+  AdminChartPeriod,
   AdminStat,
   DealGrowthPoint,
   UserRoleDistribution,
@@ -67,6 +69,100 @@ export const userRoleDistribution: UserRoleDistribution[] = [
   { role: "Buyers", value: 4359, percentage: 34 },
   { role: "Quality Officers", value: 1841, percentage: 14 },
 ];
+
+export const adminChartPeriods: AdminChartPeriod[] = [
+  "This Period",
+  "Last 7 Days",
+  "Last 30 Days",
+  "This Month",
+  "Last Month",
+  "This Quarter",
+];
+
+export const adminChartDataByPeriod: Record<AdminChartPeriod, AdminChartData> = {
+  "This Period": {
+    dealGrowth: dealGrowthData,
+    userRoleDistribution,
+    dealGrowthTrend: "+8.7%",
+  },
+  "Last 7 Days": {
+    dealGrowth: [
+      { date: "Mon", activeDeals: 250 },
+      { date: "Tue", activeDeals: 310 },
+      { date: "Wed", activeDeals: 340 },
+      { date: "Thu", activeDeals: 420 },
+      { date: "Fri", activeDeals: 460 },
+      { date: "Sat", activeDeals: 510 },
+      { date: "Sun", activeDeals: 560 },
+    ],
+    userRoleDistribution: [
+      { role: "Farmers", value: 720, percentage: 50 },
+      { role: "Buyers", value: 515, percentage: 36 },
+      { role: "Quality Officers", value: 205, percentage: 14 },
+    ],
+    dealGrowthTrend: "+5.1%",
+  },
+  "Last 30 Days": {
+    dealGrowth: [
+      { date: "Week 1", activeDeals: 520 },
+      { date: "Week 2", activeDeals: 690 },
+      { date: "Week 3", activeDeals: 820 },
+      { date: "Week 4", activeDeals: 1040 },
+      { date: "Now", activeDeals: 1260 },
+    ],
+    userRoleDistribution: [
+      { role: "Farmers", value: 6840, percentage: 53 },
+      { role: "Buyers", value: 4260, percentage: 33 },
+      { role: "Quality Officers", value: 1810, percentage: 14 },
+    ],
+    dealGrowthTrend: "+11.4%",
+  },
+  "This Month": {
+    dealGrowth: [
+      { date: "Jun 1", activeDeals: 610 },
+      { date: "Jun 8", activeDeals: 730 },
+      { date: "Jun 15", activeDeals: 850 },
+      { date: "Jun 22", activeDeals: 960 },
+      { date: "Jun 29", activeDeals: 1120 },
+    ],
+    userRoleDistribution: [
+      { role: "Farmers", value: 6725, percentage: 52 },
+      { role: "Buyers", value: 4450, percentage: 34 },
+      { role: "Quality Officers", value: 1785, percentage: 14 },
+    ],
+    dealGrowthTrend: "+9.8%",
+  },
+  "Last Month": {
+    dealGrowth: [
+      { date: "May 1", activeDeals: 450 },
+      { date: "May 8", activeDeals: 520 },
+      { date: "May 15", activeDeals: 620 },
+      { date: "May 22", activeDeals: 710 },
+      { date: "May 29", activeDeals: 890 },
+    ],
+    userRoleDistribution: [
+      { role: "Farmers", value: 6350, percentage: 51 },
+      { role: "Buyers", value: 4330, percentage: 35 },
+      { role: "Quality Officers", value: 1740, percentage: 14 },
+    ],
+    dealGrowthTrend: "+6.2%",
+  },
+  "This Quarter": {
+    dealGrowth: [
+      { date: "Apr", activeDeals: 540 },
+      { date: "May", activeDeals: 760 },
+      { date: "Jun", activeDeals: 980 },
+      { date: "Jul", activeDeals: 1180 },
+      { date: "Aug", activeDeals: 1390 },
+    ],
+    userRoleDistribution: [
+      { role: "Farmers", value: 7020, percentage: 54 },
+      { role: "Buyers", value: 4285, percentage: 33 },
+      { role: "Quality Officers", value: 1695, percentage: 13 },
+    ],
+    dealGrowthTrend: "+14.9%",
+  },
+};
 
 export const openDisputes: AdminActionRequiredItem[] = [
   {

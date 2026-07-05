@@ -48,17 +48,17 @@ export function AdminDashboardPage() {
       userName="Admin"
       userSubLabel="Super Administrator"
     >
-      <div className="mx-auto w-full max-w-[1280px] px-4 py-6 sm:px-5 lg:px-7">
+      <div className="mx-auto w-full max-w-[1240px] px-4 py-5 sm:px-5 lg:px-6">
         <header>
-          <h1 className="text-2xl font-black leading-tight tracking-tight text-slate-950">Admin Overview</h1>
-          <p className="mt-1 max-w-xl text-sm font-medium leading-6 text-slate-500">
+          <h1 className="text-[22px] font-black leading-tight tracking-tight text-slate-950">Admin Overview</h1>
+          <p className="mt-1 max-w-xl text-[13px] font-medium leading-5 text-slate-500">
             Welcome back, Admin! Here&apos;s what&apos;s happening on AgriBridge.
           </p>
         </header>
 
         <AdminOverviewStats />
 
-        <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
           <AdminChartsSection />
           <AdminActionRequiredCard
             onDisputeClick={() => showToast("Dispute details will be connected later.")}

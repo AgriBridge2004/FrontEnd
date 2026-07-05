@@ -19,6 +19,20 @@ export type UserRoleDistribution = {
   percentage: number;
 };
 
+export type AdminChartPeriod =
+  | "This Period"
+  | "Last 7 Days"
+  | "Last 30 Days"
+  | "This Month"
+  | "Last Month"
+  | "This Quarter";
+
+export type AdminChartData = {
+  dealGrowth: DealGrowthPoint[];
+  userRoleDistribution: UserRoleDistribution[];
+  dealGrowthTrend: string;
+};
+
 export type AdminActionRequiredItem = {
   id: string;
   title: string;

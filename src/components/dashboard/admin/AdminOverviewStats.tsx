@@ -40,30 +40,30 @@ const accentClasses = {
 export function AdminOverviewStats() {
   // TODO: Connect admin overview stats to API.
   return (
-    <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
+    <section className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
       {adminStats.map((stat) => {
         const Icon = statIcons[stat.id];
         const classes = accentClasses[stat.accent];
 
         return (
-          <DashboardCard className={cn("min-h-[178px] p-5", classes.card)} key={stat.id}>
+          <DashboardCard className={cn("min-h-[150px] p-4", classes.card)} key={stat.id}>
             <div className="flex items-start justify-between gap-3">
-              <span className={cn("grid size-10 place-items-center rounded-full", classes.icon)}>
-                <Icon className="size-5" />
+              <span className={cn("grid size-9 place-items-center rounded-full", classes.icon)}>
+                <Icon className="size-[18px]" />
               </span>
-              <ChevronRight className="size-5 text-slate-300" />
+              <ChevronRight className="size-4 text-slate-300" />
             </div>
 
-            <p className="mt-5 min-h-10 text-sm font-black leading-5 text-slate-500">{stat.title}</p>
-            <p className={cn("mt-1 text-2xl font-black leading-none", stat.accent === "orange" ? "text-red-600" : "text-slate-950")}>
+            <p className="mt-4 min-h-8 text-[13px] font-black leading-4 text-slate-500">{stat.title}</p>
+            <p className={cn("mt-1 text-[22px] font-black leading-none", stat.accent === "orange" ? "text-red-600" : "text-slate-950")}>
               {stat.value}
             </p>
-            <p className={cn("mt-5 text-xs font-black", stat.trendDirection === "down" ? "text-red-600" : "text-emerald-700")}>
+            <p className={cn("mt-4 text-[11px] font-black", stat.trendDirection === "down" ? "text-red-600" : "text-emerald-700")}>
               {stat.trend}
               <span className="ml-2 font-medium text-slate-400">{stat.subtext}</span>
             </p>
 
-            <button className={cn("mt-6 inline-flex items-center gap-1 text-xs font-black", classes.link)} type="button">
+            <button className={cn("mt-4 inline-flex items-center gap-1 text-[11px] font-black", classes.link)} type="button">
               View details
               <span aria-hidden="true">-&gt;</span>
             </button>
