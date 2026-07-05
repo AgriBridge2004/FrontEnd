@@ -254,8 +254,7 @@ export const listings: Listing[] = [
     status: "active",
     qualityGrade: "A",
     certifications: ["Pesticide residue tested"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1592841200221-a6898f307baa?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/tomatoes.jpg",
   },
   {
     id: "listing-2",
@@ -274,8 +273,7 @@ export const listings: Listing[] = [
     status: "active",
     qualityGrade: "A",
     certifications: ["Organic"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/olives.jpg",
   },
   {
     id: "listing-3",
@@ -294,8 +292,7 @@ export const listings: Listing[] = [
     status: "reserved",
     qualityGrade: "A",
     certifications: ["Food safety audit"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/background.jpg",
   },
   {
     id: "listing-4",
@@ -314,8 +311,7 @@ export const listings: Listing[] = [
     status: "active",
     qualityGrade: "B",
     certifications: ["Export packhouse partner"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/wheat.jpg",
   },
   {
     id: "listing-5",
@@ -334,8 +330,7 @@ export const listings: Listing[] = [
     status: "active",
     qualityGrade: "A",
     certifications: ["Local quality certificate"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1537640538966-79f369143f8f?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/background.jpg",
   },
   {
     id: "listing-6",
@@ -354,8 +349,7 @@ export const listings: Listing[] = [
     status: "active",
     qualityGrade: "B",
     certifications: ["Pesticide residue tested"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1604977042946-1eecc30f269e?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/background.jpg",
   },
   {
     id: "listing-7",
@@ -374,8 +368,7 @@ export const listings: Listing[] = [
     status: "active",
     qualityGrade: "A",
     certifications: ["Food safety audit"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1515586000433-45406d8e6662?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/background.jpg",
   },
   {
     id: "listing-8",
@@ -394,8 +387,7 @@ export const listings: Listing[] = [
     status: "sold",
     qualityGrade: "B",
     certifications: ["Export packhouse partner"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/orange.jpg",
   },
 ];
 

@@ -1,10 +1,33 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+"use client";
 
-export default function MarketplaceListingPage() {
+import { notFound, useRouter } from "next/navigation";
+
+import ProductDetails from "@/components/shared/ProductDetails";
+import { PRODUCTS } from "@/lib/data";
+import type { Language } from "@/types/types";
+
+type MarketplaceListingPageProps = {
+  params: {
+    listingId: string;
+  };
+};
+
+export default function MarketplaceListingPage({ params }: MarketplaceListingPageProps) {
+  const router = useRouter();
+  const language: Language = "en";
+  const product = PRODUCTS.find((item) => item.id === params.listingId);
+
+  if (!product) {
+    notFound();
+  }
+
   return (
-    <PlaceholderPage
-      description="A future detail page for crop information, quality data, and seller context."
-      title="Marketplace Listing"
+    <ProductDetails
+      product={product}
+      allProducts={PRODUCTS}
+      language={language}
+      onBack={() => router.push("/marketplace")}
+      onSelectProduct={(id) => router.push(`/marketplace/${id}`)}
     />
   );
 }
