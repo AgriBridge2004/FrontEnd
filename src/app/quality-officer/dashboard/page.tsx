@@ -1,1 +1,5 @@
-export { default } from "@/app/officer/dashboard/page";
+import { QualityOfficerDashboardPage } from "@/components/dashboard/quality-officer/QualityOfficerDashboardPage";
+
+export default function Page() {
+  return <QualityOfficerDashboardPage />;
+}

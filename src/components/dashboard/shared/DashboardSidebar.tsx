@@ -14,6 +14,7 @@ export type DashboardSidebarItem = {
   icon: LucideIcon;
   label: string;
   badge?: number;
+  badgeTone?: "green" | "red";
 };
 
 type DashboardSidebarProps = {
@@ -85,7 +86,12 @@ export function DashboardSidebar({ isOpen, items, onClose }: DashboardSidebarPro
                 <Icon className="size-[19px] shrink-0" strokeWidth={2.1} />
                 <span className="min-w-0 flex-1 truncate">{item.label}</span>
                 {item.badge ? (
-                  <span className="grid size-5 place-items-center rounded-full bg-emerald-600 text-[11px] font-black text-white">
+                  <span
+                    className={cn(
+                      "grid size-5 place-items-center rounded-full text-[11px] font-black text-white",
+                      item.badgeTone === "red" ? "bg-red-500" : "bg-emerald-600",
+                    )}
+                  >
                     {item.badge}
                   </span>
                 ) : null}
