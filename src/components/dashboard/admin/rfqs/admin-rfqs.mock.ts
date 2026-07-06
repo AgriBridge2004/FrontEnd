@@ -1,0 +1,150 @@
+import type { AdminRFQ } from "@/components/dashboard/admin/rfqs/admin-rfqs.types";
+
+export const adminRFQsTotalCount = 256;
+
+export const adminRFQs: AdminRFQ[] = [
+  {
+    activityState: "normal",
+    buyer: {
+      company: "AgriWorld Traders",
+      contact: "Nabil Al Masri",
+      email: "nabil@agriworld.example",
+    },
+    dateSubmitted: "May 21, 2024",
+    dateSubmittedTime: "10:32 AM",
+    farmer: {
+      contact: "Mohammed Al Hasan",
+      farmName: "Al Hasan Farms",
+      phone: "+970 59 144 2288",
+    },
+    id: "admin-rfq-0891",
+    lastActivity: "2h 15m ago",
+    lastActivityFull: "May 21, 2024 12:47 PM",
+    product: {
+      category: "Vegetables",
+      name: "Vine Tomatoes",
+      subtitle: "Fresh",
+    },
+    requestedQuantity: "5,000 kg",
+    rfqId: "RFQ-2024-0891",
+    status: "pending-farmer-response",
+  },
+  {
+    activityState: "normal",
+    buyer: {
+      company: "FreshLink LLC",
+      contact: "Sarah Johnson",
+      email: "sarah@freshlink.com",
+    },
+    buyerNotes: "Looking for consistent quality and timely delivery. Please share best price including transport.",
+    conversation: [
+      {
+        id: "msg-1",
+        message: "Hi, please send your best price for 3,000 kg of cucumbers.",
+        role: "Buyer",
+        sender: "Sarah Johnson",
+        timestamp: "May 21, 9:18 AM",
+      },
+      {
+        id: "msg-2",
+        message: "Hello, thank you for your interest. Our best price is $0.68 / kg FOB Nablus. Let me know if that works.",
+        role: "Farmer",
+        sender: "Ahmed Darwish",
+        timestamp: "May 21, 10:02 AM",
+      },
+      {
+        id: "msg-3",
+        message: "Thanks! Can you do $0.63 / kg if we confirm by Friday?",
+        role: "Buyer",
+        sender: "Sarah Johnson",
+        timestamp: "May 21, 10:45 AM",
+      },
+    ],
+    dateSubmitted: "May 21, 2024",
+    dateSubmittedTime: "09:18 AM",
+    deliveryLocation: "Nablus, Palestine",
+    farmer: {
+      contact: "Ahmed Darwish",
+      farmName: "Green Valley Farm",
+      phone: "+970 59 933 4455",
+    },
+    id: "admin-rfq-0890",
+    lastActivity: "4h 32m ago",
+    lastActivityFull: "May 21, 2024 11:30 AM",
+    packaging: "10 kg cartons",
+    paymentTerms: "30% advance",
+    preferredDelivery: "May 28 - May 31, 2024",
+    product: {
+      category: "Vegetables",
+      name: "Cucumbers",
+      subtitle: "Fresh",
+    },
+    qualityGrade: "Grade C",
+    relatedDeal: null,
+    requestedQuantity: "3,000 kg",
+    rfqId: "RFQ-2024-0890",
+    status: "quoted",
+    validUntil: "May 26, 2024",
+  },
+  {
+    activityState: "normal",
+    buyer: {
+      company: "Sunrise Produce",
+      contact: "Lina Qassem",
+      email: "lina@sunrise.example",
+    },
+    dateSubmitted: "May 20, 2024",
+    dateSubmittedTime: "05:41 PM",
+    farmer: {
+      contact: "Yusuf Nassar",
+      farmName: "Nature's Basket",
+      phone: "+970 59 554 1200",
+    },
+    id: "admin-rfq-0889",
+    lastActivity: "1d 2h ago",
+    lastActivityFull: "May 20, 2024 07:12 PM",
+    product: {
+      category: "Vegetables",
+      name: "Bell Peppers",
+      subtitle: "Mixed",
+    },
+    requestedQuantity: "2,000 kg",
+    rfqId: "RFQ-2024-0889",
+    status: "accepted",
+  },
+  {
+    activityState: "inactive",
+    buyer: {
+      company: "Global Harvest Co.",
+      contact: "Omar Khalil",
+      email: "omar@globalharvest.example",
+    },
+    dateSubmitted: "May 18, 2024",
+    farmer: {
+      contact: "Abu Salem",
+      farmName: "Abu Salem Farms",
+      phone: "+970 59 771 8744",
+    },
+    id: "admin-rfq-0888",
+    lastActivity: "4d 8h ago",
+    lastActivityFull: "May 18, 2024 01:20 PM",
+    product: {
+      category: "Dates",
+      name: "Dates",
+      subtitle: "Premium",
+    },
+    requestedQuantity: "1,500 kg",
+    rfqId: "RFQ-2024-0888",
+    status: "expired",
+  },
+];
+
+export const adminRFQStats = [
+  { label: "Total RFQs", tone: "slate", value: "256" },
+  { label: "Pending Farmer Response", tone: "amber", value: "74" },
+  { label: "Quoted", tone: "sky", value: "63" },
+  { label: "Converted to Deal", tone: "emerald", value: "41" },
+  { label: "Expired", tone: "slate", value: "28" },
+  { label: "Rejected", tone: "rose", value: "23" },
+  { label: "Flagged for Review", tone: "orange", value: "27" },
+] as const;
