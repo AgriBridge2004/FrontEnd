@@ -4,6 +4,17 @@ import type { ReactNode } from "react";
 import { Check, ChevronLeft, ChevronRight, MoreVertical } from "lucide-react";
 
 import type { AdminPayment, AdminPaymentStatus } from "@/components/dashboard/admin/financial-reports/admin-payments.types";
+import {
+  dashboardActivePaginationButtonClass,
+  dashboardIconButtonClass,
+  dashboardPaginationButtonClass,
+  dashboardSelectedRowClass,
+  dashboardSelectClass,
+  dashboardTableBodyClass,
+  dashboardTableCardClass,
+  dashboardTableHeadClass,
+  dashboardTableRowClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type AdminPaymentsTableProps = {
@@ -38,10 +49,10 @@ export function AdminPaymentsTable({ currentPage, onOpenDetail, onPageChange, on
   }
 
   return (
-    <section className="mt-5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <section className={cn("mt-5", dashboardTableCardClass)}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[980px] text-left">
-          <thead className="bg-slate-50 text-[11px] font-black uppercase tracking-[0.14em] text-slate-400">
+          <thead className={dashboardTableHeadClass}>
             <tr>
               <th className="w-14 px-4 py-3">
                 <CheckButton checked={allVisibleSelected} label="Select all visible payments" onClick={toggleAllVisible} />
@@ -57,7 +68,7 @@ export function AdminPaymentsTable({ currentPage, onOpenDetail, onPageChange, on
               <th className="w-12 px-4 py-3" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 text-sm font-semibold text-slate-700">
+          <tbody className={dashboardTableBodyClass}>
             {payments.length === 0 ? (
               <tr>
                 <td className="px-4 py-10 text-center" colSpan={10}>
@@ -70,7 +81,7 @@ export function AdminPaymentsTable({ currentPage, onOpenDetail, onPageChange, on
               const checked = selectedPaymentIds.includes(payment.id);
               const active = selectedDetailPaymentId === payment.id;
               return (
-                <tr className={cn("transition hover:bg-emerald-50/20", checked && "bg-emerald-50/40", active && "ring-1 ring-inset ring-emerald-200")} key={payment.id} onClick={() => onOpenDetail(payment)}>
+                <tr className={cn("cursor-pointer", dashboardTableRowClass, checked && dashboardSelectedRowClass, active && "ring-1 ring-inset ring-emerald-200")} key={payment.id} onClick={() => onOpenDetail(payment)}>
                   <td className="px-4 py-4" onClick={(event) => event.stopPropagation()}>
                     <CheckButton checked={checked} label={`Select ${payment.transactionId}`} onClick={() => togglePayment(payment.id)} />
                   </td>
@@ -86,7 +97,7 @@ export function AdminPaymentsTable({ currentPage, onOpenDetail, onPageChange, on
                     <p className="mt-1 text-[11px] text-slate-400">{payment.transactionTime}</p>
                   </td>
                   <td className="px-4 py-4">
-                    <button aria-label={`View details for ${payment.transactionId}`} className="grid size-8 place-items-center rounded-lg text-slate-400 hover:bg-emerald-50/30 hover:text-emerald-800" type="button">
+                    <button aria-label={`View details for ${payment.transactionId}`} className={dashboardIconButtonClass} type="button">
                       <MoreVertical className="size-4" />
                     </button>
                   </td>
@@ -110,7 +121,7 @@ export function AdminPaymentsTable({ currentPage, onOpenDetail, onPageChange, on
           </div>
           <label className="flex items-center gap-2">
             Rows per page:
-            <select className="rounded border border-slate-200 bg-white px-2 py-1 text-[12px] font-black text-slate-700" onChange={(event) => onRowsPerPageChange(Number(event.target.value))} value={rowsPerPage}>
+            <select className={cn(dashboardSelectClass, "h-8 w-auto px-2 py-1 text-[12px]")} onChange={(event) => onRowsPerPageChange(Number(event.target.value))} value={rowsPerPage}>
               <option value={10}>10</option>
               <option value={25}>25</option>
               <option value={50}>50</option>
@@ -124,7 +135,7 @@ export function AdminPaymentsTable({ currentPage, onOpenDetail, onPageChange, on
 
 function CheckButton({ checked, label, onClick }: { checked: boolean; label: string; onClick: () => void }) {
   return (
-    <button aria-label={label} className={cn("grid size-5 place-items-center rounded border transition hover:bg-emerald-50", checked ? "border-emerald-700 bg-emerald-700 text-white" : "border-slate-300 bg-white text-slate-400")} onClick={onClick} type="button">
+    <button aria-label={label} className={cn("grid size-5 place-items-center rounded border transition-colors duration-150 hover:bg-emerald-50", checked ? "border-emerald-700 bg-emerald-700 text-white" : "border-slate-300 bg-white text-slate-400")} onClick={onClick} type="button">
       {checked ? <Check className="size-3.5" /> : null}
     </button>
   );
@@ -147,7 +158,7 @@ export function PaymentStatusBadge({ label, status }: { label: string; status: A
 
 function PageButton({ children, disabled = false, isActive = false, onClick }: { children: ReactNode; disabled?: boolean; isActive?: boolean; onClick: () => void }) {
   return (
-    <button className={cn("grid size-8 place-items-center rounded text-[12px] font-black transition", disabled && "cursor-not-allowed opacity-40", isActive ? "bg-emerald-700 text-white" : "border border-slate-200 text-slate-500 hover:bg-emerald-50/30")} disabled={disabled} onClick={onClick} type="button">
+    <button className={cn(dashboardPaginationButtonClass, disabled && "cursor-not-allowed opacity-40", isActive && dashboardActivePaginationButtonClass)} disabled={disabled} onClick={onClick} type="button">
       {children}
     </button>
   );

@@ -3,6 +3,7 @@
 import { CheckCircle2, Clock, Lock, Undo2 } from "lucide-react";
 
 import { paymentStats } from "@/components/dashboard/admin/financial-reports/admin-payments.mock";
+import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
 
 export function AdminPaymentStats() {
   const cards = [
@@ -17,7 +18,7 @@ export function AdminPaymentStats() {
       {cards.map((card) => {
         const Icon = card.icon;
         return (
-          <article className="flex items-center gap-4 rounded-xl border border-slate-100 bg-white p-4 shadow-sm" key={card.label}>
+          <DashboardCard className="flex items-center gap-4 p-4" key={card.label}>
             <span className={`grid size-10 place-items-center rounded-lg ${card.tone}`}>
               <Icon className="size-5" />
             </span>
@@ -25,7 +26,7 @@ export function AdminPaymentStats() {
               <p className="text-[11px] font-black uppercase tracking-wide text-slate-400">{card.label}</p>
               <p className="mt-1 text-xl font-black text-slate-950">{card.value}</p>
             </div>
-          </article>
+          </DashboardCard>
         );
       })}
     </section>

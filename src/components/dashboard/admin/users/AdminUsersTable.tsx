@@ -5,6 +5,16 @@ import { Check, ChevronLeft, ChevronRight, Minus } from "lucide-react";
 
 import { AdminUserAvatar } from "@/components/dashboard/admin/users/AdminUserAvatar";
 import type { AdminUser, AdminUserRole, AdminUserStatus } from "@/components/dashboard/admin/users/admin-users.types";
+import {
+  dashboardActivePaginationButtonClass,
+  dashboardPaginationButtonClass,
+  dashboardSelectedRowClass,
+  dashboardSelectClass,
+  dashboardTableBodyClass,
+  dashboardTableCardClass,
+  dashboardTableHeadClass,
+  dashboardTableRowClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type AdminUsersTableProps = {
@@ -44,10 +54,10 @@ export function AdminUsersTable({
   }
 
   return (
-    <section className="mt-4 overflow-hidden rounded-xl border border-emerald-100 bg-white shadow-sm transition-all duration-200 hover:border-emerald-200 hover:shadow-md">
+    <section className={cn("mt-4", dashboardTableCardClass)}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[940px] text-left">
-          <thead className="bg-slate-50 text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">
+          <thead className={dashboardTableHeadClass}>
             <tr>
               <th className="w-14 px-4 py-3">
                 <button
@@ -72,7 +82,7 @@ export function AdminUsersTable({
               <th className="px-4 py-3">Activity Score</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 text-[13px] font-semibold text-slate-700">
+          <tbody className={dashboardTableBodyClass}>
             {users.map((user) => {
               const isChecked = selectedUserIds.includes(user.id);
               const isInspectorSelected = selectedInspectorUserId === user.id;
@@ -80,8 +90,8 @@ export function AdminUsersTable({
               return (
                 <tr
                   className={cn(
-                    "transition-all duration-200 hover:bg-emerald-50/20",
-                    isChecked && "bg-emerald-50/40",
+                    dashboardTableRowClass,
+                    isChecked && dashboardSelectedRowClass,
                     isInspectorSelected && "bg-emerald-50/30 ring-1 ring-inset ring-emerald-200",
                   )}
                   key={user.id}
@@ -144,7 +154,7 @@ export function AdminUsersTable({
           <span>Showing 1 to 10 of 1,248 users</span>
           <label className="flex items-center gap-2">
             Rows per page
-            <select className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[12px] font-black text-slate-700">
+            <select className={cn(dashboardSelectClass, "h-8 w-auto px-2 py-1 text-[12px]")}>
               <option>10</option>
             </select>
           </label>
@@ -205,8 +215,8 @@ function PageButton({ children, isActive = false }: { children: ReactNode; isAct
   return (
     <button
       className={cn(
-        "grid size-8 place-items-center rounded-lg text-[12px] font-black transition",
-        isActive ? "bg-emerald-800 text-white shadow-md" : "text-slate-500 hover:bg-emerald-50/30",
+        dashboardPaginationButtonClass,
+        isActive && dashboardActivePaginationButtonClass,
       )}
       type="button"
     >

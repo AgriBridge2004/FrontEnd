@@ -3,6 +3,7 @@
 import { DollarSign, Percent, ReceiptText } from "lucide-react";
 
 import { revenueSummary } from "@/components/dashboard/admin/revenue-reports/admin-revenue-reports.mock";
+import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
 
 export function AdminRevenueStats() {
   const cards = [
@@ -15,14 +16,14 @@ export function AdminRevenueStats() {
       {cards.map((card) => {
         const Icon = card.icon;
         return (
-          <article className="flex items-center gap-5 rounded-xl border border-slate-100 bg-white p-6 shadow-sm" key={card.title}>
+          <DashboardCard className="flex items-center gap-5 p-6" key={card.title}>
             <span className={`grid size-10 place-items-center rounded-full ${card.iconTone}`}><Icon className="size-5" /></span>
             <div>
               <p className="text-sm font-medium text-slate-500">{card.title}</p>
               <p className="mt-1 text-2xl font-black text-slate-950">{formatCurrency(card.value)}</p>
               <p className="mt-4 text-sm font-black text-emerald-700">up {card.growth} <span className="ml-2 font-medium text-slate-400">vs Apr 1 - Apr 25, 2025</span></p>
             </div>
-          </article>
+          </DashboardCard>
         );
       })}
     </section>

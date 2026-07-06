@@ -3,6 +3,7 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 import { revenueSummary } from "@/components/dashboard/admin/revenue-reports/admin-revenue-reports.mock";
+import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
 
 const distribution = [
   { color: "#22c55e", name: "Commissions Collected", percent: "71.8%", value: revenueSummary.commissionsCollected },
@@ -12,7 +13,7 @@ const distribution = [
 export function AdminRevenueSourceDistribution() {
   const total = revenueSummary.commissionsCollected + revenueSummary.inspectionFeesCollected;
   return (
-    <article className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+    <DashboardCard className="p-6">
       <h2 className="text-base font-black text-slate-950">Revenue Source Distribution</h2>
       <div className="relative mx-auto mt-7 h-48 w-48">
         <ResponsiveContainer height="100%" width="100%">
@@ -41,7 +42,7 @@ export function AdminRevenueSourceDistribution() {
           </div>
         ))}
       </div>
-    </article>
+    </DashboardCard>
   );
 }
 

@@ -2,7 +2,10 @@
 
 import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
+import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
+import { dashboardSelectClass } from "@/components/dashboard/shared/dashboard-ui";
 import type { RevenueChartPeriod, RevenueTrendPoint } from "@/components/dashboard/admin/revenue-reports/admin-revenue-reports.types";
+import { cn } from "@/lib/cn";
 
 type Props = {
   data: RevenueTrendPoint[];
@@ -12,7 +15,7 @@ type Props = {
 
 export function AdminRevenueTrendChart({ data, onPeriodChange, period }: Props) {
   return (
-    <article className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+    <DashboardCard className="p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-wrap items-start gap-8">
           <h2 className="max-w-36 text-base font-black text-slate-950">Revenue Trend Over Time</h2>
@@ -20,7 +23,7 @@ export function AdminRevenueTrendChart({ data, onPeriodChange, period }: Props) 
           <Legend color="bg-blue-500" label="Commissions Collected" />
           <Legend color="bg-purple-500" label="Inspection Fees Collected" />
         </div>
-        <select className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 outline-none" onChange={(event) => onPeriodChange(event.target.value as RevenueChartPeriod)} value={period}>
+        <select className={cn(dashboardSelectClass, "h-9")} onChange={(event) => onPeriodChange(event.target.value as RevenueChartPeriod)} value={period}>
           <option value="daily">Daily</option>
           <option value="weekly">Weekly</option>
         </select>
@@ -38,7 +41,7 @@ export function AdminRevenueTrendChart({ data, onPeriodChange, period }: Props) 
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-    </article>
+    </DashboardCard>
   );
 }
 

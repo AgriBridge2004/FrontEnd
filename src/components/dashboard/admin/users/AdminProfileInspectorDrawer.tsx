@@ -5,6 +5,11 @@ import { Ban, Camera, Pencil, ShieldCheck, Trash2, UserSearch, X } from "lucide-
 
 import { AdminUserAvatar } from "@/components/dashboard/admin/users/AdminUserAvatar";
 import type { AdminUser } from "@/components/dashboard/admin/users/admin-users.types";
+import {
+  dashboardDrawerOverlayClass,
+  dashboardDrawerPanelClass,
+  dashboardIconButtonClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type AdminProfileInspectorDrawerProps = {
@@ -60,14 +65,14 @@ export function AdminProfileInspectorDrawer({
     <>
       <button
         aria-label="Close profile inspector overlay"
-        className="fixed bottom-0 right-0 top-14 z-40 w-full bg-slate-900/10 lg:left-[232px] lg:w-auto"
+        className={dashboardDrawerOverlayClass}
         onClick={onClose}
         type="button"
       />
       <aside
         aria-labelledby="profile-inspector-title"
         aria-modal="true"
-        className="fixed bottom-0 right-0 top-14 z-50 flex w-full flex-col overflow-hidden border-l border-emerald-100 bg-white shadow-2xl sm:w-[480px] sm:rounded-l-xl xl:w-[520px] 2xl:w-[560px]"
+        className={cn(dashboardDrawerPanelClass, "sm:w-[480px] xl:w-[520px] 2xl:w-[560px]")}
         role="dialog"
       >
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5">
@@ -75,7 +80,7 @@ export function AdminProfileInspectorDrawer({
             <UserSearch className="size-4" />
             Profile Inspector
           </h2>
-          <button aria-label="Close profile inspector" className="grid size-8 place-items-center rounded-lg text-slate-400 hover:bg-emerald-50/30 hover:text-emerald-800" onClick={onClose} type="button">
+          <button aria-label="Close profile inspector" className={dashboardIconButtonClass} onClick={onClose} type="button">
             <X className="size-4" />
           </button>
         </div>

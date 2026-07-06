@@ -1,5 +1,7 @@
 "use client";
 
+import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
+
 export function AdminPaymentStatusGuide() {
   const items = [
     ["bg-emerald-500", "Released", "Payment successfully released to farmer"],
@@ -9,7 +11,7 @@ export function AdminPaymentStatusGuide() {
     ["bg-red-500", "Failed", "Payment failed and requires attention"],
   ];
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <DashboardCard className="p-5">
       <h3 className="text-base font-black text-slate-950">Status Guide</h3>
       <div className="mt-4 space-y-4 border-t border-slate-100 pt-4">
         {items.map(([dot, label, text]) => (
@@ -20,6 +22,6 @@ export function AdminPaymentStatusGuide() {
           </div>
         ))}
       </div>
-    </article>
+    </DashboardCard>
   );
 }

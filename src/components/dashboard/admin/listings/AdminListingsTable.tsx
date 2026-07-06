@@ -3,6 +3,15 @@
 import { BookOpen, Check, Flag, MoreVertical } from "lucide-react";
 
 import type { AdminListing, AdminListingStatus } from "@/components/dashboard/admin/listings/admin-listings.types";
+import {
+  dashboardIconButtonClass,
+  dashboardSelectedRowClass,
+  dashboardSelectClass,
+  dashboardTableBodyClass,
+  dashboardTableCardClass,
+  dashboardTableHeadClass,
+  dashboardTableRowClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type AdminListingsTableProps = {
@@ -40,10 +49,10 @@ export function AdminListingsTable({
   }
 
   return (
-    <section className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <section className={cn("mt-4", dashboardTableCardClass)}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[920px] text-left">
-          <thead className="bg-slate-50 text-[11px] font-black uppercase tracking-[0.14em] text-slate-400">
+          <thead className={dashboardTableHeadClass}>
             <tr>
               <th className="w-14 px-4 py-3">
                 <span className="block size-4 rounded border border-slate-300" />
@@ -58,7 +67,7 @@ export function AdminListingsTable({
               <th className="w-12 px-4 py-3" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 text-sm font-semibold text-slate-700">
+          <tbody className={dashboardTableBodyClass}>
             {listings.length === 0 ? (
               <tr>
                 <td className="px-4 py-10 text-center" colSpan={9}>
@@ -72,7 +81,7 @@ export function AdminListingsTable({
               const isDetailSelected = selectedDetailListingId === listing.id;
 
               return (
-                <tr className={cn("transition hover:bg-emerald-50/20", isSelected && "bg-emerald-50/40", isDetailSelected && "ring-1 ring-inset ring-emerald-200")} key={listing.id}>
+                <tr className={cn(dashboardTableRowClass, isSelected && dashboardSelectedRowClass, isDetailSelected && "ring-1 ring-inset ring-emerald-200")} key={listing.id}>
                   <td className="px-4 py-4">
                     <button
                       aria-label={`Select ${listing.name}`}
@@ -117,7 +126,7 @@ export function AdminListingsTable({
                     <p className="mt-1 text-[11px] font-semibold text-slate-400">{listing.timePublished}</p>
                   </td>
                   <td className="px-4 py-4">
-                    <button aria-label={`Open actions for ${listing.name}`} className="grid size-8 place-items-center rounded-lg text-slate-400 hover:bg-emerald-50/30 hover:text-emerald-800" onClick={() => onActionClick(listing)} type="button">
+                    <button aria-label={`Open actions for ${listing.name}`} className={dashboardIconButtonClass} onClick={() => onActionClick(listing)} type="button">
                       <MoreVertical className="size-4" />
                     </button>
                   </td>
@@ -133,7 +142,7 @@ export function AdminListingsTable({
         </span>
         <label className="flex items-center gap-2">
           Rows per page:
-          <select className="rounded border border-slate-200 bg-white px-2 py-1 text-[12px] font-black text-slate-700" onChange={(event) => onRowsPerPageChange(Number(event.target.value))} value={rowsPerPage}>
+          <select className={cn(dashboardSelectClass, "h-8 w-auto px-2 py-1 text-[12px]")} onChange={(event) => onRowsPerPageChange(Number(event.target.value))} value={rowsPerPage}>
             <option value={10}>10</option>
             <option value={25}>25</option>
             <option value={50}>50</option>

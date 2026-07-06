@@ -5,6 +5,14 @@ import { AlertCircle, AlertTriangle, ArrowUpDown, MoreHorizontal, RefreshCw } fr
 
 import { AdminDealProgressTrack } from "@/components/dashboard/admin/deals/AdminDealProgressTrack";
 import type { AdminDeal, AdminDealSortKey } from "@/components/dashboard/admin/deals/admin-deals.types";
+import {
+  dashboardIconButtonClass,
+  dashboardSelectedRowClass,
+  dashboardTableBodyClass,
+  dashboardTableCardClass,
+  dashboardTableHeadClass,
+  dashboardTableRowClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { cn } from "@/lib/cn";
 
@@ -49,7 +57,7 @@ export function AdminDealsTable({
   totalCount,
 }: AdminDealsTableProps) {
   return (
-    <section className="mt-5 overflow-hidden rounded-lg border border-emerald-100 bg-white shadow-sm transition-all duration-200 hover:border-emerald-200 hover:shadow-md">
+    <section className={cn("mt-5", dashboardTableCardClass)}>
       <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4">
         <h2 className="text-[14px] font-black text-slate-950">
           Deals <span className="text-slate-500">({totalCount})</span>
@@ -66,7 +74,7 @@ export function AdminDealsTable({
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[900px] text-left">
-          <thead className="bg-slate-50 text-[10px] font-black uppercase tracking-wide text-slate-500">
+          <thead className={dashboardTableHeadClass}>
             <tr>
               {sortableHeaders.map((header) => (
                 <th className="px-4 py-3" key={header.key}>
@@ -87,7 +95,7 @@ export function AdminDealsTable({
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="text-[13px] font-semibold text-slate-700">
+          <tbody className={dashboardTableBodyClass}>
             {deals.map((deal) => {
               const meta = statusMeta[deal.status];
               const isDisputed = deal.status === "disputed";
@@ -97,8 +105,9 @@ export function AdminDealsTable({
                 <Fragment key={deal.id}>
                   <tr
                     className={cn(
-                      "group cursor-pointer border-t border-slate-100 transition-all duration-200 hover:bg-emerald-50/30",
-                      isSelected && "bg-emerald-50/40",
+                      "group cursor-pointer border-t border-slate-100",
+                      dashboardTableRowClass,
+                      isSelected && dashboardSelectedRowClass,
                       isDisputed && "bg-red-50/20",
                       isDisputed && isSelected && "bg-red-50/50",
                     )}
@@ -128,7 +137,7 @@ export function AdminDealsTable({
                         {isDisputed ? (
                           <button
                           aria-label="View dispute details"
-                          className="text-red-500 transition hover:text-red-600"
+                          className={cn(dashboardIconButtonClass, "text-red-500 hover:text-red-600")}
                           onClick={(event) => {
                             event.stopPropagation();
                             onAlertClick(deal);
@@ -140,7 +149,7 @@ export function AdminDealsTable({
                         ) : null}
                         <button
                         aria-label="Open deal actions"
-                        className="text-slate-400 transition hover:text-emerald-800"
+                        className={dashboardIconButtonClass}
                         onClick={(event) => {
                           event.stopPropagation();
                           onActionClick(deal);
@@ -154,8 +163,9 @@ export function AdminDealsTable({
                   </tr>
                   <tr
                     className={cn(
-                      "cursor-pointer border-t border-slate-50 transition-all duration-200 hover:bg-emerald-50/30",
-                      isSelected && "bg-emerald-50/30",
+                      "cursor-pointer border-t border-slate-50",
+                      dashboardTableRowClass,
+                      isSelected && dashboardSelectedRowClass,
                       isDisputed && isSelected && "bg-red-50/40",
                     )}
                     onClick={() => onDealSelect(deal)}

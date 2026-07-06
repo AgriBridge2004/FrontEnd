@@ -65,7 +65,7 @@ export function AdminOverviewStats() {
 
             <button className={cn("mt-4 inline-flex items-center gap-1 text-[11px] font-black", classes.link)} type="button">
               View details
-              <span aria-hidden="true">-&gt;</span>
+              <ChevronRight className="size-3" aria-hidden="true" />
             </button>
           </DashboardCard>
         );

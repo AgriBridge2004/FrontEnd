@@ -4,6 +4,15 @@ import type { ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { RevenueTransaction } from "@/components/dashboard/admin/revenue-reports/admin-revenue-reports.types";
+import {
+  dashboardActivePaginationButtonClass,
+  dashboardPaginationButtonClass,
+  dashboardSelectClass,
+  dashboardTableBodyClass,
+  dashboardTableCardClass,
+  dashboardTableHeadClass,
+  dashboardTableRowClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type Props = {
@@ -20,11 +29,11 @@ export function AdminRevenueTransactionsTable({ currentPage, onPageChange, onRow
   const startRow = totalCount === 0 || transactions.length === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
   const endRow = totalCount === 0 || transactions.length === 0 ? 0 : Math.min(currentPage * rowsPerPage, totalCount);
   return (
-    <section className="mt-8 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm">
+    <section className={cn("mt-8", dashboardTableCardClass)}>
       <h2 className="px-6 py-5 text-base font-black text-slate-950">Revenue Transactions</h2>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[980px] text-left">
-          <thead className="bg-slate-50 text-[11px] font-black uppercase tracking-[0.14em] text-slate-400">
+          <thead className={dashboardTableHeadClass}>
             <tr>
               <th className="px-4 py-4">Deal ID</th>
               <th className="px-4 py-4">Date</th>
@@ -37,12 +46,12 @@ export function AdminRevenueTransactionsTable({ currentPage, onPageChange, onRow
               <th className="w-12 px-4 py-4" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 text-sm font-semibold text-slate-700">
+          <tbody className={dashboardTableBodyClass}>
             {transactions.length === 0 ? (
               <tr><td className="px-4 py-10 text-center" colSpan={9}>No revenue transactions found.</td></tr>
             ) : null}
             {transactions.map((transaction) => (
-              <tr className="cursor-pointer transition hover:bg-emerald-50/20" key={transaction.id} onClick={onRowClick}>
+              <tr className={cn("cursor-pointer", dashboardTableRowClass)} key={transaction.id} onClick={onRowClick}>
                 <td className="px-4 py-5 font-bold text-slate-800">{transaction.dealId}</td>
                 <td className="px-4 py-5 text-slate-600">{transaction.dateLabel}</td>
                 <td className="px-4 py-5 font-black text-slate-950">{formatCurrency(transaction.totalDealValue)}</td>
@@ -62,7 +71,7 @@ export function AdminRevenueTransactionsTable({ currentPage, onPageChange, onRow
         <div className="flex flex-wrap items-center gap-4">
           <label className="flex items-center gap-2">
             Rows per page:
-            <select className="rounded border border-slate-200 bg-white px-2 py-1 text-[12px] font-black text-slate-700" onChange={(event) => onRowsPerPageChange(Number(event.target.value))} value={rowsPerPage}>
+            <select className={cn(dashboardSelectClass, "h-8 w-auto px-2 py-1 text-[12px]")} onChange={(event) => onRowsPerPageChange(Number(event.target.value))} value={rowsPerPage}>
               <option value={10}>10</option>
               <option value={25}>25</option>
             </select>
@@ -81,7 +90,7 @@ export function AdminRevenueTransactionsTable({ currentPage, onPageChange, onRow
 }
 
 function PageButton({ children, disabled = false, isActive = false, onClick }: { children: ReactNode; disabled?: boolean; isActive?: boolean; onClick: () => void }) {
-  return <button className={cn("grid size-8 place-items-center rounded text-[12px] font-black transition", disabled && "cursor-not-allowed opacity-40", isActive ? "bg-emerald-700 text-white" : "text-slate-500 hover:bg-emerald-50/30")} disabled={disabled} onClick={onClick} type="button">{children}</button>;
+  return <button className={cn(dashboardPaginationButtonClass, disabled && "cursor-not-allowed opacity-40", isActive && dashboardActivePaginationButtonClass)} disabled={disabled} onClick={onClick} type="button">{children}</button>;
 }
 
 function formatCurrency(value: number) {

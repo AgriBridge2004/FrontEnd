@@ -29,3 +29,41 @@ a {
   background: #a7f3d0;
   color: #064e3b;
 }
+
+@layer components {
+  .dashboard-polish :where(section.rounded-xl.border.bg-white, section.rounded-2xl.border.bg-white, div.rounded-xl.border.bg-white, div.rounded-2xl.border.bg-white, section.rounded-xl.bg-white.shadow-sm, section.rounded-2xl.bg-white.shadow-sm, div.rounded-xl.bg-white.shadow-sm, div.rounded-2xl.bg-white.shadow-sm) {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .dashboard-polish :where(section.rounded-xl.border.bg-white, section.rounded-2xl.border.bg-white, div.rounded-xl.border.bg-white, div.rounded-2xl.border.bg-white, section.rounded-xl.bg-white.shadow-sm, section.rounded-2xl.bg-white.shadow-sm, div.rounded-xl.bg-white.shadow-sm, div.rounded-2xl.bg-white.shadow-sm):hover {
+    @apply -translate-y-0.5 border-emerald-200 bg-emerald-50/30 shadow-md;
+  }
+
+  .dashboard-polish :where(thead) {
+    @apply bg-slate-50;
+  }
+
+  .dashboard-polish :where(th) {
+    @apply text-[11px] font-black uppercase tracking-[0.06em] text-slate-400;
+  }
+
+  .dashboard-polish :where(tbody tr) {
+    @apply transition-colors duration-150;
+  }
+
+  .dashboard-polish :where(tbody tr:hover) {
+    @apply bg-emerald-50/30;
+  }
+
+  .dashboard-polish :where(button) {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .dashboard-polish :where(button.rounded-lg.border.bg-white, button.rounded-xl.border.bg-white) {
+    @apply hover:border-emerald-200 hover:bg-emerald-50/30;
+  }
+
+  .dashboard-polish :where(input, select, textarea) {
+    @apply transition focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100;
+  }
+}

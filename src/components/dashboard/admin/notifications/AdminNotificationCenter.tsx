@@ -3,6 +3,8 @@
 import { Check, ExternalLink } from "lucide-react";
 
 import type { AdminNotificationAlert } from "@/components/dashboard/admin/notifications/admin-notifications.types";
+import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
+import { dashboardTableRowClass } from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type AdminNotificationCenterProps = {
@@ -22,7 +24,7 @@ export function AdminNotificationCenter({ alerts, onAction, onMarkAllRead, onVie
   const unreadCount = alerts.filter((alert) => alert.isUnread).length;
 
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <DashboardCard className="overflow-hidden">
       <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <span className="grid size-5 place-items-center rounded bg-emerald-800 text-[11px] font-black text-white">B</span>
@@ -47,7 +49,7 @@ export function AdminNotificationCenter({ alerts, onAction, onMarkAllRead, onVie
           const Icon = alert.icon;
 
           return (
-            <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between" key={alert.id}>
+            <div className={cn("flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between", dashboardTableRowClass)} key={alert.id}>
               <div className="flex gap-3">
                 <span className={cn("grid size-8 shrink-0 place-items-center rounded-lg", toneClasses[alert.tone])}>
                   <Icon className="size-4" />
@@ -80,8 +82,8 @@ export function AdminNotificationCenter({ alerts, onAction, onMarkAllRead, onVie
         onClick={onViewAll}
         type="button"
       >
-        View all notifications -&gt;
+        View all notifications
       </button>
-    </section>
+    </DashboardCard>
   );
 }

@@ -5,6 +5,12 @@ import { AlertTriangle, CheckCircle2, Lock, Pencil, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import type { AdminPayment } from "@/components/dashboard/admin/financial-reports/admin-payments.types";
+import {
+  dashboardDrawerOverlayClass,
+  dashboardDrawerPanelClass,
+  dashboardIconButtonClass,
+} from "@/components/dashboard/shared/dashboard-ui";
+import { cn } from "@/lib/cn";
 
 type AdminPaymentDetailDrawerProps = {
   onAddNote: () => void;
@@ -20,11 +26,11 @@ export function AdminPaymentDetailDrawer({ onAddNote, onClose, onViewDeal, open,
 
   return (
     <>
-      <button aria-label="Close payment detail overlay" className="fixed inset-0 z-40 bg-slate-900/10 lg:left-[232px]" onClick={onClose} type="button" />
-      <aside aria-labelledby="payment-detail-title" aria-modal="true" className="fixed bottom-0 right-0 top-0 z-50 flex w-full flex-col overflow-hidden border-l border-slate-200 bg-white shadow-2xl sm:w-[360px] xl:w-[380px] 2xl:w-[400px]" role="dialog">
+      <button aria-label="Close payment detail overlay" className={dashboardDrawerOverlayClass} onClick={onClose} type="button" />
+      <aside aria-labelledby="payment-detail-title" aria-modal="true" className={cn(dashboardDrawerPanelClass, "sm:w-[360px] xl:w-[380px] 2xl:w-[400px]")} role="dialog">
         <header className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
           <h2 className="text-base font-bold text-slate-950" id="payment-detail-title">Payment Detail</h2>
-          <button aria-label="Close payment detail" className="grid size-8 place-items-center rounded-lg text-slate-400 hover:bg-emerald-50/30 hover:text-emerald-800" onClick={onClose} type="button">
+          <button aria-label="Close payment detail" className={dashboardIconButtonClass} onClick={onClose} type="button">
             <X className="size-4" />
           </button>
         </header>

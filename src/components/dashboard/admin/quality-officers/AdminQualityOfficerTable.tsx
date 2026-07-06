@@ -5,14 +5,22 @@ import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 
 import { AdminOfficerAvatar } from "@/components/dashboard/admin/quality-officers/AdminOfficerAvatar";
 import type { AdminQualityOfficer, QualityOfficerStatus } from "@/components/dashboard/admin/quality-officers/admin-quality-officers.types";
+import {
+  dashboardActivePaginationButtonClass,
+  dashboardPaginationButtonClass,
+  dashboardTableBodyClass,
+  dashboardTableCardClass,
+  dashboardTableHeadClass,
+  dashboardTableRowClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 export function AdminQualityOfficerTable({ officers }: { officers: AdminQualityOfficer[] }) {
   return (
-    <section className="mt-6 overflow-hidden rounded-lg border border-emerald-100 bg-white shadow-sm transition-all duration-200 hover:border-emerald-200 hover:shadow-md">
+    <section className={cn("mt-6", dashboardTableCardClass)}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[760px] text-left">
-          <thead className="bg-slate-50 text-[11px] font-black uppercase tracking-wide text-slate-500">
+          <thead className={dashboardTableHeadClass}>
             <tr>
               <th className="px-6 py-4">Quality Officer</th>
               <th className="px-6 py-4">Coverage Area</th>
@@ -21,9 +29,9 @@ export function AdminQualityOfficerTable({ officers }: { officers: AdminQualityO
               <th className="px-6 py-4">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 text-[13px] font-semibold text-slate-700">
+          <tbody className={dashboardTableBodyClass}>
             {officers.map((officer, index) => (
-              <tr className="transition-all duration-200 hover:bg-emerald-50/30" key={officer.id}>
+              <tr className={dashboardTableRowClass} key={officer.id}>
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-3">
                     <AdminOfficerAvatar index={index} />
@@ -92,8 +100,8 @@ function PageButton({ children, isActive = false }: { children: ReactNode; isAct
   return (
     <button
       className={cn(
-        "grid size-8 place-items-center rounded-lg border text-[12px] font-black transition",
-        isActive ? "border-emerald-800 bg-emerald-800 text-white" : "border-slate-200 bg-white text-slate-500 hover:bg-emerald-50/30",
+        dashboardPaginationButtonClass,
+        isActive && dashboardActivePaginationButtonClass,
       )}
       type="button"
     >

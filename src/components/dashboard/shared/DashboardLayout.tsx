@@ -6,6 +6,7 @@ import { Menu } from "lucide-react";
 
 import { DashboardSidebar, type DashboardSidebarItem } from "@/components/dashboard/shared/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/shared/DashboardTopbar";
+import { cn } from "@/lib/cn";
 
 type DashboardLayoutProps = {
   children: ReactNode;
@@ -31,6 +32,7 @@ export function DashboardLayout({
   notificationCount,
   onSearchChange,
   profileHref,
+  role,
   searchPlaceholder,
   searchValue,
   sidebarItems,
@@ -38,9 +40,10 @@ export function DashboardLayout({
   userName,
 }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const shouldUseDashboardPolish = role === "admin" || role === "quality-officer";
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900" dir="ltr">
+    <main className={cn("min-h-screen bg-slate-50 text-slate-900", shouldUseDashboardPolish && "dashboard-polish")} dir="ltr">
       <DashboardSidebar isOpen={isSidebarOpen} items={sidebarItems} onClose={() => setIsSidebarOpen(false)} />
 
       <div className="min-w-0 lg:pl-[232px]">

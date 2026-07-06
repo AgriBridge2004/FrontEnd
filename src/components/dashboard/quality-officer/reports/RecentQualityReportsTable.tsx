@@ -5,6 +5,12 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { QualityReportRow } from "@/components/dashboard/quality-officer/reports/quality-officer-reports.types";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
+import {
+  dashboardActivePaginationButtonClass,
+  dashboardPaginationButtonClass,
+  dashboardTableHeadClass,
+  dashboardTableRowClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type RecentQualityReportsTableProps = {
@@ -47,8 +53,8 @@ export function RecentQualityReportsTable({
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[780px] border-t border-emerald-100 text-left">
-          <thead className="bg-stone-50">
-            <tr className="text-[10px] font-black uppercase tracking-wide text-slate-600">
+          <thead className={dashboardTableHeadClass}>
+            <tr>
               <th className="px-4 py-2.5">Date</th>
               <th className="px-4 py-2.5">Product</th>
               <th className="px-4 py-2.5">Supplier</th>
@@ -59,7 +65,7 @@ export function RecentQualityReportsTable({
           </thead>
           <tbody>
             {reports.map((report) => (
-              <tr className="border-t border-emerald-100 text-[13px] text-slate-800" key={report.id}>
+              <tr className={cn("border-t border-emerald-100 text-[13px] text-slate-800", dashboardTableRowClass)} key={report.id}>
                 <td className="px-4 py-3 font-medium">{report.date}</td>
                 <td className="px-4 py-3">
                   <span className="inline-flex items-center gap-2 font-medium">
@@ -127,10 +133,8 @@ function PageButton({
       aria-current={isActive ? "page" : undefined}
       aria-label={ariaLabel}
       className={cn(
-        "grid size-8 place-items-center rounded-lg border text-xs font-black transition",
-        isActive
-          ? "border-emerald-800 bg-emerald-800 text-white"
-          : "border-slate-200 bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-900",
+        dashboardPaginationButtonClass,
+        isActive && dashboardActivePaginationButtonClass,
         disabled && "cursor-not-allowed bg-slate-50 text-slate-300 hover:bg-slate-50 hover:text-slate-300",
       )}
       disabled={disabled}

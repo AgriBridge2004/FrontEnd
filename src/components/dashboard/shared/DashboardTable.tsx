@@ -1,5 +1,11 @@
 import type { ReactNode } from "react";
 
+import {
+  dashboardTableBodyClass,
+  dashboardTableHeadClass,
+  dashboardTableRowClass,
+} from "@/components/dashboard/shared/dashboard-ui";
+
 type DashboardTableColumn<T> = {
   header: string;
   cell: (row: T) => ReactNode;
@@ -16,7 +22,7 @@ export function DashboardTable<T>({ columns, getRowKey, rows }: DashboardTablePr
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[640px] text-left">
-        <thead className="bg-slate-50 text-[10px] font-black uppercase tracking-wide text-slate-500">
+        <thead className={dashboardTableHeadClass}>
           <tr>
             {columns.map((column) => (
               <th className={column.className ?? "px-5 py-3.5"} key={column.header}>
@@ -25,9 +31,9 @@ export function DashboardTable<T>({ columns, getRowKey, rows }: DashboardTablePr
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
+        <tbody className={dashboardTableBodyClass}>
           {rows.map((row) => (
-            <tr key={getRowKey(row)}>
+            <tr className={dashboardTableRowClass} key={getRowKey(row)}>
               {columns.map((column) => (
                 <td className={column.className ?? "px-5 py-4"} key={column.header}>
                   {column.cell(row)}

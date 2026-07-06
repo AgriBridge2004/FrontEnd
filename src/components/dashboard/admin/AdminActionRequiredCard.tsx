@@ -61,7 +61,7 @@ export function AdminActionRequiredCard({ onDisputeClick, onViewAllDisputes }: A
       </div>
 
       <button className="mt-4 text-[13px] font-black text-red-600 transition hover:text-red-700" onClick={onViewAllDisputes} type="button">
-        View all disputes -&gt;
+        View all disputes
       </button>
     </DashboardCard>
   );

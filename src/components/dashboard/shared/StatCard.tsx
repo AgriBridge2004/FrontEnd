@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 
+import { dashboardCardClass } from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type StatCardProps = {
@@ -30,7 +31,7 @@ export function StatCard({ icon: Icon, linkLabel, title, tone = "green", trend, 
   const classes = toneClasses[tone];
 
   return (
-    <article className="min-h-[122px] rounded-2xl border border-emerald-100 bg-white p-4 shadow-sm transition-all duration-200 hover:border-emerald-200 hover:bg-emerald-50/30 hover:shadow-md">
+    <article className={cn("min-h-[122px] p-4", dashboardCardClass)}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[13px] font-medium text-slate-600">{title}</p>

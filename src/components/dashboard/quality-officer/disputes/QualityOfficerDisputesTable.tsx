@@ -8,6 +8,10 @@ import type {
   DisputeTab,
 } from "@/components/dashboard/quality-officer/disputes/quality-officer-disputes.types";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
+import {
+  dashboardTableHeadClass,
+  dashboardTableRowClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type QualityOfficerDisputesTableProps = {
@@ -81,7 +85,7 @@ export function QualityOfficerDisputesTable({
             <col className="w-[14%]" />
             <col className="w-[6%]" />
           </colgroup>
-          <thead className="bg-stone-50 text-[10px] font-black uppercase tracking-wide text-slate-600">
+          <thead className={dashboardTableHeadClass}>
             <tr>
               <th className="px-3 py-2.5">Dispute ID & Reason</th>
               <th className="px-3 py-2.5">Contract Ref</th>
@@ -94,7 +98,7 @@ export function QualityOfficerDisputesTable({
           </thead>
           <tbody className="divide-y divide-emerald-100 text-xs text-slate-800">
             {disputes.map((dispute) => (
-              <tr className="transition hover:bg-emerald-50/30" key={dispute.id}>
+              <tr className={dashboardTableRowClass} key={dispute.id}>
                 <td className="px-3 py-4 align-middle">
                   <p className="break-words text-[15px] font-black leading-snug text-emerald-900">{dispute.id}</p>
                   <p className="mt-1 break-words font-medium leading-snug text-slate-800">{dispute.reason}</p>

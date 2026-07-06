@@ -18,6 +18,12 @@ import type {
   NotificationTemplate,
   NotificationTemplateDraft,
 } from "@/components/dashboard/admin/notifications/admin-notifications.types";
+import {
+  dashboardDrawerOverlayClass,
+  dashboardDrawerPanelClass,
+  dashboardIconButtonClass,
+  dashboardSecondaryButtonClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type AdminEditTemplatePanelProps = {
@@ -91,8 +97,8 @@ export function AdminEditTemplatePanel({ onCancel, onClose, onSave, onShowToast,
 
   return (
     <>
-      <button aria-label="Close edit template overlay" className="fixed inset-0 z-40 bg-slate-900/10" onClick={onClose} type="button" />
-      <aside className="fixed bottom-0 right-0 top-0 z-50 flex w-full flex-col overflow-hidden border-l border-slate-200 bg-white shadow-2xl shadow-slate-900/15 sm:w-[560px] xl:w-[640px] 2xl:w-[720px]">
+      <button aria-label="Close edit template overlay" className={dashboardDrawerOverlayClass} onClick={onClose} type="button" />
+      <aside aria-label="Edit notification template" aria-modal="true" className={cn(dashboardDrawerPanelClass, "sm:w-[560px] xl:w-[640px] 2xl:w-[720px]")} role="dialog">
         <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-6 py-4">
           <div className="flex items-start gap-3">
             <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-purple-50 text-purple-600">
@@ -105,7 +111,7 @@ export function AdminEditTemplatePanel({ onCancel, onClose, onSave, onShowToast,
           </div>
           <div className="flex items-center gap-2">
             <button
-              className="hidden h-8 items-center rounded-lg border border-slate-200 px-3 text-xs font-black text-slate-600 transition hover:bg-slate-50 sm:inline-flex"
+              className={cn(dashboardSecondaryButtonClass, "hidden h-8 px-3 text-xs sm:inline-flex")}
               onClick={onClose}
               type="button"
             >
@@ -113,7 +119,7 @@ export function AdminEditTemplatePanel({ onCancel, onClose, onSave, onShowToast,
             </button>
             <button
               aria-label="Close edit template panel"
-              className="grid size-8 place-items-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+              className={dashboardIconButtonClass}
               onClick={onClose}
               type="button"
             >
@@ -231,7 +237,7 @@ export function AdminEditTemplatePanel({ onCancel, onClose, onSave, onShowToast,
                       onClick={() => onShowToast("Full variable library will be connected later.")}
                       type="button"
                     >
-                      View all variables -&gt;
+                      View all variables
                     </button>
                   </div>
                 </div>

@@ -17,6 +17,11 @@ import {
 
 import type { AdminRFQ, AdminRFQConversationMessage } from "@/components/dashboard/admin/rfqs/admin-rfqs.types";
 import { RFQStatusBadge } from "@/components/dashboard/admin/rfqs/AdminRFQsTable";
+import {
+  dashboardDrawerOverlayClass,
+  dashboardDrawerPanelClass,
+  dashboardIconButtonClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type AdminRFQDetailDrawerProps = {
@@ -49,7 +54,7 @@ export function AdminRFQDetailDrawer({ onClose, onCloseRFQ, onFlagForReview, ope
       {open ? (
         <button
           aria-label="Close RFQ detail overlay"
-          className="fixed bottom-0 right-0 top-14 z-40 w-full bg-slate-900/10 lg:left-[232px] lg:w-auto"
+          className={dashboardDrawerOverlayClass}
           onClick={onClose}
           type="button"
         />
@@ -58,7 +63,8 @@ export function AdminRFQDetailDrawer({ onClose, onCloseRFQ, onFlagForReview, ope
         aria-label="RFQ detail"
         aria-modal="true"
         className={cn(
-          "fixed bottom-0 right-0 top-14 z-50 flex w-full flex-col overflow-hidden border-l border-emerald-100 bg-white shadow-2xl transition-transform duration-200 sm:w-[560px] sm:rounded-l-xl xl:w-[600px] 2xl:w-[640px]",
+          dashboardDrawerPanelClass,
+          "sm:w-[560px] xl:w-[600px] 2xl:w-[640px]",
           open ? "translate-x-0" : "translate-x-full",
         )}
         role="dialog"
@@ -70,7 +76,7 @@ export function AdminRFQDetailDrawer({ onClose, onCloseRFQ, onFlagForReview, ope
           </div>
           <button
             aria-label="Close RFQ detail"
-            className="grid size-8 place-items-center rounded-lg text-slate-400 transition hover:bg-emerald-50/40 hover:text-emerald-900"
+            className={dashboardIconButtonClass}
             onClick={onClose}
             type="button"
           >

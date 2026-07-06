@@ -3,6 +3,15 @@
 import { Bell, ChevronRight, Mail, MessageSquare, Smartphone } from "lucide-react";
 
 import type { NotificationChannel, NotificationTemplate } from "@/components/dashboard/admin/notifications/admin-notifications.types";
+import {
+  dashboardActivePaginationButtonClass,
+  dashboardIconButtonClass,
+  dashboardPaginationButtonClass,
+  dashboardSelectedRowClass,
+  dashboardTableCardClass,
+  dashboardTableHeadClass,
+  dashboardTableRowClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type AdminNotificationTemplatesTableProps = {
@@ -27,10 +36,10 @@ export function AdminNotificationTemplatesTable({
   templates,
 }: AdminNotificationTemplatesTableProps) {
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <section className={dashboardTableCardClass}>
       <div className="overflow-x-auto">
-        <table className="min-w-[760px] w-full text-left">
-          <thead className="bg-slate-50 text-[11px] font-black uppercase tracking-[0.06em] text-slate-400">
+        <table className="w-full min-w-[760px] text-left">
+          <thead className={dashboardTableHeadClass}>
             <tr>
               <th className="w-12 px-4 py-4">#</th>
               <th className="px-4 py-4">Notification Name</th>
@@ -47,8 +56,9 @@ export function AdminNotificationTemplatesTable({
               return (
                 <tr
                   className={cn(
-                    "cursor-pointer transition-all duration-200 hover:bg-emerald-50/30",
-                    isSelected ? "bg-emerald-50/60 ring-1 ring-inset ring-emerald-200" : "bg-white",
+                    "cursor-pointer",
+                    dashboardTableRowClass,
+                    isSelected ? cn(dashboardSelectedRowClass, "ring-1 ring-inset ring-emerald-200") : "bg-white",
                   )}
                   key={template.id}
                   onClick={() => onOpenTemplate(template)}
@@ -127,8 +137,8 @@ export function AdminNotificationTemplatesTable({
           {[1, 2, 3, 4].map((page) => (
             <button
               className={cn(
-                "grid size-8 place-items-center rounded-md border text-xs font-black",
-                page === 1 ? "border-emerald-800 bg-emerald-800 text-white" : "border-transparent text-slate-500 hover:border-slate-200",
+                dashboardPaginationButtonClass,
+                page === 1 && dashboardActivePaginationButtonClass,
               )}
               key={page}
               type="button"
@@ -136,7 +146,7 @@ export function AdminNotificationTemplatesTable({
               {page}
             </button>
           ))}
-          <button className="grid size-8 place-items-center rounded-md border border-transparent text-slate-500 hover:border-slate-200" type="button">
+          <button className={dashboardIconButtonClass} type="button">
             <ChevronRight className="size-4" />
           </button>
         </div>

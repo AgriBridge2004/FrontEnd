@@ -10,6 +10,13 @@ import type {
   QualityOfficerAssignment,
 } from "@/components/dashboard/quality-officer/assignments/quality-officer-assignments.types";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
+import {
+  dashboardActivePaginationButtonClass,
+  dashboardPaginationButtonClass,
+  dashboardSelectClass,
+  dashboardTableHeadClass,
+  dashboardTableRowClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type QualityOfficerAssignmentsTableProps = {
@@ -103,7 +110,7 @@ export function QualityOfficerAssignmentsTable({
               <col className="w-[11%]" />
               <col className="w-[3%]" />
             </colgroup>
-            <thead className="bg-stone-50 text-[10px] font-black uppercase tracking-wide text-slate-400">
+            <thead className={dashboardTableHeadClass}>
               <tr>
                 <th className="px-4 py-3">Deal ID</th>
                 <th className="px-4 py-3">Product & Category</th>
@@ -118,7 +125,7 @@ export function QualityOfficerAssignmentsTable({
             <tbody className="divide-y divide-slate-100 text-[13px] text-slate-700">
               {assignments.length ? (
                 assignments.map((assignment) => (
-                  <tr className="transition hover:bg-emerald-50/30" key={assignment.id}>
+                  <tr className={dashboardTableRowClass} key={assignment.id}>
                     <td className="px-4 py-4 align-middle">
                       <p className="font-black leading-5 text-slate-950">{assignment.dealId}</p>
                       <StatusBadge className="mt-2" status={assignment.status} />
@@ -191,7 +198,7 @@ export function QualityOfficerAssignmentsTable({
               <ChevronRight className="size-4" />
             </PageButton>
             <select
-              className="h-8 rounded-lg border border-slate-200 bg-white px-3 text-xs font-black text-slate-700 outline-none"
+              className={cn(dashboardSelectClass, "h-8 w-auto px-3 text-xs")}
               onChange={(event) => onPageSizeChange(Number(event.target.value))}
               value={pageSize}
             >
@@ -248,10 +255,8 @@ function PageButton({
       aria-current={isActive ? "page" : undefined}
       aria-label={ariaLabel}
       className={cn(
-        "grid size-8 place-items-center rounded-lg border text-xs font-black transition",
-        isActive
-          ? "border-emerald-800 bg-emerald-800 text-white"
-          : "border-slate-200 bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-900",
+        dashboardPaginationButtonClass,
+        isActive && dashboardActivePaginationButtonClass,
         disabled && "cursor-not-allowed bg-slate-50 text-slate-300 hover:bg-slate-50 hover:text-slate-300",
       )}
       disabled={disabled}

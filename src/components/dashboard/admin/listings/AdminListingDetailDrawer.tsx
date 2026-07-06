@@ -17,6 +17,11 @@ import {
 } from "lucide-react";
 
 import type { AdminListing, AdminListingStatus } from "@/components/dashboard/admin/listings/admin-listings.types";
+import {
+  dashboardDrawerOverlayClass,
+  dashboardDrawerPanelClass,
+  dashboardIconButtonClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type AdminListingDetailDrawerProps = {
@@ -71,16 +76,16 @@ export function AdminListingDetailDrawer({
 
   return (
     <>
-      <button aria-label="Close listing detail overlay" className="fixed inset-0 z-40 bg-slate-900/10 lg:left-[232px]" onClick={onClose} type="button" />
+      <button aria-label="Close listing detail overlay" className={dashboardDrawerOverlayClass} onClick={onClose} type="button" />
       <aside
         aria-labelledby="listing-detail-title"
         aria-modal="true"
-        className="fixed bottom-0 right-0 top-0 z-50 flex w-full flex-col overflow-hidden border-l border-emerald-100 bg-white shadow-2xl sm:w-[420px] xl:w-[460px] 2xl:w-[500px]"
+        className={cn(dashboardDrawerPanelClass, "sm:w-[420px] xl:w-[460px] 2xl:w-[500px]")}
         role="dialog"
       >
         <header className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
           <div className="flex items-center gap-3">
-            <button aria-label="Close listing detail" className="grid size-8 place-items-center rounded-lg text-slate-400 hover:bg-emerald-50/30 hover:text-emerald-800" onClick={onClose} type="button">
+            <button aria-label="Close listing detail" className={dashboardIconButtonClass} onClick={onClose} type="button">
               <X className="size-4" />
             </button>
             <h2 className="text-base font-black text-slate-950" id="listing-detail-title">

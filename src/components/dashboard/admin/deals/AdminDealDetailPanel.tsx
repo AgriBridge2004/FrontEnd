@@ -18,6 +18,11 @@ import {
 } from "lucide-react";
 
 import type { AdminDeal, AdminDealProgressStage } from "@/components/dashboard/admin/deals/admin-deals.types";
+import {
+  dashboardDrawerOverlayClass,
+  dashboardDrawerPanelClass,
+  dashboardIconButtonClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type AdminDealDetailPanelProps = {
@@ -45,7 +50,7 @@ export function AdminDealDetailPanel({ deal, isOpen, onAdvanceDeal, onClose, onP
       {isOpen ? (
         <button
           aria-label="Close deal detail overlay"
-          className="fixed bottom-0 right-0 top-14 z-40 w-full bg-slate-900/10 lg:left-[232px] lg:w-auto"
+          className={dashboardDrawerOverlayClass}
           onClick={onClose}
           type="button"
         />
@@ -55,7 +60,8 @@ export function AdminDealDetailPanel({ deal, isOpen, onAdvanceDeal, onClose, onP
         aria-modal="true"
         role="dialog"
         className={cn(
-          "fixed bottom-0 right-0 top-14 z-50 flex w-full flex-col overflow-hidden border-l border-emerald-100 bg-white shadow-2xl transition-transform duration-200 sm:w-[560px] xl:w-[600px] 2xl:w-[640px] sm:rounded-l-xl",
+          dashboardDrawerPanelClass,
+          "sm:w-[560px] xl:w-[600px] 2xl:w-[640px]",
           isOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
@@ -63,7 +69,7 @@ export function AdminDealDetailPanel({ deal, isOpen, onAdvanceDeal, onClose, onP
           <h2 className="text-[15px] font-black text-slate-950">Deal Detail</h2>
           <button
             aria-label="Close deal detail"
-            className="grid size-8 place-items-center rounded-lg text-slate-400 transition hover:bg-emerald-50/40 hover:text-emerald-900"
+            className={dashboardIconButtonClass}
             onClick={onClose}
             type="button"
           >

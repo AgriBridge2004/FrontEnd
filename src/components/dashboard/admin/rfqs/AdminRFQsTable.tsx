@@ -4,6 +4,14 @@ import { ArrowUpDown, Clock, MoreVertical, Package, User } from "lucide-react";
 
 import { AdminRFQsPagination } from "@/components/dashboard/admin/rfqs/AdminRFQsPagination";
 import type { AdminRFQ, AdminRFQSortKey } from "@/components/dashboard/admin/rfqs/admin-rfqs.types";
+import {
+  dashboardIconButtonClass,
+  dashboardSelectedRowClass,
+  dashboardTableBodyClass,
+  dashboardTableCardClass,
+  dashboardTableHeadClass,
+  dashboardTableRowClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type AdminRFQsTableProps = {
@@ -45,13 +53,13 @@ export function AdminRFQsTable({
   totalPages,
 }: AdminRFQsTableProps) {
   return (
-    <section className="mt-5 overflow-hidden rounded-lg border border-emerald-100 bg-white shadow-sm transition-all duration-200 hover:border-emerald-200 hover:shadow-md">
+    <section className={cn("mt-5", dashboardTableCardClass)}>
       <div className="border-b border-slate-100 px-4 py-4">
         <h2 className="text-[14px] font-black text-slate-800">Total RFQs: {totalCount}</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1060px] text-left">
-          <thead className="bg-slate-50 text-[10px] font-black uppercase tracking-wide text-slate-400">
+          <thead className={dashboardTableHeadClass}>
             <tr>
               {sortableHeaders.map((header) => (
                 <th className="px-4 py-3" key={header.key}>
@@ -68,15 +76,16 @@ export function AdminRFQsTable({
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 text-[13px] font-semibold text-slate-700">
+          <tbody className={dashboardTableBodyClass}>
             {rfqs.map((rfq) => {
               const isSelected = selectedRFQId === rfq.id;
 
               return (
                 <tr
                   className={cn(
-                    "cursor-pointer transition-all duration-200 hover:bg-emerald-50/30",
-                    isSelected && "bg-emerald-50/40",
+                    "cursor-pointer",
+                    dashboardTableRowClass,
+                    isSelected && dashboardSelectedRowClass,
                     rfq.status === "expired" && "text-slate-600",
                   )}
                   key={rfq.id}
@@ -107,7 +116,7 @@ export function AdminRFQsTable({
                   <td className="px-4 py-5 text-right">
                     <button
                       aria-label="Open RFQ detail"
-                      className="text-slate-400 transition hover:text-emerald-800"
+                      className={dashboardIconButtonClass}
                       onClick={(event) => {
                         event.stopPropagation();
                         onRFQSelect(rfq);
@@ -172,7 +181,7 @@ export function RFQStatusBadge({ status }: { status: AdminRFQ["status"] }) {
     rejected: "bg-red-50 text-red-700 ring-red-200",
   };
   const labels = {
-    accepted: "Accepted -> Deal",
+    accepted: "Accepted Deal",
     expired: "Expired",
     "flagged-for-review": "Flagged for Review",
     "pending-farmer-response": "Pending Farmer Response",
