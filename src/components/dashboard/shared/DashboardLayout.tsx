@@ -64,10 +64,10 @@ export function DashboardLayout({
             onMenuClick={() => setIsSidebarOpen(true)}
             onSearchChange={onSearchChange}
             profileHref={profileHref}
+            role={role}
             searchPlaceholder={searchPlaceholder}
             searchValue={searchValue}
-            userName={userName}
-            userSubLabel={userSubLabel}
+            user={{ name: userName, roleLabel: userSubLabel }}
           />
         )}
         {children}
