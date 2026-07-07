@@ -17,7 +17,7 @@ export function RFQOpportunitiesCard({ opportunities }: RFQOpportunitiesCardProp
       <div className="flex items-start justify-between gap-4">
         <h2 className="max-w-40 text-lg font-black leading-6 text-slate-900">Recent RFQ Opportunities</h2>
         <Link className="text-xs font-black leading-5 text-emerald-700 hover:text-emerald-900" href="/farmer/rfqs">
-          View all RFQs →
+          View all RFQs
         </Link>
       </div>
 

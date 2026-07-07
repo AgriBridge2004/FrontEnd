@@ -6,7 +6,6 @@ import type { ReactNode } from "react";
 import { BadgeCheck, ChevronRight, MapPin, Package } from "lucide-react";
 import { useState } from "react";
 
-import { DEFAULT_PRODUCT_IMAGE } from "@/components/marketplace/marketplace.mock";
 import type { MarketplaceProduct, MarketplaceViewMode } from "@/components/marketplace/marketplace.types";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format";
@@ -16,8 +15,10 @@ type MarketplaceProductCardProps = {
   viewMode: MarketplaceViewMode;
 };
 
+const defaultProductImage = "/images/farmer/create-listing/placeholders/listing-photo-placeholder-1.jpg";
+
 export function MarketplaceProductCard({ product, viewMode }: MarketplaceProductCardProps) {
-  const [imageSrc, setImageSrc] = useState(product.image || DEFAULT_PRODUCT_IMAGE);
+  const [imageSrc, setImageSrc] = useState(product.image || defaultProductImage);
   const isList = viewMode === "list";
 
   return (
@@ -32,7 +33,7 @@ export function MarketplaceProductCard({ product, viewMode }: MarketplaceProduct
           alt={product.title}
           className="object-cover"
           fill
-          onError={() => setImageSrc(DEFAULT_PRODUCT_IMAGE)}
+          onError={() => setImageSrc(defaultProductImage)}
           sizes={isList ? "(min-width: 1024px) 230px, 100vw" : "(min-width: 1280px) 275px, (min-width: 768px) 45vw, 100vw"}
           src={imageSrc}
         />

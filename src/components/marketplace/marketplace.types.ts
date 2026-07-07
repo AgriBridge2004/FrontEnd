@@ -1,9 +1,13 @@
 export type MarketplaceCategory =
   | "Fruits"
   | "Vegetables"
-  | "Grains & Cereals"
-  | "Oil seeds & Pulses"
-  | "Dairy & Eggs";
+  | "Nuts"
+  | "Herbs"
+  | "Grains"
+  | "Meat"
+  | "Dairy"
+  | "Eggs"
+  | "Honey";
 
 export type MarketplaceListingType = "Spot" | "Pre-Harvest";
 

@@ -38,7 +38,7 @@ export function UpcomingTasksCard({ tasks }: UpcomingTasksCardProps) {
         ))}
       </div>
       <Link className="mt-4 inline-flex text-[13px] font-black text-emerald-700 hover:text-emerald-900" href="/farmer/tasks">
-        View all tasks →
+        View all tasks
       </Link>
     </section>
   );

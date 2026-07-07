@@ -14,6 +14,17 @@ type ApiListingsResponse =
       items?: ApiListingRecord[];
     };
 
+export type PublicListingsQuery = {
+  search?: string;
+  category?: string;
+  productType?: "Plant" | "Animal";
+  location?: string;
+  price_min?: number;
+  price_max?: number;
+  qty_min?: number;
+  qty_max?: number;
+};
+
 function asRecord(value: unknown): ApiListingRecord {
   return value && typeof value === "object" ? (value as ApiListingRecord) : {};
 }
@@ -177,13 +188,30 @@ function unwrapListingResponse(response: unknown) {
   return responseRecord.listing ?? responseRecord.data ?? responseRecord;
 }
 
+function buildListingsQuery(params?: PublicListingsQuery) {
+  if (!params) {
+    return "";
+  }
+
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "" && value !== "All locations") {
+      searchParams.set(key, String(value));
+    }
+  });
+
+  const query = searchParams.toString();
+  return query ? `?${query}` : "";
+}
+
 export async function getFarmerListings() {
   const response = await apiRequest<ApiListingsResponse>("/listings/my", { auth: true });
   return mapListingsResponse(response);
 }
 
-export async function getPublicListings() {
-  const response = await apiRequest<ApiListingsResponse>("/listings");
+export async function getPublicListings(params?: PublicListingsQuery) {
+  const response = await apiRequest<ApiListingsResponse>(`/listings${buildListingsQuery(params)}`);
   const records = Array.isArray(response) ? response : response.listings ?? response.data ?? response.items ?? [];
 
   return records.map(mapMarketplaceListingFromApi).filter((listing) => listing.id);
@@ -192,6 +220,11 @@ export async function getPublicListings() {
 export async function getFarmerListingById(id: string) {
   const response = await apiRequest<ApiListingRecord>(`/listings/${id}`);
   return mapListingFromApi(response);
+}
+
+export async function getPublicListingById(id: string) {
+  const response = await apiRequest<ApiListingRecord>(`/listings/${id}`);
+  return mapMarketplaceListingFromApi(response);
 }
 
 export async function createFarmerListing(payload: CreateFarmerListingPayload) {

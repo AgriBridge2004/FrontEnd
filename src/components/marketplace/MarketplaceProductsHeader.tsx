@@ -3,7 +3,6 @@
 import type { ReactNode } from "react";
 import { Grid3X3, List } from "lucide-react";
 
-import { MARKETPLACE_SORT_OPTIONS } from "@/components/marketplace/marketplace.mock";
 import type { MarketplaceSortOption, MarketplaceViewMode } from "@/components/marketplace/marketplace.types";
 import { Select } from "@/components/ui/Select";
 import { cn } from "@/lib/cn";
@@ -15,6 +14,8 @@ type MarketplaceProductsHeaderProps = {
   onSortChange: (sort: MarketplaceSortOption) => void;
   onViewModeChange: (viewMode: MarketplaceViewMode) => void;
 };
+
+const marketplaceSortOptions: MarketplaceSortOption[] = ["Newest", "Price: Low to High", "Price: High to Low", "Quantity", "Rating"];
 
 export function MarketplaceProductsHeader({
   productCount,
@@ -40,7 +41,7 @@ export function MarketplaceProductsHeader({
             onChange={(event) => onSortChange(event.target.value as MarketplaceSortOption)}
             value={sort}
           >
-            {MARKETPLACE_SORT_OPTIONS.map((option) => (
+            {marketplaceSortOptions.map((option) => (
               <option key={option} value={option}>
                 {option}
               </option>

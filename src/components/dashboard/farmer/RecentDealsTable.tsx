@@ -26,7 +26,7 @@ export function RecentDealsTable({ deals }: RecentDealsTableProps) {
       <div className="flex items-center justify-between gap-4 px-5 py-5">
         <h2 className="text-base font-black text-slate-900">Recent Deals</h2>
         <Link className="text-[13px] font-black text-emerald-700 hover:text-emerald-900" href="/farmer/deals">
-          View all deals →
+          View all deals
         </Link>
       </div>
 

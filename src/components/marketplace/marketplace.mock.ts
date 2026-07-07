@@ -3,9 +3,13 @@ import type { MarketplaceCategory, MarketplaceProduct, MarketplaceSortOption } f
 export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
   "Fruits",
   "Vegetables",
-  "Grains & Cereals",
-  "Oil seeds & Pulses",
-  "Dairy & Eggs",
+  "Nuts",
+  "Herbs",
+  "Grains",
+  "Meat",
+  "Dairy",
+  "Eggs",
+  "Honey",
 ];
 
 export const MARKETPLACE_LOCATIONS = [
@@ -26,7 +30,7 @@ export const MARKETPLACE_SORT_OPTIONS: MarketplaceSortOption[] = [
 
 export const DEFAULT_PRODUCT_IMAGE = "/images/farmer/create-listing/placeholders/listing-photo-placeholder-1.jpg";
 
-// TODO: Connect marketplace products to API when endpoint is ready.
+// TODO: Remove this fallback after all legacy marketplace-only components consume API listings directly.
 export const MARKETPLACE_PRODUCTS: MarketplaceProduct[] = [
   {
     id: "fresh-organic-tomatoes",
@@ -74,7 +78,7 @@ export const MARKETPLACE_PRODUCTS: MarketplaceProduct[] = [
     grade: "Grade A",
     listingType: "Spot",
     verifiedFarmer: true,
-    category: "Grains & Cereals",
+    category: "Grains",
     rating: 4.7,
     availableFrom: "2025-06-01",
     availableTo: "2025-08-31",

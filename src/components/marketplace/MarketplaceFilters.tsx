@@ -2,7 +2,6 @@
 
 import { Calendar, ChevronDown, MapPin, RotateCcw, SlidersHorizontal } from "lucide-react";
 
-import { MARKETPLACE_CATEGORIES, MARKETPLACE_LOCATIONS } from "@/components/marketplace/marketplace.mock";
 import type { MarketplaceCategory, MarketplaceFiltersState, MarketplaceListingType } from "@/components/marketplace/marketplace.types";
 import { Select } from "@/components/ui/Select";
 import { cn } from "@/lib/cn";
@@ -13,6 +12,8 @@ type MarketplaceFiltersProps = {
 };
 
 const listingTypes: MarketplaceListingType[] = ["Spot", "Pre-Harvest"];
+const marketplaceCategories: MarketplaceCategory[] = ["Fruits", "Vegetables", "Nuts", "Herbs", "Grains", "Meat", "Dairy", "Eggs", "Honey"];
+const marketplaceLocations = ["All locations", "Gaza", "North Gaza", "Khan Yunis", "Rafah", "Deir al-Balah"];
 
 export function MarketplaceFilters({ filters, onFiltersChange }: MarketplaceFiltersProps) {
   function updateFilters(nextFilters: Partial<MarketplaceFiltersState>) {
@@ -41,7 +42,7 @@ export function MarketplaceFilters({ filters, onFiltersChange }: MarketplaceFilt
             <ChevronDown className="size-4 text-slate-400" />
           </div>
           <div className="grid gap-2.5">
-            {MARKETPLACE_CATEGORIES.map((category) => (
+            {marketplaceCategories.map((category) => (
               <label className="flex cursor-pointer items-center gap-2.5 text-[13px] font-medium text-slate-600" key={category}>
                 <input
                   checked={filters.categories.includes(category)}
@@ -86,7 +87,7 @@ export function MarketplaceFilters({ filters, onFiltersChange }: MarketplaceFilt
               onChange={(event) => updateFilters({ location: event.target.value })}
               value={filters.location}
             >
-              {MARKETPLACE_LOCATIONS.map((location) => (
+              {marketplaceLocations.map((location) => (
                 <option key={location} value={location}>
                   {location === "All locations" ? "Select location" : location}
                 </option>

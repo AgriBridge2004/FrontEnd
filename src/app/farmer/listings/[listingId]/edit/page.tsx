@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { FarmerListingEditPage } from "@/components/dashboard/farmer/listings/FarmerListingEditPage";
 
-export default function EditFarmerListingPage() {
-  return (
-    <PlaceholderPage
-      title="Edit Farmer Listing"
-      description="This placeholder will support editing a farmer listing once listing management workflows are connected."
-    />
-  );
+export default function EditFarmerListingRoute({ params }: { params: { listingId: string } }) {
+  return <FarmerListingEditPage listingId={params.listingId} />;
 }

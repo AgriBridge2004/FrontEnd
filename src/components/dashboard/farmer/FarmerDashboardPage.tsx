@@ -74,7 +74,7 @@ export function FarmerDashboardPage() {
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <h1 className="text-[22px] font-black tracking-tight text-slate-950 sm:text-2xl">
-              Good morning, {farmerName} <span className="text-emerald-600">🌱</span>
+              Good morning, {farmerName}
             </h1>
             <p className="mt-1 text-sm font-medium text-slate-500">
               Here&apos;s what&apos;s happening with your farm today.
