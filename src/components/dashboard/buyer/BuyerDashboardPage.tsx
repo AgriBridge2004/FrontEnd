@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FileText, Plus } from "lucide-react";
+import { FileText, Plus, Sprout } from "lucide-react";
 
 import { BuyerDeliveriesCard } from "@/components/dashboard/buyer/BuyerDeliveriesCard";
 import { BuyerRecentAlerts } from "@/components/dashboard/buyer/BuyerRecentAlerts";
@@ -41,7 +41,7 @@ export function BuyerDashboardPage() {
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <h1 className="text-[22px] font-black tracking-tight text-slate-950 sm:text-2xl">
-              Good morning, Ahmed <span className="text-emerald-600">🌿</span>
+              Good morning, Ahmed <Sprout className="inline size-5 text-emerald-600" aria-hidden="true" />
             </h1>
             <p className="mt-1 text-sm font-medium text-slate-600">Your purchasing overview and key updates.</p>
           </div>

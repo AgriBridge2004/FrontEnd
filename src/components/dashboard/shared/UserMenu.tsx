@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChevronDown, LogOut, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -8,13 +9,14 @@ import { useEffect, useRef, useState } from "react";
 import { clearAuthSession } from "@/lib/auth-storage";
 
 type UserMenuProps = {
+  avatar?: string;
   avatarInitials?: string;
   name: string;
   profileHref: string;
   subLabel?: string;
 };
 
-export function UserMenu({ avatarInitials = "RK", name, profileHref, subLabel }: UserMenuProps) {
+export function UserMenu({ avatar, avatarInitials = "RK", name, profileHref, subLabel }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
@@ -39,15 +41,15 @@ export function UserMenu({ avatarInitials = "RK", name, profileHref, subLabel }:
     <div className="relative" ref={menuRef}>
       <button
         aria-expanded={isOpen}
-        className="flex items-center gap-2.5 rounded-full pr-1 transition hover:bg-slate-50"
+        className="flex items-center gap-2 rounded-full pr-1 transition hover:bg-slate-50"
         onClick={() => setIsOpen((value) => !value)}
         type="button"
       >
-        <span className="grid size-9 place-items-center overflow-hidden rounded-full bg-emerald-950 text-xs font-black text-white">
-          {avatarInitials}
+        <span className="relative grid size-8 place-items-center overflow-hidden rounded-full bg-emerald-950 text-xs font-black text-white">
+          {avatar ? <Image alt="" className="object-cover" fill sizes="32px" src={avatar} /> : avatarInitials}
         </span>
         <span className="hidden text-left sm:block">
-          <span className="block text-[13px] font-black leading-4 text-slate-900">{name}</span>
+          <span className="block text-xs font-black leading-4 text-slate-900">{name}</span>
           {subLabel ? <span className="block text-[9px] font-bold uppercase tracking-wide text-slate-500">{subLabel}</span> : null}
         </span>
         <ChevronDown className="hidden size-3.5 text-slate-400 sm:block" />

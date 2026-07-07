@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { AdminDisputesResolutionPage } from "@/components/dashboard/admin/disputes/AdminDisputesResolutionPage";
 
-export default function AdminDisputesPage() {
-  return (
-    <PlaceholderPage
-      description="A future workspace for reviewing disputes and supporting fair resolutions."
-      title="Admin Disputes"
-    />
-  );
+export default function Page() {
+  return <AdminDisputesResolutionPage />;
 }

@@ -2,6 +2,10 @@ import { Eye } from "lucide-react";
 
 import type { QualityReport } from "@/components/dashboard/quality-officer/quality-officer-dashboard.types";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
+import {
+  dashboardTableHeadClass,
+  dashboardTableRowClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type RecentSubmittedReportsProps = {
@@ -39,7 +43,7 @@ export function RecentSubmittedReports({ onView, onViewAll, reports }: RecentSub
       </div>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] text-left">
-          <thead className="bg-slate-50 text-[11px] font-black uppercase tracking-wide text-slate-400">
+          <thead className={dashboardTableHeadClass}>
             <tr>
               <th className="px-6 py-4">Deal ID</th>
               <th className="px-5 py-3.5">Inspection Date</th>
@@ -51,7 +55,7 @@ export function RecentSubmittedReports({ onView, onViewAll, reports }: RecentSub
           </thead>
           <tbody className="divide-y divide-slate-100 text-sm">
             {reports.map((report) => (
-              <tr className="transition hover:bg-emerald-50/20" key={report.id}>
+              <tr className={dashboardTableRowClass} key={report.id}>
                 <td className="px-5 py-3.5 font-black text-emerald-700">{report.dealId}</td>
                 <td className="px-5 py-3.5 font-medium text-slate-500">{report.inspectionDate}</td>
                 <td className="px-5 py-3.5 font-black text-slate-950">{report.product}</td>

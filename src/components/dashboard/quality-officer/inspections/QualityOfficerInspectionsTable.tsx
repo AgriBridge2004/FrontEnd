@@ -20,6 +20,12 @@ import type {
   QualityOfficerInspection,
 } from "@/components/dashboard/quality-officer/inspections/quality-officer-inspections.types";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
+import {
+  dashboardActivePaginationButtonClass,
+  dashboardPaginationButtonClass,
+  dashboardTableHeadClass,
+  dashboardTableRowClass,
+} from "@/components/dashboard/shared/dashboard-ui";
 import { cn } from "@/lib/cn";
 
 type QualityOfficerInspectionsTableProps = {
@@ -111,7 +117,7 @@ export function QualityOfficerInspectionsTable({
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[960px] text-left">
-          <thead className="bg-slate-50 text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">
+          <thead className={dashboardTableHeadClass}>
             <tr>
               <th className="px-6 py-4">ID & Product</th>
               <th className="px-6 py-4">Farm / Location</th>
@@ -123,7 +129,7 @@ export function QualityOfficerInspectionsTable({
           </thead>
           <tbody className="divide-y divide-slate-100 text-sm">
             {inspections.map((inspection) => (
-              <tr className={cn("transition hover:bg-emerald-50/20", inspection.status === "flagged" && "bg-orange-50/20")} key={inspection.id}>
+              <tr className={cn(dashboardTableRowClass, inspection.status === "flagged" && "bg-orange-50/20")} key={inspection.id}>
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-4">
                     <span className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-emerald-50">
@@ -193,8 +199,8 @@ export function QualityOfficerInspectionsTable({
           {[1, 2, 3].map((page) => (
             <button
               className={cn(
-                "grid size-8 place-items-center rounded-lg text-sm font-black transition",
-                page === 1 ? "bg-emerald-800 text-white" : "text-slate-700 hover:bg-emerald-50",
+                dashboardPaginationButtonClass,
+                page === 1 && dashboardActivePaginationButtonClass,
               )}
               key={page}
               type="button"
