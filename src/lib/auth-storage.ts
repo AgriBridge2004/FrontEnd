@@ -1,22 +1,24 @@
 import type { AuthResponse, AuthUser } from "@/types/auth";
+import { getResponseRole, getResponseUser } from "@/lib/profile-completion";
 
 const ACCESS_TOKEN_KEY = "agribridge_access_token";
 const REFRESH_TOKEN_KEY = "agribridge_refresh_token";
 const USER_KEY = "agribridge_user";
 const ROLE_KEY = "agribridge_role";
+const PENDING_REGISTRATION_PROFILE_KEY = "agribridge_pending_registration_profile";
 
-function getResponseUser(response: AuthResponse): AuthUser | undefined {
-  return response.user ?? response.data?.user;
-}
-
-function getResponseRole(response: AuthResponse) {
-  return response.role ?? response.data?.role ?? getResponseUser(response)?.role;
-}
+type PendingRegistrationProfile = Pick<AuthUser, "email" | "fullName" | "name" | "phone" | "role">;
 
 function getStringField(source: Record<string, unknown> | undefined, key: string) {
   const value = source?.[key];
 
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function getBooleanField(source: Record<string, unknown> | undefined, key: string) {
+  const value = source?.[key];
+
+  return typeof value === "boolean" ? value : undefined;
 }
 
 function normalizeAuthUser(response: AuthResponse): AuthUser | undefined {
@@ -28,6 +30,18 @@ function normalizeAuthUser(response: AuthResponse): AuthUser | undefined {
     email,
     role,
   };
+  const profileCompleted =
+    getBooleanField(responseUser, "profileCompleted") ??
+    getBooleanField(responseUser, "isProfileComplete") ??
+    getBooleanField(responseUser, "profile_completed") ??
+    getBooleanField(responseUser, "onboardingCompleted") ??
+    getBooleanField(responseUser, "hasCompletedProfile") ??
+    getBooleanField(response, "profileCompleted") ??
+    getBooleanField(response.data, "profileCompleted");
+
+  if (profileCompleted !== undefined) {
+    user.profileCompleted = profileCompleted;
+  }
 
   delete user.password;
 
@@ -47,6 +61,7 @@ export function storeAuthSession(response: AuthResponse) {
   const refreshToken = response.refreshToken ?? response.refresh_token ?? response.data?.refreshToken ?? response.data?.refresh_token;
   const user = normalizeAuthUser(response);
   const role = getResponseRole(response);
+  const pendingRegistrationProfile = getPendingRegistrationProfile();
 
   // TODO: Replace localStorage token handling with secure httpOnly cookie/session strategy later.
   if (accessToken) {
@@ -58,11 +73,56 @@ export function storeAuthSession(response: AuthResponse) {
   }
 
   if (user) {
-    window.localStorage.setItem(USER_KEY, JSON.stringify(user));
+    const shouldMergePendingProfile =
+      pendingRegistrationProfile?.email &&
+      user.email &&
+      pendingRegistrationProfile.email.toLowerCase() === user.email.toLowerCase();
+    const nextUser = shouldMergePendingProfile
+      ? {
+          ...pendingRegistrationProfile,
+          ...user,
+          fullName: user.fullName ?? pendingRegistrationProfile.fullName,
+          name: user.name ?? pendingRegistrationProfile.name,
+          phone: user.phone ?? pendingRegistrationProfile.phone,
+          role: user.role ?? pendingRegistrationProfile.role,
+        }
+      : user;
+
+    window.localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+
+    if (shouldMergePendingProfile) {
+      window.localStorage.removeItem(PENDING_REGISTRATION_PROFILE_KEY);
+    }
   }
 
   if (role) {
     window.localStorage.setItem(ROLE_KEY, role);
+  }
+}
+
+export function storePendingRegistrationProfile(profile: PendingRegistrationProfile) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(PENDING_REGISTRATION_PROFILE_KEY, JSON.stringify(profile));
+}
+
+export function getPendingRegistrationProfile(): PendingRegistrationProfile | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const profile = window.localStorage.getItem(PENDING_REGISTRATION_PROFILE_KEY);
+
+  if (!profile) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(profile) as PendingRegistrationProfile;
+  } catch {
+    return null;
   }
 }
 
@@ -124,4 +184,5 @@ export function clearAuthSession() {
   window.localStorage.removeItem(REFRESH_TOKEN_KEY);
   window.localStorage.removeItem(USER_KEY);
   window.localStorage.removeItem(ROLE_KEY);
+  window.localStorage.removeItem(PENDING_REGISTRATION_PROFILE_KEY);
 }

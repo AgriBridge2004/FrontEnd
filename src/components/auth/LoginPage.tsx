@@ -11,28 +11,8 @@ import { AuthSidePanel } from "@/components/auth/AuthSidePanel";
 import { GoogleIcon } from "@/components/auth/GoogleIcon";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { loginUser } from "@/lib/auth-api";
-import { storeAuthSession } from "@/lib/auth-storage";
-import type { AuthResponse } from "@/types/auth";
-
-function getResponseRole(response: AuthResponse) {
-  return response.role ?? response.data?.role ?? response.user?.role ?? response.data?.user?.role;
-}
-
-function getDashboardHref(role: ReturnType<typeof getResponseRole>) {
-  if (role === "buyer") {
-    return "/buyer/dashboard";
-  }
-
-  if (role === "quality_officer" || role === "officer") {
-    return "/officer/dashboard";
-  }
-
-  if (role === "admin") {
-    return "/admin/dashboard";
-  }
-
-  return "/farmer/dashboard";
-}
+import { getStoredUser, storeAuthSession } from "@/lib/auth-storage";
+import { getPostLoginRedirectPath } from "@/lib/profile-completion";
 
 export function LoginPage() {
   const router = useRouter();
@@ -64,7 +44,7 @@ export function LoginPage() {
       setIsSubmitting(true);
       const response = await loginUser({ email: email.trim(), password });
       storeAuthSession(response);
-      router.push(getDashboardHref(getResponseRole(response)));
+      router.push(getPostLoginRedirectPath(getStoredUser()));
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
     } finally {

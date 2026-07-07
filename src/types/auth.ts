@@ -36,7 +36,9 @@ export type AuthUser = {
   name?: string;
   farmName?: string;
   avatarUrl?: string;
-  role?: UserRole | "officer";
+  role?: UserRole | "quality-officer" | "officer";
+  profileCompleted?: boolean;
+  profile?: unknown;
   [key: string]: unknown;
 };
 
@@ -50,7 +52,7 @@ export type AuthResponse = {
   resetToken?: string;
   reset_token?: string;
   user?: AuthUser;
-  role?: UserRole | "officer";
+  role?: UserRole | "quality-officer" | "officer";
   data?: {
     token?: string;
     accessToken?: string;
@@ -60,7 +62,7 @@ export type AuthResponse = {
     resetToken?: string;
     reset_token?: string;
     user?: AuthUser;
-    role?: UserRole | "officer";
+    role?: UserRole | "quality-officer" | "officer";
     [key: string]: unknown;
   };
   [key: string]: unknown;

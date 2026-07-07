@@ -12,15 +12,22 @@ import { initialEditProfileForm, locationOptions } from "@/components/dashboard/
 import type { EditFarmerProfileForm, EditProfileErrors } from "@/components/dashboard/farmer/profile/edit/edit-profile.types";
 import { ProfileImageUpload } from "@/components/dashboard/farmer/profile/edit/ProfileImageUpload";
 import { SpecialtiesInput } from "@/components/dashboard/farmer/profile/edit/SpecialtiesInput";
-import { updateFarmerProfile } from "@/lib/farmer-profile-api";
-import { getStoredUser } from "@/lib/auth-storage";
+import { saveFarmerProfile, updateFarmerProfile } from "@/lib/farmer-profile-api";
+import { getStoredUser, updateStoredUser } from "@/lib/auth-storage";
 import { getStringField } from "@/lib/farmer-display";
+import { getDashboardPathByRole } from "@/lib/profile-completion";
 
 const profilePhotoMaxSize = 2 * 1024 * 1024;
 const documentMaxSize = 5 * 1024 * 1024;
 const toastDurationMs = 3000;
 
-export function EditProfileForm() {
+type EditProfileFormProps = {
+  cancelHref?: string;
+  mode?: "settings" | "onboarding";
+  submitLabel?: string;
+};
+
+export function EditProfileForm({ cancelHref = "/farmer/profile", mode = "settings", submitLabel = "Save Changes" }: EditProfileFormProps) {
   const router = useRouter();
   const [form, setForm] = useState<EditFarmerProfileForm>(initialEditProfileForm);
   const [errors, setErrors] = useState<EditProfileErrors>({});
@@ -32,19 +39,47 @@ export function EditProfileForm() {
   const isSavingRef = useRef(false);
   const profilePhotoPreviewRef = useRef("");
   const coverImagePreviewRef = useRef("");
+  const hasInitializedFormRef = useRef(false);
 
   useEffect(() => {
+    if (hasInitializedFormRef.current) {
+      return;
+    }
+
     const storedUser = getStoredUser();
+    const profile = getProfileRecord(storedUser?.profile);
 
     if (storedUser) {
       setForm((current) => ({
         ...current,
-        email: getStringField(storedUser, "email") || current.email,
-        farmName: getStringField(storedUser, "farmName") || current.farmName,
-        fullName: getStringField(storedUser, "fullName") || getStringField(storedUser, "name") || current.fullName,
-        location: getStringField(storedUser, "region") || getStringField(storedUser, "location") || current.location,
-        phone: getStringField(storedUser, "phone") || current.phone,
+        email: getProfileString(profile, "email") || getStringField(storedUser, "email") || current.email,
+        farmName: getProfileString(profile, "farmName") || getStringField(storedUser, "farmName") || current.farmName,
+        fullName:
+          getProfileString(profile, "fullName") ||
+          getProfileString(profile, "name") ||
+          getStringField(storedUser, "fullName") ||
+          getStringField(storedUser, "name") ||
+          current.fullName,
+        location:
+          getProfileString(profile, "region") ||
+          getProfileString(profile, "location") ||
+          getStringField(storedUser, "region") ||
+          getStringField(storedUser, "location") ||
+          current.location,
+        farmAddress:
+          getProfileString(profile, "farmAddress") ||
+          getProfileString(profile, "address") ||
+          getStringField(storedUser, "farmAddress") ||
+          current.farmAddress,
+        phone: getProfileString(profile, "phone") || getStringField(storedUser, "phone") || current.phone,
+        bio: getProfileString(profile, "bio") || getStringField(storedUser, "bio") || current.bio,
+        serviceArea:
+          getProfileString(profile, "serviceArea") ||
+          getProfileString(profile, "deliveryArea") ||
+          getStringField(storedUser, "serviceArea") ||
+          current.serviceArea,
       }));
+      hasInitializedFormRef.current = true;
     }
 
     return () => {
@@ -163,8 +198,14 @@ export function EditProfileForm() {
     if (!form.farmSizeAcres || Number.isNaN(farmSize) || farmSize <= 0) {
       nextErrors.farmSizeAcres = "Farm size must be greater than 0.";
     }
+    if (form.specialties.length === 0) {
+      nextErrors.specialties = "Please add at least one specialty.";
+    }
     if (form.bio.length > 500) {
       nextErrors.bio = "Bio must be 500 characters or less.";
+    }
+    if (!form.bio.trim()) {
+      nextErrors.bio = "Bio is required.";
     }
 
     setErrors(nextErrors);
@@ -188,14 +229,34 @@ export function EditProfileForm() {
     setIsSaving(true);
 
     try {
-      await updateFarmerProfile(form);
+      await (mode === "onboarding" ? saveFarmerProfile(form, { context: "onboarding" }) : updateFarmerProfile(form));
+      if (mode === "onboarding") {
+        // TODO: Backend should persist profile fields and profileCompleted=true after profile submission.
+        updateStoredUser({
+          profileCompleted: true,
+          profile: form,
+        });
+        showToast("Profile completed successfully.");
+
+        window.setTimeout(() => {
+          router.replace(getDashboardPathByRole("farmer"));
+        }, 800);
+        return;
+      }
+
       showToast("Profile updated successfully.");
 
       window.setTimeout(() => {
         router.push("/farmer/profile");
       }, 800);
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "Unable to update profile.");
+      const message = error instanceof Error && error.message === "Validation error"
+        ? "Profile validation failed. Please check the required fields."
+        : error instanceof Error
+          ? error.message
+          : "Could not save profile. Please try again.";
+
+      showToast(message);
       isSavingRef.current = false;
       setIsSaving(false);
     }
@@ -211,24 +272,46 @@ export function EditProfileForm() {
           <div className="grid gap-5">
             <ProfileImageUpload error={errors.profilePhoto} onFileSelect={handleProfilePhotoSelect} previewUrl={profilePhotoPreview} />
             <CoverImageUpload error={errors.coverImage} onFileSelect={handleCoverImageSelect} previewUrl={coverImagePreview} />
-            <TextInput error={errors.fullName} label="Full Name" onChange={handleTextChange("fullName")} value={form.fullName} />
-            <TextInput error={errors.farmName} label="Farm Name" onChange={handleTextChange("farmName")} value={form.farmName} />
-            <TextInput error={errors.email} label="Email" onChange={handleTextChange("email")} type="email" value={form.email} />
-            <TextInput error={errors.phone} label="Phone" onChange={handleTextChange("phone")} type="tel" value={form.phone} />
+            <TextInput error={errors.fullName} label="Full Name" onChange={handleTextChange("fullName")} placeholder="Ahmad Hassan" value={form.fullName} />
+            <TextInput error={errors.farmName} label="Farm Name" onChange={handleTextChange("farmName")} placeholder="Al-Masri Farm" value={form.farmName} />
+            <TextInput
+              error={errors.email}
+              helperText={mode === "onboarding" ? "This email was used during registration." : undefined}
+              label="Email"
+              onChange={handleTextChange("email")}
+              placeholder="ahmad@example.com"
+              readOnly={mode === "onboarding"}
+              type="email"
+              value={form.email}
+            />
+            {mode === "onboarding" ? (
+              <TextInput label="Role" onChange={() => undefined} readOnly value="Farmer" />
+            ) : null}
+            <TextInput error={errors.phone} label="Phone" onChange={handleTextChange("phone")} placeholder="+970 59 999 9999" type="tel" value={form.phone} />
             <SelectInput error={errors.location} label="Location" onChange={handleTextChange("location")} options={locationOptions} value={form.location} />
+            <TextInput error={errors.farmAddress} label="Farm Address" onChange={handleTextChange("farmAddress")} placeholder="Al Karama Street, Gaza" value={form.farmAddress} />
           </div>
 
           <div className="grid gap-5">
-            <TextAreaInput error={errors.bio} label="Bio" maxLength={500} onChange={handleTextChange("bio")} value={form.bio} />
+            <TextAreaInput
+              error={errors.bio}
+              label="Bio"
+              maxLength={500}
+              onChange={handleTextChange("bio")}
+              placeholder="Tell buyers about your farm, products, and experience..."
+              value={form.bio}
+            />
             <TextInput
               error={errors.farmSizeAcres}
               label="Farm Size (acres)"
               min="1"
               onChange={handleTextChange("farmSizeAcres")}
+              placeholder="25"
               type="number"
               value={form.farmSizeAcres}
             />
-            <SpecialtiesInput value={form.specialties} onChange={(specialties) => updateField("specialties", specialties)} />
+            <TextInput error={errors.serviceArea} label="Delivery / Service Area" onChange={handleTextChange("serviceArea")} placeholder="Gaza" value={form.serviceArea} />
+            <SpecialtiesInput error={errors.specialties} value={form.specialties} onChange={(specialties) => updateField("specialties", specialties)} />
             <CertificationsUpload files={form.certifications} onFilesSelect={handleCertificationsSelect} />
             <BusinessLicenseUpload file={form.businessLicense} onFileSelect={handleBusinessLicenseSelect} />
           </div>
@@ -237,7 +320,7 @@ export function EditProfileForm() {
         <div className="mt-8 flex flex-col-reverse gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-center">
           <Link
             className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-7 text-sm font-black text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-800"
-            href="/farmer/profile"
+            href={cancelHref}
           >
             <X className="size-4" />
             Cancel
@@ -248,7 +331,7 @@ export function EditProfileForm() {
             type="submit"
           >
             <Save className="size-4" />
-            {isSaving ? "Saving..." : "Save Changes"}
+            {isSaving ? "Saving..." : submitLabel}
           </button>
         </div>
       </form>
@@ -265,25 +348,33 @@ function revokePreview(previewUrl: string) {
 
 type TextInputProps = {
   error?: string;
+  helperText?: string;
   label: string;
   min?: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  readOnly?: boolean;
   type?: string;
   value: string;
 };
 
-function TextInput({ error, label, min, onChange, type = "text", value }: TextInputProps) {
+function TextInput({ error, helperText, label, min, onChange, placeholder, readOnly = false, type = "text", value }: TextInputProps) {
   return (
     <label className="block">
       <span className="text-sm font-black text-slate-700">{label}</span>
       <input
-        className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-800 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/10"
+        className={`mt-2 h-11 w-full rounded-lg border border-slate-200 px-3.5 text-sm font-medium text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/10 ${
+          readOnly ? "bg-slate-50 text-slate-500" : "bg-white"
+        }`}
         min={min}
         onChange={onChange}
+        placeholder={placeholder}
+        readOnly={readOnly}
         type={type}
         value={value}
       />
       {error ? <span className="mt-1.5 block text-xs font-semibold text-rose-600">{error}</span> : null}
+      {helperText ? <span className="mt-1.5 block text-xs font-semibold text-slate-500">{helperText}</span> : null}
     </label>
   );
 }
@@ -305,6 +396,7 @@ function SelectInput({ error, label, onChange, options, value }: SelectInputProp
         onChange={onChange}
         value={value}
       >
+        <option value="">Select a location</option>
         {options.map((option) => (
           <option key={option} value={option}>
             {option}
@@ -321,10 +413,11 @@ type TextAreaInputProps = {
   label: string;
   maxLength: number;
   onChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
+  placeholder?: string;
   value: string;
 };
 
-function TextAreaInput({ error, label, maxLength, onChange, value }: TextAreaInputProps) {
+function TextAreaInput({ error, label, maxLength, onChange, placeholder, value }: TextAreaInputProps) {
   return (
     <label className="block">
       <span className="text-sm font-black text-slate-700">{label}</span>
@@ -332,6 +425,7 @@ function TextAreaInput({ error, label, maxLength, onChange, value }: TextAreaInp
         className="mt-2 min-h-36 w-full resize-none rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm font-medium leading-6 text-slate-800 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/10"
         maxLength={maxLength}
         onChange={onChange}
+        placeholder={placeholder}
         value={value}
       />
       <span className="mt-1 flex items-center justify-between gap-3">
@@ -342,6 +436,16 @@ function TextAreaInput({ error, label, maxLength, onChange, value }: TextAreaInp
       </span>
     </label>
   );
+}
+
+function getProfileRecord(profile: unknown) {
+  return profile && typeof profile === "object" && !Array.isArray(profile) ? (profile as Record<string, unknown>) : {};
+}
+
+function getProfileString(profile: Record<string, unknown>, key: string) {
+  const value = profile[key];
+
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
 function EditProfileToast({ message }: { message: string }) {

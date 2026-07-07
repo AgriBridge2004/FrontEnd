@@ -10,6 +10,7 @@ import { AuthLanguageSwitch } from "@/components/auth/AuthLanguageSwitch";
 import { AuthSidePanel } from "@/components/auth/AuthSidePanel";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { registerUser } from "@/lib/auth-api";
+import { storePendingRegistrationProfile } from "@/lib/auth-storage";
 
 type Role = "farmer" | "buyer";
 
@@ -80,6 +81,13 @@ export function RegisterPage() {
       await registerUser({
         email: trimmedEmail,
         password,
+        role: selectedRole,
+      });
+      storePendingRegistrationProfile({
+        email: trimmedEmail,
+        fullName: fullName.trim(),
+        name: fullName.trim(),
+        phone: phoneNumber.trim(),
         role: selectedRole,
       });
       router.push(`/auth/otp?email=${encodeURIComponent(trimmedEmail)}&flow=register`);

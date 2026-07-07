@@ -4,11 +4,12 @@ import { KeyboardEvent, useState } from "react";
 import { Plus, X } from "lucide-react";
 
 type SpecialtiesInputProps = {
+  error?: string;
   value: string[];
   onChange: (specialties: string[]) => void;
 };
 
-export function SpecialtiesInput({ onChange, value }: SpecialtiesInputProps) {
+export function SpecialtiesInput({ error, onChange, value }: SpecialtiesInputProps) {
   const [inputValue, setInputValue] = useState("");
 
   function addSpecialty(rawValue: string) {
@@ -85,6 +86,7 @@ export function SpecialtiesInput({ onChange, value }: SpecialtiesInputProps) {
           Add
         </button>
       </div>
+      {error ? <p className="mt-2 text-xs font-semibold text-rose-600">{error}</p> : null}
     </div>
   );
 }
