@@ -4,13 +4,14 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { BuyerApiNotice } from "@/components/dashboard/buyer/BuyerApiNotice";
 import { buyerSidebarItems } from "@/components/dashboard/buyer/BuyerSidebarConfig";
-import { buyerFavoriteListings } from "@/components/dashboard/buyer/favorites/buyer-favorites.mock";
 import type { BuyerFavoriteListing, FavoriteSortOption } from "@/components/dashboard/buyer/favorites/buyer-favorites.types";
 import { FavoriteListingsGrid } from "@/components/dashboard/buyer/favorites/FavoriteListingsGrid";
 import { FavoriteListingsHeader } from "@/components/dashboard/buyer/favorites/FavoriteListingsHeader";
 import { DashboardLayout } from "@/components/dashboard/shared/DashboardLayout";
 import { EmptyState } from "@/components/dashboard/shared/EmptyState";
+import { getStoredUser } from "@/lib/auth-storage";
 
 const buyerTopbarLinks = [
   { href: "/marketplace", label: "Marketplace" },
@@ -25,12 +26,14 @@ const availabilityRank = {
 };
 
 export function BuyerFavoriteListingsPage() {
-  const [favoriteListings, setFavoriteListings] = useState<BuyerFavoriteListing[]>(buyerFavoriteListings);
+  const [favoriteListings, setFavoriteListings] = useState<BuyerFavoriteListing[]>([]);
   const [category, setCategory] = useState("All Categories");
   const [searchValue, setSearchValue] = useState("");
   const [sort, setSort] = useState<FavoriteSortOption>("recent");
   const [visibleCount, setVisibleCount] = useState(visibleStep);
   const [toast, setToast] = useState<string | null>(null);
+  const user = getStoredUser();
+  const userName = typeof user?.fullName === "string" ? user.fullName : typeof user?.name === "string" ? user.name : "Buyer";
 
   function showToast(message: string) {
     setToast(message);
@@ -63,7 +66,7 @@ export function BuyerFavoriteListingsPage() {
         return availabilityRank[a.status] - availabilityRank[b.status];
       }
 
-      return buyerFavoriteListings.findIndex((listing) => listing.id === a.id) - buyerFavoriteListings.findIndex((listing) => listing.id === b.id);
+      return favoriteListings.findIndex((listing) => listing.id === a.id) - favoriteListings.findIndex((listing) => listing.id === b.id);
     });
   }, [category, favoriteListings, searchValue, sort]);
 
@@ -89,7 +92,6 @@ export function BuyerFavoriteListingsPage() {
   return (
     <DashboardLayout
       navLinks={buyerTopbarLinks}
-      notificationCount={3}
       onSearchChange={(value) => {
         setSearchValue(value);
         setVisibleCount(visibleStep);
@@ -99,9 +101,10 @@ export function BuyerFavoriteListingsPage() {
       searchPlaceholder="Search within favorites..."
       searchValue={searchValue}
       sidebarItems={buyerSidebarItems}
-      userName="Ramesh Kumar"
+      userName={userName}
     >
       <div className="mx-auto w-full max-w-[1280px] px-4 py-9 sm:px-5 lg:px-8">
+        <BuyerApiNotice description="Favorite listings endpoints are not available in Swagger yet." />
         <FavoriteListingsHeader
           category={category}
           count={favoriteListings.length}

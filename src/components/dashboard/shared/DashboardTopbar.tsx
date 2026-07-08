@@ -12,6 +12,12 @@ import {
   getDashboardNotifications,
 } from "@/components/dashboard/shared/dashboard-notifications.mock";
 import type { DashboardNotification, DashboardRole } from "@/components/dashboard/shared/dashboard-notifications.types";
+import {
+  getBuyerNotifications,
+  markAllBuyerNotificationsAsRead,
+  markBuyerNotificationAsRead,
+  type ApiRecord,
+} from "@/lib/buyer-api";
 import { cn } from "@/lib/cn";
 
 type DashboardTopbarProps = {
@@ -59,7 +65,31 @@ export function DashboardTopbar({
   const unreadNotificationCount = notifications.filter((notification) => !notification.isRead).length;
 
   useEffect(() => {
-    setNotifications(getDashboardNotifications(role));
+    let isMounted = true;
+
+    async function loadNotifications() {
+      if (role !== "buyer") {
+        setNotifications(getDashboardNotifications(role));
+        return;
+      }
+
+      try {
+        const records = await getBuyerNotifications();
+        if (isMounted) {
+          setNotifications(records.map(mapBuyerDashboardNotification));
+        }
+      } catch {
+        if (isMounted) {
+          setNotifications([]);
+        }
+      }
+    }
+
+    void loadNotifications();
+
+    return () => {
+      isMounted = false;
+    };
   }, [role]);
 
   useEffect(() => {
@@ -104,18 +134,26 @@ export function DashboardTopbar({
   }
 
   function handleMarkAllAsRead() {
-    // TODO: Connect mark all as read endpoint.
     setNotifications((currentNotifications) => currentNotifications.map((notification) => ({ ...notification, isRead: true })));
+    if (role === "buyer") {
+      void markAllBuyerNotificationsAsRead()
+        .then(() => showToast("All notifications marked as read."))
+        .catch(() => showToast("Could not mark all notifications as read."));
+      return;
+    }
+
     showToast("All notifications marked as read.");
   }
 
   function handleNotificationRead(notificationId: string) {
-    // TODO: Connect notification detail routes.
     setNotifications((currentNotifications) =>
       currentNotifications.map((notification) =>
         notification.id === notificationId ? { ...notification, isRead: true } : notification,
       ),
     );
+    if (role === "buyer") {
+      void markBuyerNotificationAsRead(notificationId).catch(() => showToast("Could not mark notification as read."));
+    }
   }
 
   return (
@@ -206,4 +244,26 @@ export function DashboardTopbar({
       ) : null}
     </header>
   );
+}
+
+function mapBuyerDashboardNotification(record: ApiRecord): DashboardNotification {
+  const type = String(record.type ?? record.category ?? "system");
+  const relatedDealId = typeof record.dealId === "string" ? record.dealId : undefined;
+  const relatedRfqId = typeof record.rfqId === "string" ? record.rfqId : undefined;
+
+  return {
+    href: getBuyerNotificationHref(relatedDealId, relatedRfqId),
+    id: String(record.id ?? record._id ?? ""),
+    isRead: record.read === true || record.isRead === true,
+    message: String(record.message ?? record.body ?? ""),
+    time: String(record.createdAt ?? record.time ?? "Recently"),
+    title: String(record.title ?? "Notification"),
+    type: type === "payment" || type === "dispute" || type === "verification" ? type : "system",
+  };
+}
+
+function getBuyerNotificationHref(dealId?: string, rfqId?: string) {
+  if (dealId) return `/buyer/deals/${dealId}`;
+  if (rfqId) return "/buyer/rfqs";
+  return undefined;
 }

@@ -2,15 +2,16 @@
 
 import { useMemo, useState } from "react";
 
+import { BuyerApiNotice } from "@/components/dashboard/buyer/BuyerApiNotice";
 import { buyerSidebarItems } from "@/components/dashboard/buyer/BuyerSidebarConfig";
 import { BuyerFinanceSecurityCards } from "@/components/dashboard/buyer/payments/BuyerFinanceSecurityCards";
 import { BuyerPaymentActionPanel } from "@/components/dashboard/buyer/payments/BuyerPaymentActionPanel";
 import { BuyerPaymentLedger } from "@/components/dashboard/buyer/payments/BuyerPaymentLedger";
-import { buyerPayments, buyerPaymentStats } from "@/components/dashboard/buyer/payments/buyer-payments.mock";
-import type { BuyerPaymentFilter } from "@/components/dashboard/buyer/payments/buyer-payments.types";
+import type { BuyerPayment, BuyerPaymentFilter } from "@/components/dashboard/buyer/payments/buyer-payments.types";
 import { BuyerPaymentsHeader } from "@/components/dashboard/buyer/payments/BuyerPaymentsHeader";
 import { BuyerPaymentsStats } from "@/components/dashboard/buyer/payments/BuyerPaymentsStats";
 import { DashboardLayout } from "@/components/dashboard/shared/DashboardLayout";
+import { getStoredUser } from "@/lib/auth-storage";
 
 const buyerTopbarLinks = [
   { href: "/marketplace", label: "Marketplace" },
@@ -18,6 +19,12 @@ const buyerTopbarLinks = [
 ];
 
 const pageSize = 10;
+const buyerPayments: BuyerPayment[] = [];
+const buyerPaymentStats = {
+  escrowBalance: 0,
+  totalSettledYtd: 0,
+  upcomingPayouts: 0,
+};
 
 export function BuyerPaymentsPage() {
   const [selectedFilter, setSelectedFilter] = useState<BuyerPaymentFilter>("all");
@@ -25,6 +32,8 @@ export function BuyerPaymentsPage() {
   const [topbarSearchQuery, setTopbarSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [toast, setToast] = useState<string | null>(null);
+  const user = getStoredUser();
+  const userName = typeof user?.fullName === "string" ? user.fullName : typeof user?.name === "string" ? user.name : "Buyer";
 
   function showToast(message: string) {
     setToast(message);
@@ -56,11 +65,9 @@ export function BuyerPaymentsPage() {
     setCurrentPage(Math.min(Math.max(page, 1), totalPages));
   }
 
-  // TODO: Connect buyer payments, escrow actions, export, and filters to backend finance APIs.
   return (
     <DashboardLayout
       navLinks={buyerTopbarLinks}
-      notificationCount={3}
       onSearchChange={(value) => {
         setTopbarSearchQuery(value);
         resetPage();
@@ -70,9 +77,10 @@ export function BuyerPaymentsPage() {
       searchPlaceholder="Search transactions, Escrow IDs or Contracts..."
       searchValue={topbarSearchQuery}
       sidebarItems={buyerSidebarItems}
-      userName="Ramesh Kumar"
+      userName={userName}
     >
       <div className="mx-auto w-full max-w-[1280px] px-4 py-6 sm:px-5 lg:px-7">
+        <BuyerApiNotice description="Buyer payment and escrow endpoints are not available in Swagger yet." />
         <BuyerPaymentsHeader
           onAdvancedFilters={() => showToast("Advanced filters will be connected later.")}
           onExportPdf={() => showToast("Export PDF will be connected later.")}

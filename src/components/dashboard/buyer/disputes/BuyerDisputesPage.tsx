@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 
+import { BuyerApiNotice } from "@/components/dashboard/buyer/BuyerApiNotice";
 import { buyerSidebarItems } from "@/components/dashboard/buyer/BuyerSidebarConfig";
-import { buyerDisputeCases, buyerDisputeStats, resolutionEfficiencyData } from "@/components/dashboard/buyer/disputes/buyer-disputes.mock";
 import type { BuyerDisputeCase, BuyerDisputeTab } from "@/components/dashboard/buyer/disputes/buyer-disputes.types";
 import { BuyerDisputesCasesTable } from "@/components/dashboard/buyer/disputes/BuyerDisputesCasesTable";
 import { BuyerDisputesHeader } from "@/components/dashboard/buyer/disputes/BuyerDisputesHeader";
@@ -12,6 +12,7 @@ import { BuyerMediationSupportCard } from "@/components/dashboard/buyer/disputes
 import { BuyerResolutionEfficiencyChart } from "@/components/dashboard/buyer/disputes/BuyerResolutionEfficiencyChart";
 import { BuyerTrustScoreCard } from "@/components/dashboard/buyer/disputes/BuyerTrustScoreCard";
 import { DashboardLayout } from "@/components/dashboard/shared/DashboardLayout";
+import { getStoredUser } from "@/lib/auth-storage";
 
 const buyerTopbarLinks = [
   { href: "/marketplace", label: "Marketplace" },
@@ -19,6 +20,19 @@ const buyerTopbarLinks = [
 ];
 
 const casesPerPage = 4;
+const buyerDisputeCases: BuyerDisputeCase[] = [];
+const buyerDisputeStats = {
+  averageResolutionDays: 0,
+  openDisputes: 0,
+  resolvedCases: 0,
+};
+const resolutionEfficiencyData = [
+  { activity: 0, closed: 0, day: "Mon" },
+  { activity: 0, closed: 0, day: "Tue" },
+  { activity: 0, closed: 0, day: "Wed" },
+  { activity: 0, closed: 0, day: "Thu" },
+  { activity: 0, closed: 0, day: "Fri" },
+];
 
 function matchesTab(disputeCase: BuyerDisputeCase, selectedTab: BuyerDisputeTab) {
   if (selectedTab === "all") {
@@ -38,6 +52,8 @@ export function BuyerDisputesPage() {
   const [selectedRange, setSelectedRange] = useState("Last 7 Days");
   const [searchQuery, setSearchQuery] = useState("");
   const [toast, setToast] = useState<string | null>(null);
+  const user = getStoredUser();
+  const userName = typeof user?.fullName === "string" ? user.fullName : typeof user?.name === "string" ? user.name : "Buyer";
 
   function showToast(message: string) {
     setToast(message);
@@ -66,11 +82,9 @@ export function BuyerDisputesPage() {
     setCurrentPage(Math.min(Math.max(page, 1), totalPages));
   }
 
-  // TODO: Connect buyer dispute cases, mediation actions, exports, and charts to backend APIs.
   return (
     <DashboardLayout
       navLinks={buyerTopbarLinks}
-      notificationCount={3}
       onSearchChange={(value) => {
         setSearchQuery(value);
         resetPage();
@@ -80,9 +94,10 @@ export function BuyerDisputesPage() {
       searchPlaceholder="Search disputes, contracts, or merchants..."
       searchValue={searchQuery}
       sidebarItems={buyerSidebarItems}
-      userName="Ramesh Kumar"
+      userName={userName}
     >
       <div className="mx-auto w-full max-w-[1280px] px-4 py-7 sm:px-5 lg:px-7">
+        <BuyerApiNotice description="Buyer dispute endpoints are not available in Swagger yet." />
         <BuyerDisputesHeader onOpenNewDispute={() => showToast("New dispute flow will be connected later.")} />
         <BuyerDisputesStats stats={buyerDisputeStats} />
         <BuyerDisputesCasesTable

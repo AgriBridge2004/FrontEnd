@@ -1,43 +1,51 @@
 import { CheckCircle, CircleDollarSign, Clock, ShoppingCart } from "lucide-react";
 
-import { buyerDealStats } from "@/components/dashboard/buyer/deals/buyer-deals.mock";
 import { cn } from "@/lib/cn";
 
-const stats = [
-  {
-    detail: "Ongoing orders",
-    icon: ShoppingCart,
-    iconClassName: "bg-emerald-50 text-emerald-700",
-    label: "Active Deals",
-    value: String(buyerDealStats.activeDeals),
-  },
-  {
-    detail: "Waiting for farmer",
-    icon: Clock,
-    iconClassName: "bg-amber-50 text-amber-600",
-    label: "Awaiting Confirmation",
-    value: String(buyerDealStats.awaitingConfirmation),
-  },
-  {
-    detail: "Successfully received",
-    icon: CheckCircle,
-    iconClassName: "bg-indigo-50 text-indigo-600",
-    label: "Completed",
-    value: String(buyerDealStats.completed),
-  },
-  {
-    detail: "",
-    icon: CircleDollarSign,
-    iconClassName: "bg-emerald-50 text-emerald-700",
-    label: "Total Spent",
-    value: `$ ${buyerDealStats.totalSpent.toLocaleString()}`,
-  },
-];
+type BuyerDealsStatsProps = {
+  stats?: {
+    activeDeals: number;
+    awaitingConfirmation: number;
+    completed: number;
+    totalSpent: number;
+  };
+};
 
-export function BuyerDealsStats() {
+export function BuyerDealsStats({ stats = { activeDeals: 0, awaitingConfirmation: 0, completed: 0, totalSpent: 0 } }: BuyerDealsStatsProps) {
+  const cards = [
+    {
+      detail: "Ongoing orders",
+      icon: ShoppingCart,
+      iconClassName: "bg-emerald-50 text-emerald-700",
+      label: "Active Deals",
+      value: String(stats.activeDeals),
+    },
+    {
+      detail: "Waiting for farmer",
+      icon: Clock,
+      iconClassName: "bg-amber-50 text-amber-600",
+      label: "Awaiting Confirmation",
+      value: String(stats.awaitingConfirmation),
+    },
+    {
+      detail: "Successfully received",
+      icon: CheckCircle,
+      iconClassName: "bg-indigo-50 text-indigo-600",
+      label: "Completed",
+      value: String(stats.completed),
+    },
+    {
+      detail: "",
+      icon: CircleDollarSign,
+      iconClassName: "bg-emerald-50 text-emerald-700",
+      label: "Total Spent",
+      value: `$ ${stats.totalSpent.toLocaleString()}`,
+    },
+  ];
+
   return (
     <section className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-      {stats.map((stat) => {
+      {cards.map((stat) => {
         const Icon = stat.icon;
 
         return (

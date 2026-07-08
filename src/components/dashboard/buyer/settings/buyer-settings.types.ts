@@ -14,6 +14,7 @@ export type BuyerSettings = {
     id: string;
     businessName: string;
     bio: string;
+    profileImage?: string;
     verified: boolean;
   };
   contact: {

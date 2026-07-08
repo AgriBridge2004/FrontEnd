@@ -119,6 +119,33 @@ function debugFarmerProfileRequest(mode: "create" | "update", endpoint: string, 
   console.log("[FarmerProfile] payload:", sanitizedPayload);
 }
 
+function isCloudinaryProfileImageError(error: unknown): error is ApiError {
+  if (!(error instanceof ApiError)) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+  const details = asRecord(error.details);
+  const detailMessage = String(details.message ?? details.error ?? "").toLowerCase();
+
+  return (
+    message.includes("profileimage") ||
+    detailMessage.includes("profileimage") ||
+    message.includes("must supply api_key") ||
+    detailMessage.includes("must supply api_key") ||
+    message.includes("cloudinary") ||
+    detailMessage.includes("cloudinary")
+  );
+}
+
+function normalizeFarmerProfileError(error: unknown): never {
+  if (isCloudinaryProfileImageError(error)) {
+    throw new ApiError("Profile image upload failed. Please try again.", error.status, "PROFILE_IMAGE_UPLOAD_FAILED", error.details);
+  }
+
+  throw error;
+}
+
 export function syncStoredUserFromFarmerProfile(response: ApiFarmerProfileResponse, fallbackForm: EditFarmerProfileForm) {
   const record = unwrapFarmerProfileResponse(response);
 
@@ -154,26 +181,34 @@ export async function createFarmerProfile(payload: FarmerProfilePayload) {
   const endpoint = "/farmer";
   debugFarmerProfileRequest("create", endpoint, payload);
 
-  const response = await apiRequest<ApiFarmerProfileResponse>(endpoint, {
-    auth: true,
-    body: mapFarmerProfilePayloadToFormData(payload),
-    method: "POST",
-  });
+  try {
+    const response = await apiRequest<ApiFarmerProfileResponse>(endpoint, {
+      auth: true,
+      body: mapFarmerProfilePayloadToFormData(payload),
+      method: "POST",
+    });
 
-  return response;
+    return response;
+  } catch (error) {
+    normalizeFarmerProfileError(error);
+  }
 }
 
 export async function updateFarmerProfilePayload(payload: FarmerProfilePayload) {
   const endpoint = "/farmer/profile";
   debugFarmerProfileRequest("update", endpoint, payload);
 
-  const response = await apiRequest<ApiFarmerProfileResponse>(endpoint, {
-    auth: true,
-    body: mapFarmerProfilePayloadToFormData(payload),
-    method: "PUT",
-  });
+  try {
+    const response = await apiRequest<ApiFarmerProfileResponse>(endpoint, {
+      auth: true,
+      body: mapFarmerProfilePayloadToFormData(payload),
+      method: "PUT",
+    });
 
-  return response;
+    return response;
+  } catch (error) {
+    normalizeFarmerProfileError(error);
+  }
 }
 
 export async function updateFarmerProfile(form: EditFarmerProfileForm) {

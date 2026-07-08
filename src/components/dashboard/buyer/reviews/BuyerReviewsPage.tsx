@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 
+import { BuyerApiNotice } from "@/components/dashboard/buyer/BuyerApiNotice";
 import { buyerSidebarItems } from "@/components/dashboard/buyer/BuyerSidebarConfig";
-import { buyerReviews, buyerReviewsStats } from "@/components/dashboard/buyer/reviews/buyer-reviews.mock";
 import type {
   BuyerReview,
   BuyerReviewCategoryFilter,
@@ -15,6 +15,7 @@ import { BuyerReviewsInfoCards } from "@/components/dashboard/buyer/reviews/Buye
 import { BuyerReviewsStats } from "@/components/dashboard/buyer/reviews/BuyerReviewsStats";
 import { BuyerReviewsTable } from "@/components/dashboard/buyer/reviews/BuyerReviewsTable";
 import { DashboardLayout } from "@/components/dashboard/shared/DashboardLayout";
+import { getStoredUser } from "@/lib/auth-storage";
 
 const buyerTopbarLinks = [
   { href: "/marketplace", label: "Marketplace" },
@@ -22,6 +23,13 @@ const buyerTopbarLinks = [
 ];
 
 const pageSize = 10;
+const buyerReviews: BuyerReview[] = [];
+const buyerReviewsStats = {
+  averageRatingGiven: 0,
+  awaitingFeedback: 0,
+  sentiment: { fiveStar: 0, fourStar: 0, threeStar: 0, others: 0 },
+  totalSubmitted: 0,
+};
 
 function matchesCategory(review: BuyerReview, categoryFilter: BuyerReviewCategoryFilter) {
   if (categoryFilter === "Category: All") {
@@ -57,6 +65,8 @@ export function BuyerReviewsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [toast, setToast] = useState<string | null>(null);
+  const user = getStoredUser();
+  const userName = typeof user?.fullName === "string" ? user.fullName : typeof user?.name === "string" ? user.name : "Buyer";
 
   function showToast(message: string) {
     setToast(message);
@@ -91,11 +101,9 @@ export function BuyerReviewsPage() {
     setCurrentPage(Math.min(Math.max(nextPage, 1), totalPages));
   }
 
-  // TODO: Connect buyer reviews, filters, pagination, and review actions to backend APIs.
   return (
     <DashboardLayout
       navLinks={buyerTopbarLinks}
-      notificationCount={3}
       onSearchChange={(value) => {
         setSearchQuery(value);
         resetPage();
@@ -105,9 +113,10 @@ export function BuyerReviewsPage() {
       searchPlaceholder="Search reviews, suppliers..."
       searchValue={searchQuery}
       sidebarItems={buyerSidebarItems}
-      userName="Ramesh Kumar"
+      userName={userName}
     >
       <div className="mx-auto w-full max-w-[1280px] px-4 py-7 sm:px-5 lg:px-7">
+        <BuyerApiNotice description="Buyer review endpoints are not available in Swagger yet." />
         <BuyerReviewsHeader onWriteReview={() => showToast("Write review flow will be connected later.")} />
         <BuyerReviewsStats stats={buyerReviewsStats} />
 
