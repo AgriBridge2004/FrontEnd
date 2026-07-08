@@ -13,6 +13,7 @@ import { PasswordInput } from "@/components/auth/PasswordInput";
 import { loginUser } from "@/lib/auth-api";
 import { getStoredUser, storeAuthSession } from "@/lib/auth-storage";
 import { getPostLoginRedirectPath } from "@/lib/profile-completion";
+import { resolveProfileCompletionStatus } from "@/lib/profile-status";
 
 export function LoginPage() {
   const router = useRouter();
@@ -44,7 +45,12 @@ export function LoginPage() {
       setIsSubmitting(true);
       const response = await loginUser({ email: email.trim(), password });
       storeAuthSession(response);
-      router.push(getPostLoginRedirectPath(getStoredUser()));
+      try {
+        const status = await resolveProfileCompletionStatus(getStoredUser());
+        router.push(status.redirectPath);
+      } catch {
+        router.push(getPostLoginRedirectPath(getStoredUser()));
+      }
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
     } finally {

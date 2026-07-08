@@ -1,80 +1,85 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { FarmerDashboardLayout } from "@/components/dashboard/farmer/FarmerDashboardLayout";
-import {
-  farmerChatMessages,
-  farmerConversations,
-  type ChatMessage,
-  type Conversation,
-} from "@/components/dashboard/farmer/messages/messages.mock";
 import { MessagesLayout } from "@/components/dashboard/shared/messages/MessagesLayout";
 import type { DashboardConversation, DashboardMessage } from "@/components/dashboard/shared/messages/messages.types";
-
-function mapFarmerConversation(conversation: Conversation): DashboardConversation {
-  return {
-    id: conversation.id,
-    participantName: conversation.name,
-    participantRole: conversation.id === "admin-support" ? "support" : "buyer",
-    avatarUrl: conversation.avatar,
-    initials: conversation.initials,
-    lastMessage: conversation.lastMessage,
-    timeLabel: conversation.time,
-    unread: conversation.unread,
-    dealId: conversation.dealId,
-    product: conversation.dealProduct,
-    quantity: conversation.dealQuantity,
-    priceLabel: conversation.dealPrice,
-    expectedDelivery: "25 May 2024",
-    deliveryContext: `Delivery to ${conversation.name}`,
-  };
-}
-
-function mapFarmerMessage(message: ChatMessage): DashboardMessage {
-  return {
-    id: message.id,
-    conversationId: message.conversationId,
-    senderRole: message.sender === "farmer" ? "self" : message.sender === "admin" ? "support" : "other",
-    senderName: message.sender === "farmer" ? "Ramesh Kumar" : message.sender === "admin" ? "Admin Support" : "Buyer",
-    body: message.text,
-    timestamp: message.time,
-  };
-}
+import { getDealMessages, getMyDeals, sendDealMessage, type ApiRecord } from "@/lib/workflow-api";
 
 export function FarmerMessagesPage() {
   const router = useRouter();
-  const [activeConversationId, setActiveConversationId] = useState(farmerConversations[0]?.id ?? "");
+  const [conversations, setConversations] = useState<DashboardConversation[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState("");
   const [conversationSearch, setConversationSearch] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>(farmerChatMessages);
+  const [messages, setMessages] = useState<DashboardMessage[]>([]);
+  const [toast, setToast] = useState("");
+
+  useEffect(() => {
+    async function loadConversations() {
+      try {
+        const records = await getMyDeals();
+        const nextConversations = records.map(mapDealToFarmerConversation);
+        setConversations(nextConversations);
+        setActiveConversationId(nextConversations[0]?.id ?? "");
+      } catch {
+        setConversations([]);
+      }
+    }
+
+    void loadConversations();
+  }, []);
+
+  useEffect(() => {
+    if (!activeConversationId) {
+      setMessages([]);
+      return;
+    }
+
+    async function loadMessages() {
+      try {
+        const records = await getDealMessages(activeConversationId);
+        setMessages(records.map((record) => mapDealMessageFromApi(record, activeConversationId)));
+      } catch {
+        setMessages([]);
+      }
+    }
+
+    void loadMessages();
+  }, [activeConversationId]);
+
+  function showToast(message: string) {
+    setToast(message);
+    window.setTimeout(() => setToast(""), 2400);
+  }
 
   const filteredConversations = useMemo(() => {
     const normalizedSearch = conversationSearch.trim().toLowerCase();
 
-    return farmerConversations.filter((conversation) => {
+    return conversations.filter((conversation) => {
       return (
-        conversation.name.toLowerCase().includes(normalizedSearch) ||
+        conversation.participantName.toLowerCase().includes(normalizedSearch) ||
         conversation.lastMessage.toLowerCase().includes(normalizedSearch) ||
-        conversation.dealProduct?.toLowerCase().includes(normalizedSearch) ||
+        conversation.product?.toLowerCase().includes(normalizedSearch) ||
         conversation.dealId?.toLowerCase().includes(normalizedSearch)
       );
     });
-  }, [conversationSearch]);
+  }, [conversationSearch, conversations]);
 
   const activeConversation =
-    farmerConversations.find((conversation) => conversation.id === activeConversationId) ?? filteredConversations[0] ?? farmerConversations[0];
+    conversations.find((conversation) => conversation.id === activeConversationId) ?? filteredConversations[0] ?? emptyConversation;
 
   const activeMessages = messages.filter((message) => message.conversationId === activeConversation.id);
 
   function handleConversationSearch(value: string) {
     setConversationSearch(value);
-    const nextConversation = farmerConversations.find((conversation) => {
+    const nextConversation = conversations.find((conversation) => {
       const normalizedValue = value.trim().toLowerCase();
       return (
-        conversation.name.toLowerCase().includes(normalizedValue) ||
+        conversation.participantName.toLowerCase().includes(normalizedValue) ||
         conversation.lastMessage.toLowerCase().includes(normalizedValue) ||
-        conversation.dealProduct?.toLowerCase().includes(normalizedValue) ||
+        conversation.product?.toLowerCase().includes(normalizedValue) ||
         conversation.dealId?.toLowerCase().includes(normalizedValue)
       );
     });
@@ -84,29 +89,41 @@ export function FarmerMessagesPage() {
     }
   }
 
-  function handleSendMessage(text: string) {
-    const newMessage: ChatMessage = {
+  async function handleSendMessage(text: string) {
+    if (!activeConversation.id) {
+      showToast("No conversation selected.");
+      return;
+    }
+
+    const newMessage: DashboardMessage = {
       id: `local-${Date.now()}`,
       conversationId: activeConversation.id,
-      sender: "farmer",
-      text,
-      time: new Intl.DateTimeFormat("en", {
+      senderRole: "self",
+      senderName: "Farmer",
+      body: text,
+      timestamp: new Intl.DateTimeFormat("en", {
         hour: "numeric",
         minute: "2-digit",
       }).format(new Date()),
     };
 
     setMessages((currentMessages) => [...currentMessages, newMessage]);
+
+    try {
+      await sendDealMessage(activeConversation.id, { text });
+    } catch {
+      setMessages((currentMessages) => currentMessages.filter((message) => message.id !== newMessage.id));
+      showToast("Failed to send message.");
+    }
   }
 
-  // TODO: Connect conversations, attachments, and message sending to backend chat APIs.
   return (
     <FarmerDashboardLayout hideTopbar>
       <MessagesLayout
-        activeConversation={mapFarmerConversation(activeConversation)}
+        activeConversation={activeConversation}
         activeConversationId={activeConversation.id}
-        conversations={filteredConversations.map(mapFarmerConversation)}
-        messages={activeMessages.map(mapFarmerMessage)}
+        conversations={filteredConversations}
+        messages={activeMessages}
         onSearchChange={handleConversationSearch}
         onSelectConversation={setActiveConversationId}
         onSendMessage={handleSendMessage}
@@ -116,8 +133,85 @@ export function FarmerMessagesPage() {
           }
         }}
         searchQuery={conversationSearch}
-        selfInitials="RK"
+        selfInitials="FR"
       />
+
+      {toast ? (
+        <div className="fixed bottom-5 right-5 z-50 rounded-xl border border-emerald-100 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-xl">
+          {toast}
+        </div>
+      ) : null}
     </FarmerDashboardLayout>
   );
+}
+
+const emptyConversation: DashboardConversation = {
+  id: "",
+  initials: "BY",
+  lastMessage: "No messages yet",
+  participantName: "No conversation selected",
+  participantRole: "buyer",
+  timeLabel: "",
+};
+
+function mapDealToFarmerConversation(record: ApiRecord): DashboardConversation {
+  const buyer = asRecord(record.buyer);
+  const listing = asRecord(record.listing);
+  const rfq = asRecord(record.rfq);
+  const id = String(record.id ?? record._id ?? "");
+  const participantName = getString(buyer.fullName ?? buyer.name ?? record.buyerName) ?? "Buyer";
+
+  return {
+    avatarUrl: getString(buyer.avatarUrl ?? buyer.profileImage ?? buyer.avatar),
+    dealId: id,
+    expectedDelivery: formatTime(record.deliveryDate),
+    id,
+    initials: getInitials(participantName),
+    lastMessage: "Open deal chat",
+    participantName,
+    participantRole: "buyer",
+    priceLabel: String(record.price ?? record.totalAmount ?? ""),
+    product: getString(record.productName ?? listing.name ?? listing.title ?? rfq.productType) ?? "Deal",
+    quantity: String(record.quantity ?? rfq.quantity ?? ""),
+    timeLabel: formatTime(record.updatedAt ?? record.createdAt),
+  };
+}
+
+function mapDealMessageFromApi(record: ApiRecord, conversationId: string): DashboardMessage {
+  const sender = asRecord(record.sender ?? record.user);
+  const senderRole = String(record.senderRole ?? record.role ?? "").toLowerCase();
+
+  return {
+    body: String(record.text ?? record.body ?? record.message ?? ""),
+    conversationId,
+    id: String(record.id ?? record._id ?? ""),
+    senderName: getString(sender.fullName ?? sender.name ?? record.senderName) ?? "User",
+    senderRole: senderRole === "farmer" || record.isMine === true ? "self" : "other",
+    timestamp: formatTime(record.createdAt ?? record.time),
+  };
+}
+
+function asRecord(value: unknown): ApiRecord {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as ApiRecord) : {};
+}
+
+function getString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function getInitials(value: string) {
+  return (
+    value
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "BY"
+  );
+}
+
+function formatTime(value: unknown) {
+  const date = typeof value === "string" || typeof value === "number" ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return "Recently";
+  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(date);
 }

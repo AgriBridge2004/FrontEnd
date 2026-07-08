@@ -3,11 +3,23 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, ChevronDown, LogOut, Menu, Search, User, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Bell, ChevronDown, LayoutDashboard, LogOut, Menu, Search, Settings, User, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
+import { DashboardNotificationDropdown } from "@/components/dashboard/shared/DashboardNotificationDropdown";
+import type { DashboardNotification, DashboardRole } from "@/components/dashboard/shared/dashboard-notifications.types";
+import { getAvatar, getDisplayName, getInitials, getRoleLabel, getString } from "@/components/layout/AuthAwareNavbar";
 import { clearAuthSession, getAccessToken, getStoredRole, getStoredUser } from "@/lib/auth-storage";
-import { getFarmerAvatarUrl, getFarmerDisplayName, getFarmerFarmName } from "@/lib/farmer-display";
+import { getFarmerAvatarUrl } from "@/lib/farmer-display";
+import { getDashboardPathByRole, normalizeRole } from "@/lib/profile-completion";
+import { getRoleProfileHref } from "@/lib/profile-status";
+import {
+  getNotifications,
+  getUnreadNotificationCount,
+  markAllNotificationsAsRead,
+  markNotificationAsRead,
+  type ApiRecord,
+} from "@/lib/workflow-api";
 import type { AuthUser } from "@/types/auth";
 
 const links = [
@@ -38,8 +50,8 @@ export function Navbar({ authenticatedFarmerOnly = false }: NavbarProps) {
   useEffect(() => {
     const storedUser = getStoredUser();
     const role = getStoredRole();
-    const nextUserLabel = getFarmerDisplayName(storedUser);
-    const nextFarmLabel = getFarmerFarmName(storedUser);
+    const nextUserLabel = getDisplayName(storedUser);
+    const nextFarmLabel = getRoleLabel(storedUser) ?? "";
 
     setIsMounted(true);
     setIsLoggedIn(Boolean(getAccessToken()));
@@ -76,7 +88,7 @@ export function Navbar({ authenticatedFarmerOnly = false }: NavbarProps) {
     };
   }, [isUserMenuOpen]);
 
-  const avatarInitial = useMemo(() => userLabel.trim().charAt(0).toUpperCase() || "A", [userLabel]);
+  const avatarInitial = useMemo(() => getInitials(userLabel), [userLabel]);
 
   function handleLogout() {
     clearAuthSession();
@@ -89,25 +101,6 @@ export function Navbar({ authenticatedFarmerOnly = false }: NavbarProps) {
     setIsOpen(false);
     setIsUserMenuOpen(false);
     router.push("/auth/login");
-  }
-
-  if (isMounted && isLoggedIn && isFarmer) {
-    return (
-      <AuthenticatedFarmerNavbar
-        avatarInitial={avatarInitial}
-        dashboardHref={dashboardHref}
-        farmLabel={farmLabel}
-        isMobileOpen={isOpen}
-        isUserMenuOpen={isUserMenuOpen}
-        onLogout={handleLogout}
-        onToggleMobile={() => setIsOpen((value) => !value)}
-        onToggleUserMenu={() => setIsUserMenuOpen((value) => !value)}
-        pathname={pathname}
-        user={user}
-        userLabel={userLabel}
-        userMenuRef={userMenuRef}
-      />
-    );
   }
 
   if (authenticatedFarmerOnly) {
@@ -149,35 +142,15 @@ export function Navbar({ authenticatedFarmerOnly = false }: NavbarProps) {
         </div>
 
         <div className="hidden items-center gap-5 lg:flex">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wide text-white/75">
-            <span className="text-white">EN</span>
-            <span className="h-4 w-px bg-white/35" />
-            <span>AR</span>
-          </div>
           {isMounted && isLoggedIn ? (
-            <>
-              <div className="flex items-center gap-2 text-sm font-bold text-white">
-                <span className="grid size-9 place-items-center rounded-full bg-white text-sm font-black text-emerald-950">
-                  {avatarInitial}
-                </span>
-                <span className="max-w-36 truncate">{userLabel}</span>
-              </div>
-              <Link
-                className="inline-flex h-11 items-center justify-center rounded-full bg-white px-6 text-sm font-black text-emerald-950 shadow-sm transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-white/60"
-                href={dashboardHref}
-              >
-                Dashboard
-              </Link>
-              <button
-                className="inline-flex h-11 items-center justify-center rounded-full border border-white/35 px-6 text-sm font-bold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/60"
-                onClick={handleLogout}
-                type="button"
-              >
-                Logout
-              </button>
-            </>
+            <LandingAuthenticatedActions onLogout={handleLogout} user={user} />
           ) : (
             <>
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wide text-white/75">
+                <span className="text-white">EN</span>
+                <span className="h-4 w-px bg-white/35" />
+                <span>AR</span>
+              </div>
               <Link
                 className="inline-flex h-11 items-center justify-center rounded-full border border-white/35 px-7 text-sm font-bold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/60"
                 href="/auth/login"
@@ -262,6 +235,158 @@ export function Navbar({ authenticatedFarmerOnly = false }: NavbarProps) {
         </div>
       ) : null}
     </header>
+  );
+}
+
+function LandingAuthenticatedActions({ onLogout, user }: { onLogout: () => void; user: AuthUser | null }) {
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const notificationMenuRef = useRef<HTMLDivElement | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notifications, setNotifications] = useState<DashboardNotification[]>([]);
+  const [unreadCount, setUnreadCount] = useState<number | null>(null);
+  const role = getDashboardRole(user);
+  const displayName = getDisplayName(user);
+  const avatar = getAvatar(user);
+  const initials = getInitials(displayName);
+  const roleLabel = getRoleLabel(user);
+  const dashboardHref = getDashboardPathByRole(role);
+  const profileHref = getRoleProfileHref(role);
+  const settingsHref = getLandingSettingsHref(role, profileHref);
+  const notificationsHref = getLandingNotificationsHref(role);
+
+  useEffect(() => {
+    if (!role) {
+      return;
+    }
+
+    const currentRole = role;
+    let isMounted = true;
+
+    async function loadNotifications() {
+      try {
+        const [records, unreadResponse] = await Promise.all([getNotifications(), getUnreadNotificationCount()]);
+        if (!isMounted) return;
+        setNotifications(records.map((record) => mapLandingNotification(record, currentRole)));
+        setUnreadCount(readUnreadCount(unreadResponse));
+      } catch {
+        if (!isMounted) return;
+        setNotifications([]);
+        setUnreadCount(null);
+      }
+    }
+
+    void loadNotifications();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [role]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+      if (notificationMenuRef.current && !notificationMenuRef.current.contains(event.target as Node)) {
+        setIsNotificationOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  function handleMarkAllAsRead() {
+    setNotifications((current) => current.map((notification) => ({ ...notification, isRead: true })));
+    setUnreadCount(0);
+    void markAllNotificationsAsRead();
+  }
+
+  function handleNotificationRead(notificationId: string) {
+    setNotifications((current) =>
+      current.map((notification) => (notification.id === notificationId ? { ...notification, isRead: true } : notification)),
+    );
+    setUnreadCount((current) => (current === null ? current : Math.max(0, current - 1)));
+    void markNotificationAsRead(notificationId);
+  }
+
+  const count = unreadCount ?? notifications.filter((notification) => !notification.isRead).length;
+
+  return (
+    <div className="flex items-center gap-4">
+      {role ? (
+        <div className="relative" ref={notificationMenuRef}>
+          <button
+            aria-expanded={isNotificationOpen}
+            aria-label="Notifications"
+            className="relative grid size-10 place-items-center rounded-full text-white/80 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60"
+            onClick={() => setIsNotificationOpen((value) => !value)}
+            type="button"
+          >
+            <Bell className="size-5" />
+            {count > 0 ? (
+              <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-full bg-red-500 text-[9px] font-black text-white">
+                {count}
+              </span>
+            ) : null}
+          </button>
+          {isNotificationOpen ? (
+            <DashboardNotificationDropdown
+              notifications={notifications}
+              onClose={() => setIsNotificationOpen(false)}
+              onMarkAllAsRead={handleMarkAllAsRead}
+              onNotificationRead={handleNotificationRead}
+              role={role}
+            />
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className="relative" ref={menuRef}>
+        <button
+          aria-expanded={isMenuOpen}
+          className="flex items-center gap-3 rounded-xl px-2 py-1.5 text-left transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/60"
+          onClick={() => setIsMenuOpen((value) => !value)}
+          type="button"
+        >
+          <span className="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-white text-sm font-black text-emerald-950 ring-2 ring-white/30">
+            {avatar ? <Image alt="User avatar" className="object-cover" fill sizes="40px" src={avatar} /> : initials}
+          </span>
+          <span className="min-w-0">
+            <span className="block max-w-36 truncate text-sm font-black text-white">{displayName}</span>
+            {roleLabel ? <span className="block max-w-36 truncate text-[10px] font-bold uppercase text-white/70">{roleLabel}</span> : null}
+          </span>
+          <ChevronDown className={`size-4 text-white/75 transition ${isMenuOpen ? "rotate-180" : ""}`} />
+        </button>
+
+        {isMenuOpen ? (
+          <div className="absolute right-0 top-[calc(100%+10px)] w-52 overflow-hidden rounded-xl border border-slate-200 bg-white py-2 shadow-2xl">
+            <LandingMenuLink href={dashboardHref} icon={<LayoutDashboard className="size-4" />} label="Dashboard" />
+            <LandingMenuLink href={profileHref} icon={<User className="size-4" />} label="Profile" />
+            <LandingMenuLink href={settingsHref} icon={<Settings className="size-4" />} label="Settings" />
+            <LandingMenuLink href={notificationsHref} icon={<Bell className="size-4" />} label="Notifications" />
+            <button
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-bold text-red-600 transition hover:bg-red-50"
+              onClick={onLogout}
+              type="button"
+            >
+              <LogOut className="size-4" />
+              Logout
+            </button>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function LandingMenuLink({ href, icon, label }: { href: string; icon: ReactNode; label: string }) {
+  return (
+    <Link className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-emerald-50/50 hover:text-emerald-900" href={href}>
+      {icon}
+      {label}
+    </Link>
   );
 }
 
@@ -445,22 +570,83 @@ function UserDropdown({ onLogout }: { onLogout: () => void }) {
   );
 }
 
-function getDashboardHref(role: string | null | undefined) {
-  if (role === "farmer") {
-    return "/farmer/dashboard";
-  }
+function getDashboardRole(user: AuthUser | null): DashboardRole | null {
+  const role = normalizeRole(user?.role);
+  if (role === "quality_officer") return "quality-officer";
+  if (role === "farmer" || role === "buyer" || role === "admin") return role;
+  return null;
+}
 
+function mapLandingNotification(record: ApiRecord, role: DashboardRole): DashboardNotification {
+  const type = String(record.type ?? record.category ?? "system");
+  const dealId = getString(record.dealId);
+  const rfqId = getString(record.rfqId);
+
+  return {
+    href: getLandingNotificationHref(role, dealId, rfqId),
+    id: String(record.id ?? record._id ?? ""),
+    isRead: record.read === true || record.isRead === true,
+    message: String(record.message ?? record.body ?? ""),
+    time: String(record.createdAt ?? record.time ?? "Recently"),
+    title: String(record.title ?? "Notification"),
+    type: type === "payment" || type === "dispute" || type === "verification" ? type : "system",
+  };
+}
+
+function getLandingNotificationHref(role: DashboardRole, dealId?: string, rfqId?: string) {
   if (role === "buyer") {
-    return "/buyer/dashboard";
+    if (dealId) return `/buyer/deals/${dealId}`;
+    if (rfqId) return "/buyer/rfqs";
   }
 
-  if (role === "quality_officer" || role === "officer") {
-    return "/officer/dashboard";
+  if (role === "farmer") {
+    if (dealId) return `/farmer/deals/${dealId}`;
+    if (rfqId) return "/farmer/rfqs";
   }
 
-  if (role === "admin") {
-    return "/admin/dashboard";
-  }
+  return undefined;
+}
 
-  return "/marketplace";
+function readUnreadCount(record: ApiRecord) {
+  const value = record.count ?? record.unreadCount ?? record.total ?? record.data;
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+}
+
+function getLandingNotificationsHref(role: DashboardRole | null) {
+  switch (role) {
+    case "farmer":
+      return "/farmer/notifications";
+    case "buyer":
+      return "/buyer/notifications";
+    case "admin":
+      return "/admin/notifications";
+    case "quality-officer":
+      return "/quality-officer/notifications";
+    default:
+      return "/auth/login";
+  }
+}
+
+function getLandingSettingsHref(role: DashboardRole | null, fallbackHref: string) {
+  switch (role) {
+    case "farmer":
+      return "/farmer/settings";
+    case "buyer":
+      return "/buyer/settings";
+    case "admin":
+      return "/admin/settings";
+    case "quality-officer":
+      return "/quality-officer/settings";
+    default:
+      return fallbackHref;
+  }
+}
+
+function getDashboardHref(role: string | null | undefined) {
+  return getDashboardPathByRole(role);
 }

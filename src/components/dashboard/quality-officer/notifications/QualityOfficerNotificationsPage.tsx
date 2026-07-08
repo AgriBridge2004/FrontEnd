@@ -1,19 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, BadgeDollarSign, Info, ShieldCheck } from "lucide-react";
 
 import { qualityOfficerSidebarItems } from "@/components/dashboard/quality-officer/QualityOfficerSidebarConfig";
 import { DashboardLayout } from "@/components/dashboard/shared/DashboardLayout";
-import {
-  getDashboardNotifications,
-} from "@/components/dashboard/shared/dashboard-notifications.mock";
 import type {
   DashboardNotification,
   DashboardNotificationType,
 } from "@/components/dashboard/shared/dashboard-notifications.types";
 import { cn } from "@/lib/cn";
+import { getNotifications, markAllNotificationsAsRead, markNotificationAsRead, type ApiRecord } from "@/lib/workflow-api";
 
 type NotificationTab = "all" | "unread" | DashboardNotificationType;
 
@@ -45,10 +43,31 @@ function matchesTab(notification: DashboardNotification, selectedTab: Notificati
 }
 
 export function QualityOfficerNotificationsPage() {
-  const [notifications, setNotifications] = useState<DashboardNotification[]>(() => getDashboardNotifications("quality-officer"));
+  const [notifications, setNotifications] = useState<DashboardNotification[]>([]);
   const [selectedTab, setSelectedTab] = useState<NotificationTab>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
   const [toast, setToast] = useState("");
+
+  useEffect(() => {
+    void loadNotifications();
+  }, []);
+
+  async function loadNotifications() {
+    setIsLoading(true);
+    setErrorMessage("");
+
+    try {
+      const records = await getNotifications();
+      setNotifications(records.map(mapDashboardNotificationFromApi));
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Failed to load notifications.");
+      setNotifications([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const unreadCount = notifications.filter((notification) => !notification.isRead).length;
 
@@ -67,17 +86,28 @@ export function QualityOfficerNotificationsPage() {
     window.setTimeout(() => setToast(""), 2400);
   }
 
-  function handleMarkAllAsRead() {
+  async function handleMarkAllAsRead() {
     setNotifications((currentNotifications) => currentNotifications.map((notification) => ({ ...notification, isRead: true })));
-    showToast("All notifications marked as read.");
+    try {
+      await markAllNotificationsAsRead();
+      showToast("All notifications marked as read.");
+    } catch {
+      showToast("Could not mark all notifications as read.");
+    }
   }
 
-  function handleNotificationRead(notificationId: string) {
+  async function handleNotificationRead(notificationId: string) {
     setNotifications((currentNotifications) =>
       currentNotifications.map((notification) =>
         notification.id === notificationId ? { ...notification, isRead: true } : notification,
       ),
     );
+
+    try {
+      await markNotificationAsRead(notificationId);
+    } catch {
+      showToast("Could not mark notification as read.");
+    }
   }
 
   function renderNotificationContent(notification: DashboardNotification) {
@@ -98,7 +128,6 @@ export function QualityOfficerNotificationsPage() {
     );
   }
 
-  // TODO: Connect Quality Officer notifications page to backend notification APIs.
   return (
     <DashboardLayout
       navLinks={[]}
@@ -145,7 +174,20 @@ export function QualityOfficerNotificationsPage() {
         </div>
 
         <section className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          {filteredNotifications.map((notification) =>
+          {isLoading ? (
+            <div className="p-6 text-sm font-black text-slate-600">Loading notifications...</div>
+          ) : errorMessage ? (
+            <div className="p-6 text-center">
+              <p className="text-sm font-black text-slate-900">{errorMessage}</p>
+              <button className="mt-3 h-9 rounded-lg bg-emerald-800 px-4 text-xs font-black text-white" onClick={loadNotifications} type="button">
+                Retry
+              </button>
+            </div>
+          ) : filteredNotifications.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className="text-lg font-black text-slate-950">No notifications yet.</p>
+            </div>
+          ) : filteredNotifications.map((notification) =>
             notification.href ? (
               <Link
                 className={cn(
@@ -185,4 +227,24 @@ export function QualityOfficerNotificationsPage() {
       ) : null}
     </DashboardLayout>
   );
+}
+
+function mapDashboardNotificationFromApi(record: ApiRecord): DashboardNotification {
+  const type = String(record.type ?? record.category ?? "system");
+
+  return {
+    href: undefined,
+    id: String(record.id ?? record._id ?? ""),
+    isRead: record.read === true || record.isRead === true,
+    message: String(record.message ?? record.body ?? ""),
+    time: formatTime(record.createdAt ?? record.time),
+    title: String(record.title ?? "Notification"),
+    type: type === "payment" || type === "dispute" || type === "verification" ? type : "system",
+  };
+}
+
+function formatTime(value: unknown) {
+  const date = typeof value === "string" || typeof value === "number" ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return "Recently";
+  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(date);
 }

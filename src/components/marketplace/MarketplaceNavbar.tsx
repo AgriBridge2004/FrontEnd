@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
 import { buttonClasses } from "@/components/ui/Button";
+import { AuthAwareNavbar } from "@/components/layout/AuthAwareNavbar";
 import { cn } from "@/lib/cn";
 
 const navLinks = [
@@ -20,6 +21,16 @@ type MarketplaceNavbarProps = {
 };
 
 export function MarketplaceNavbar({ activeLink = "Marketplace" }: MarketplaceNavbarProps) {
+  return (
+    <AuthAwareNavbar
+      activeLink={activeLink}
+      publicNavbar={<PublicMarketplaceNavbar activeLink={activeLink} />}
+      searchPlaceholder={activeLink === "RFQ" ? "Search RFQs, products, suppliers..." : "Search products, farms, categories..."}
+    />
+  );
+}
+
+function PublicMarketplaceNavbar({ activeLink = "Marketplace" }: MarketplaceNavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -59,10 +70,15 @@ export function MarketplaceNavbar({ activeLink = "Marketplace" }: MarketplaceNav
         </div>
 
         <div className="hidden items-center gap-4 lg:flex">
-          <Link className={cn(buttonClasses("secondary"), "h-11 rounded-full border-transparent px-7 font-black")} href="/login">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wide text-emerald-900/70">
+            <span className="text-emerald-950">EN</span>
+            <span className="h-4 w-px bg-emerald-900/20" />
+            <span>AR</span>
+          </div>
+          <Link className={cn(buttonClasses("secondary"), "h-11 rounded-full border-transparent px-7 font-black")} href="/auth/login">
             Login
           </Link>
-          <Link className={cn(buttonClasses("primary"), "h-11 rounded-full bg-emerald-100 px-7 font-black text-emerald-950 hover:bg-emerald-200")} href="/register">
+          <Link className={cn(buttonClasses("primary"), "h-11 rounded-full bg-emerald-100 px-7 font-black text-emerald-950 hover:bg-emerald-200")} href="/auth/register">
             Get Started
           </Link>
         </div>
@@ -96,10 +112,15 @@ export function MarketplaceNavbar({ activeLink = "Marketplace" }: MarketplaceNav
             ))}
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <Link className={cn(buttonClasses("secondary"), "rounded-full")} href="/login" onClick={() => setIsOpen(false)}>
+            <div className="flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wide text-emerald-900/70 sm:col-span-2">
+              <span className="text-emerald-950">EN</span>
+              <span className="h-4 w-px bg-emerald-900/20" />
+              <span>AR</span>
+            </div>
+            <Link className={cn(buttonClasses("secondary"), "rounded-full")} href="/auth/login" onClick={() => setIsOpen(false)}>
               Login
             </Link>
-            <Link className={cn(buttonClasses("primary"), "rounded-full")} href="/register" onClick={() => setIsOpen(false)}>
+            <Link className={cn(buttonClasses("primary"), "rounded-full")} href="/auth/register" onClick={() => setIsOpen(false)}>
               Get Started
             </Link>
           </div>

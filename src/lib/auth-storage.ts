@@ -9,6 +9,28 @@ const PENDING_REGISTRATION_PROFILE_KEY = "agribridge_pending_registration_profil
 
 type PendingRegistrationProfile = Pick<AuthUser, "email" | "fullName" | "name" | "phone" | "role">;
 
+const AUTH_CHANGED_EVENT = "agribridge:auth-changed";
+
+function emitAuthChanged() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+  }
+}
+
+export function subscribeToAuthChanges(callback: () => void) {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  window.addEventListener(AUTH_CHANGED_EVENT, callback);
+  window.addEventListener("storage", callback);
+
+  return () => {
+    window.removeEventListener(AUTH_CHANGED_EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
 function getStringField(source: Record<string, unknown> | undefined, key: string) {
   const value = source?.[key];
 
@@ -98,6 +120,8 @@ export function storeAuthSession(response: AuthResponse) {
   if (role) {
     window.localStorage.setItem(ROLE_KEY, role);
   }
+
+  emitAuthChanged();
 }
 
 export function storePendingRegistrationProfile(profile: PendingRegistrationProfile) {
@@ -173,6 +197,8 @@ export function updateStoredUser(updates: Partial<AuthUser>) {
   if (nextUser.role) {
     window.localStorage.setItem(ROLE_KEY, nextUser.role);
   }
+
+  emitAuthChanged();
 }
 
 export function clearAuthSession() {
@@ -185,4 +211,5 @@ export function clearAuthSession() {
   window.localStorage.removeItem(USER_KEY);
   window.localStorage.removeItem(ROLE_KEY);
   window.localStorage.removeItem(PENDING_REGISTRATION_PROFILE_KEY);
+  emitAuthChanged();
 }

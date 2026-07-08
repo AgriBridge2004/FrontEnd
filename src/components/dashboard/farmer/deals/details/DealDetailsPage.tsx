@@ -23,6 +23,7 @@ import { getDealDetail } from "@/components/dashboard/farmer/deals/details/deal-
 import type { DealDetail } from "@/components/dashboard/farmer/deals/details/deal-details.types";
 import { DashboardLayout } from "@/components/dashboard/shared/DashboardLayout";
 import { downloadContractPdf } from "@/lib/download-contract-pdf";
+import { downloadDealContractPdf } from "@/lib/workflow-api";
 
 type DealDetailsPageProps = {
   dealId: string;
@@ -93,7 +94,12 @@ export function DealDetailsPage({ dealId, getContractById = getDigitalContract, 
 
     try {
       setIsDownloadingContract(true);
-      await downloadContractPdf(contractPdfRef.current, `AgriBridge-Contract-${contract.dealId}.pdf`);
+      try {
+        const blob = await downloadDealContractPdf(contract.dealId);
+        downloadBlob(blob, `AgriBridge-Contract-${contract.dealId}.pdf`);
+      } catch {
+        await downloadContractPdf(contractPdfRef.current, `AgriBridge-Contract-${contract.dealId}.pdf`);
+      }
       showToast("Contract PDF downloaded successfully.");
     } catch {
       showToast("Failed to generate contract PDF. Please try again.");
@@ -151,6 +157,17 @@ export function DealDetailsPage({ dealId, getContractById = getDigitalContract, 
       <DealDetailsToast message={toastMessage} />
     </DashboardLayout>
   );
+}
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }
 
 type DealNotFoundProps = {

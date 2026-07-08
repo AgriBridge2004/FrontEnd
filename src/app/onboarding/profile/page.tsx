@@ -8,7 +8,8 @@ import { useEffect, useRef, useState } from "react";
 import { EditProfileForm } from "@/components/dashboard/farmer/profile/edit/EditProfileForm";
 import { BuyerProfileCompletionForm } from "@/components/onboarding/BuyerProfileCompletionForm";
 import { getAccessToken, getStoredUser } from "@/lib/auth-storage";
-import { getDashboardPathByRole, normalizeRole, shouldCompleteProfile } from "@/lib/profile-completion";
+import { getDashboardPathByRole, normalizeRole } from "@/lib/profile-completion";
+import { resolveProfileCompletionStatus } from "@/lib/profile-status";
 
 export default function ProfileCompletionPage() {
   const router = useRouter();
@@ -27,18 +28,25 @@ export default function ProfileCompletionPage() {
       return;
     }
 
-    if (!shouldCompleteProfile(user)) {
-      router.replace(getDashboardPathByRole(normalizedRole));
-      return;
-    }
-
     if (normalizedRole !== "farmer" && normalizedRole !== "buyer") {
       router.replace(getDashboardPathByRole(normalizedRole));
       return;
     }
 
-    setRole(normalizedRole);
-    setIsChecking(false);
+    void resolveProfileCompletionStatus(user)
+      .then((status) => {
+        if (status.isComplete) {
+          router.replace(status.redirectPath);
+          return;
+        }
+
+        setRole(normalizedRole);
+        setIsChecking(false);
+      })
+      .catch(() => {
+        setRole(normalizedRole);
+        setIsChecking(false);
+      });
 
     return () => {
       if (toastTimeoutRef.current) {

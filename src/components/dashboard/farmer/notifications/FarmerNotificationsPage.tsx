@@ -9,15 +9,17 @@ import { NotificationTabs } from "@/components/dashboard/farmer/notifications/No
 import { NotificationsList } from "@/components/dashboard/farmer/notifications/NotificationsList";
 import { Toast } from "@/components/dashboard/farmer/notifications/Toast";
 import {
-  farmerNotifications,
   type FarmerNotification,
   type NotificationFilter,
 } from "@/components/dashboard/farmer/notifications/notifications.mock";
+import { getNotifications, markAllNotificationsAsRead, markNotificationAsRead, type ApiRecord } from "@/lib/workflow-api";
 
 export function FarmerNotificationsPage() {
-  const [notifications, setNotifications] = useState<FarmerNotification[]>(farmerNotifications);
+  const [notifications, setNotifications] = useState<FarmerNotification[]>([]);
   const [selectedTab, setSelectedTab] = useState<NotificationFilter>("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
   const [toastMessage, setToastMessage] = useState("");
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -43,12 +45,29 @@ export function FarmerNotificationsPage() {
   }, [notifications, searchQuery, selectedTab]);
 
   useEffect(() => {
+    void loadNotifications();
+
     return () => {
       if (toastTimeoutRef.current) {
         clearTimeout(toastTimeoutRef.current);
       }
     };
   }, []);
+
+  async function loadNotifications() {
+    setIsLoading(true);
+    setErrorMessage("");
+
+    try {
+      const records = await getNotifications();
+      setNotifications(records.map(mapFarmerNotificationFromApi));
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Failed to load notifications.");
+      setNotifications([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   function showToast(message: string) {
     if (toastTimeoutRef.current) {
@@ -70,20 +89,30 @@ export function FarmerNotificationsPage() {
     setSelectedTab(tab);
   }
 
-  function handleMarkRead(notificationId: string) {
+  async function handleMarkRead(notificationId: string) {
     setNotifications((currentNotifications) =>
       currentNotifications.map((notification) =>
         notification.id === notificationId ? { ...notification, unread: false } : notification,
       ),
     );
+
+    try {
+      await markNotificationAsRead(notificationId);
+    } catch {
+      showToast("Could not mark notification as read.");
+    }
   }
 
-  function handleMarkAllRead() {
+  async function handleMarkAllRead() {
     setNotifications((currentNotifications) => currentNotifications.map((notification) => ({ ...notification, unread: false })));
-    showToast("All notifications marked as read.");
+    try {
+      await markAllNotificationsAsRead();
+      showToast("All notifications marked as read.");
+    } catch {
+      showToast("Could not mark all notifications as read.");
+    }
   }
 
-  // TODO: Connect notification filters, read state, and action flows to backend notification APIs.
   return (
     <FarmerDashboardLayout
       onSearchChange={handleSearchChange}
@@ -94,9 +123,67 @@ export function FarmerNotificationsPage() {
         <NotificationStats unreadCount={unreadCount} />
         <ActionRequiredPanel onAction={showToast} />
         <NotificationTabs onMarkAllRead={handleMarkAllRead} onTabChange={handleTabChange} selectedTab={selectedTab} />
-        <NotificationsList notifications={filteredNotifications} onMarkRead={handleMarkRead} />
+        {isLoading ? (
+          <div className="mt-5 rounded-2xl border border-emerald-100 bg-white p-6 text-sm font-black text-slate-600 shadow-sm">Loading notifications...</div>
+        ) : errorMessage ? (
+          <div className="mt-5 rounded-2xl border border-red-100 bg-white p-6 text-center shadow-sm">
+            <p className="text-sm font-black text-slate-900">{errorMessage}</p>
+            <button className="mt-3 h-9 rounded-lg bg-emerald-800 px-4 text-xs font-black text-white" onClick={loadNotifications} type="button">
+              Retry
+            </button>
+          </div>
+        ) : (
+          <NotificationsList notifications={filteredNotifications} onMarkRead={handleMarkRead} />
+        )}
       </div>
       <Toast message={toastMessage} />
     </FarmerDashboardLayout>
   );
+}
+
+function mapFarmerNotificationFromApi(record: ApiRecord): FarmerNotification {
+  const type = String(record.type ?? record.category ?? "System");
+  const createdAt = String(record.createdAt ?? record.time ?? "");
+
+  return {
+    actionRequired: type === "contract" || type === "dispute" || type === "payment",
+    category: mapFarmerNotificationCategory(type),
+    dateGroup: getDateGroup(createdAt),
+    id: String(record.id ?? record._id ?? ""),
+    message: String(record.message ?? record.body ?? ""),
+    meta: typeof record.meta === "string" ? record.meta : typeof record.reference === "string" ? record.reference : undefined,
+    time: formatTime(createdAt),
+    title: String(record.title ?? "Notification"),
+    unread: record.read === false || record.isRead === false,
+  };
+}
+
+function mapFarmerNotificationCategory(type: string): FarmerNotification["category"] {
+  const normalized = type.toLowerCase();
+  if (normalized.includes("contract")) return "Contracts";
+  if (normalized.includes("payment")) return "Payments";
+  if (normalized.includes("message")) return "Messages";
+  if (normalized.includes("review")) return "Reviews";
+  if (normalized.includes("deal")) return "Deals";
+  if (normalized.includes("dispute")) return "Disputes";
+  return "System";
+}
+
+function getDateGroup(value: string): FarmerNotification["dateGroup"] {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Earlier";
+
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  if (date.toDateString() === today.toDateString()) return "Today";
+  if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+  return "Earlier";
+}
+
+function formatTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Recently";
+  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(date);
 }

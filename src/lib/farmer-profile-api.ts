@@ -168,6 +168,7 @@ export function syncStoredUserFromFarmerProfile(response: ApiFarmerProfileRespon
     avatar: getString(record.profileImage ?? record.avatar ?? record.avatarUrl),
     avatarUrl: getString(record.avatarUrl ?? record.profileImage ?? record.avatar),
     coverImage: getString(record.coverImage),
+    profileCompleted: true,
   });
 }
 

@@ -2,6 +2,7 @@ import { CheckSquare, DollarSign, Handshake, Wallet } from "lucide-react";
 
 import { cn } from "@/lib/cn";
 import { farmerDealStats } from "@/lib/mock-data";
+import type { FarmerDeal } from "@/components/dashboard/farmer/deals/deals-types";
 
 const statIcons = {
   active: Handshake,
@@ -16,10 +17,43 @@ const statIconStyles = {
   slate: "bg-slate-50 text-slate-600",
 };
 
-export function DealStats() {
+type DealStatsProps = {
+  deals?: FarmerDeal[];
+};
+
+export function DealStats({ deals }: DealStatsProps) {
+  const stats = deals
+    ? [
+        {
+          icon: "active",
+          label: "Active Deals",
+          tone: "green",
+          value: String(deals.filter((deal) => deal.status !== "Completed" && deal.status !== "Cancelled").length),
+        },
+        {
+          icon: "payment",
+          label: "Pending Payment",
+          tone: "yellow",
+          value: String(deals.filter((deal) => deal.status === "Pending").length),
+        },
+        {
+          icon: "completed",
+          label: "Completed",
+          tone: "slate",
+          value: String(deals.filter((deal) => deal.status === "Completed").length),
+        },
+        {
+          icon: "value",
+          label: "Total Deals",
+          tone: "green",
+          value: String(deals.length),
+        },
+      ]
+    : farmerDealStats;
+
   return (
     <section className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-      {farmerDealStats.map((stat) => {
+      {stats.map((stat) => {
         const Icon = statIcons[stat.icon as keyof typeof statIcons] ?? Handshake;
         const iconClassName = statIconStyles[stat.tone as keyof typeof statIconStyles] ?? statIconStyles.green;
 

@@ -9,8 +9,8 @@ import {
   getDashboardPathByRole,
   normalizeRole,
   ONBOARDING_PROFILE_PATH,
-  shouldCompleteProfile,
 } from "@/lib/profile-completion";
+import { resolveProfileCompletionStatus } from "@/lib/profile-status";
 import type { UserRole } from "@/types";
 
 type ProfileCompletionGuardProps = {
@@ -29,7 +29,7 @@ export function ProfileCompletionGuard({ children, expectedRole }: ProfileComple
     const userRole = normalizeRole(user?.role);
 
     if (!token || !user) {
-      setIsChecking(false);
+      router.replace("/auth/login");
       return;
     }
 
@@ -38,12 +38,23 @@ export function ProfileCompletionGuard({ children, expectedRole }: ProfileComple
       return;
     }
 
-    if (shouldCompleteProfile(user) && pathname !== ONBOARDING_PROFILE_PATH) {
-      router.replace(ONBOARDING_PROFILE_PATH);
-      return;
-    }
+    void resolveProfileCompletionStatus(user)
+      .then((status) => {
+        if (!status.isComplete && pathname !== ONBOARDING_PROFILE_PATH) {
+          router.replace(ONBOARDING_PROFILE_PATH);
+          return;
+        }
 
-    setIsChecking(false);
+        if (status.isComplete && pathname === ONBOARDING_PROFILE_PATH) {
+          router.replace(status.redirectPath);
+          return;
+        }
+
+        setIsChecking(false);
+      })
+      .catch(() => {
+        setIsChecking(false);
+      });
   }, [expectedRole, pathname, router]);
 
   if (isChecking) {

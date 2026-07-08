@@ -319,6 +319,88 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   }
 }
 
+export async function apiBlobRequest(path: string, options: ApiRequestOptions = {}): Promise<Blob> {
+  const baseUrl = getApiBaseUrl();
+
+  if (!baseUrl) {
+    throw new ApiError("NEXT_PUBLIC_API_BASE_URL is not configured.", undefined, "CONFIGURATION_ERROR");
+  }
+
+  const { auth = false, body, debug, headers, method = "GET", timeoutMs = getApiTimeoutMs(), ...requestOptions } = options;
+  const url = buildApiUrl(baseUrl, path);
+  const controller = new AbortController();
+  const timeout = globalThis.setTimeout(() => controller.abort(), timeoutMs);
+  const logLabel = debug?.label ? `[api:${debug.label}]` : "[api]";
+  const token = getStoredAuthToken();
+  const requestHeaders = new Headers(headers);
+  const isFormData = isFormDataBody(body);
+
+  if (auth && !token) {
+    redirectToLogin();
+    throw new ApiError("Your session has expired. Please sign in again.", 401, "UNAUTHORIZED");
+  }
+
+  if (auth && token) {
+    requestHeaders.set("Authorization", `Bearer ${token}`);
+  }
+
+  if (body !== undefined && !isFormData && !requestHeaders.has("Content-Type")) {
+    requestHeaders.set("Content-Type", "application/json");
+  }
+
+  const requestBody: BodyInit | undefined =
+    body === undefined ? undefined : isFormData ? body : JSON.stringify(removeUndefinedFields(body));
+
+  debugLog(`${logLabel} request`, { method, url });
+
+  try {
+    const response = await fetch(url, {
+      ...requestOptions,
+      method,
+      headers: requestHeaders,
+      body: requestBody,
+      signal: controller.signal,
+    });
+
+    debugLog(`${logLabel} response`, { method, url, status: response.status });
+
+    if (!response.ok) {
+      const data = await parseResponse(response);
+      if (auth && response.status === 401) {
+        clearStoredAuth();
+        redirectToLogin();
+      }
+
+      throw new ApiError(
+        auth ? getAuthenticatedStatusErrorMessage(response.status, data) : getStatusErrorMessage(response.status, data),
+        response.status,
+        undefined,
+        data,
+      );
+    }
+
+    return response.blob();
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    if (error && typeof error === "object" && "name" in error && error.name === "AbortError") {
+      debugLog(`${logLabel} timeout`, { method, url, timeoutMs });
+      throw new ApiError("Request timed out. Please try again.", undefined, "TIMEOUT");
+    }
+
+    throw new ApiError(
+      "Unable to connect to the server. Please check the API configuration.",
+      undefined,
+      "NETWORK_ERROR",
+      error,
+    );
+  } finally {
+    globalThis.clearTimeout(timeout);
+  }
+}
+
 const wait = async () => {
   await new Promise((resolve) => setTimeout(resolve, 20));
 };
