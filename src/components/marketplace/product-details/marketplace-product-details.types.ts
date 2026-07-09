@@ -9,6 +9,7 @@ export type ProductDetailsSpec = {
   shelfLife: string;
   storage: string;
   certifications: string;
+  farmerProfile?: string;
 };
 
 export type MarketplaceProductDetails = {
@@ -19,7 +20,7 @@ export type MarketplaceProductDetails = {
   verifiedFarmer: boolean;
   rating: number;
   reviewsCount: number;
-  price: number;
+  price?: number;
   currency: string;
   unit: string;
   availableQuantity: string;

@@ -73,11 +73,11 @@ export function MarketplacePage() {
 
     return [...filteredProducts].sort((a, b) => {
       if (sort === "Price: Low to High") {
-        return a.price - b.price;
+        return (a.price ?? Number.POSITIVE_INFINITY) - (b.price ?? Number.POSITIVE_INFINITY);
       }
 
       if (sort === "Price: High to Low") {
-        return b.price - a.price;
+        return (b.price ?? Number.NEGATIVE_INFINITY) - (a.price ?? Number.NEGATIVE_INFINITY);
       }
 
       if (sort === "Quantity") {
@@ -149,13 +149,13 @@ function mapListingToMarketplaceProduct(listing: Listing): MarketplaceProduct {
     image: listing.imageUrl,
     price: listing.pricePerUnit,
     unit: listing.unit,
-    quantity: String(listing.quantity),
-    quantityValue: listing.quantity,
+    quantity: listing.quantity !== undefined ? String(listing.quantity) : "Quantity not provided",
+    quantityValue: listing.quantity ?? 0,
     location: listing.location,
     grade: listing.qualityGrade ?? "Ungraded",
     listingType: "Spot" as const,
-    verifiedFarmer: true,
-    category: mapListingCategory(listing.crop),
+    verifiedFarmer: Boolean(listing.farmerId),
+    category: mapListingCategory(listing.category ?? listing.crop),
     rating: 0,
     availableFrom: listing.availableFrom,
     availableTo: listing.harvestDate,

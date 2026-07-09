@@ -24,7 +24,7 @@ export type MarketplaceProduct = {
   id: string;
   title: string;
   image: string;
-  price: number;
+  price?: number;
   unit: string;
   quantity: string;
   quantityValue: number;

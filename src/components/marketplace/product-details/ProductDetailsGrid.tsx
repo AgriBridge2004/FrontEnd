@@ -9,7 +9,7 @@ type ProductDetailsGridProps = {
 
 export function ProductDetailsGrid({ activeTab, details }: ProductDetailsGridProps) {
   if (activeTab === "farmer") {
-    return <PlaceholderCard message="Farmer profile information will be connected later." />;
+    return <PlaceholderCard message={details.farmerProfile ?? "Farmer details not available."} />;
   }
 
   if (activeTab === "reviews") {

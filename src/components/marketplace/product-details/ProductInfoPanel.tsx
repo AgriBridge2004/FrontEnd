@@ -40,10 +40,16 @@ export function ProductInfoPanel({ product, onToast }: ProductInfoPanelProps) {
 
       <div className="mt-8 flex flex-col gap-4 border-b border-emerald-100 pb-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-end gap-2">
-          <span className="text-5xl font-black leading-none text-emerald-800">{product.price}</span>
-          <span className="pb-1.5 text-lg font-bold text-slate-600">
-            {product.currency} / {product.unit}
-          </span>
+          {product.price !== undefined ? (
+            <>
+              <span className="text-5xl font-black leading-none text-emerald-800">{product.price}</span>
+              <span className="pb-1.5 text-lg font-bold text-slate-600">
+                {product.currency} / {product.unit}
+              </span>
+            </>
+          ) : (
+            <span className="text-2xl font-black leading-none text-emerald-800">Price not provided</span>
+          )}
         </div>
         <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-700 bg-white/60 px-4 py-2 text-xs font-black text-emerald-800">
           <Archive className="size-4" />

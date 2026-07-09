@@ -121,33 +121,63 @@ export function MarketplaceProductDetailsPage() {
 }
 
 function mapListingToProductDetails(listing: Listing): MarketplaceProductDetails {
+  const quantity = listing.quantity ?? listing.qty;
+  const expiryDate = listing.expiry ?? listing.harvestDate;
+  const farmerName = listing.farmerName ?? (listing.farmerId ? "Verified Farmer" : "Farmer details not available");
+
   return {
     id: listing.id,
-    title: listing.title,
-    category: listing.crop,
-    farmerName: "Verified Farmer",
-    verifiedFarmer: true,
+    title: listing.name ?? listing.title,
+    category: listing.category ?? listing.crop,
+    farmerName,
+    verifiedFarmer: Boolean(listing.farmerId),
     rating: 0,
     reviewsCount: 0,
     price: listing.pricePerUnit,
     currency: listing.currency,
     unit: listing.unit,
-    availableQuantity: `${listing.quantity} ${listing.unit}`,
-    harvestDate: listing.harvestDate,
+    availableQuantity: quantity !== undefined ? `${quantity} ${listing.unit}` : "Quantity not provided",
+    // Backend does not provide harvestDate; using expiry as the available date.
+    harvestDate: formatListingDate(expiryDate),
     location: listing.location,
     grade: listing.qualityGrade ?? "Ungraded",
-    listingType: "Spot",
+    listingType: listing.statusLabel ?? "Spot",
     description: listing.description,
-    images: [listing.imageUrl],
+    images: listing.images?.length ? listing.images : [listing.imageUrl],
     details: {
-      productType: listing.type,
-      variety: listing.crop,
+      productType: listing.productType ?? "Not provided",
+      variety: "Not provided",
       grade: listing.qualityGrade ?? "Ungraded",
       farmingMethod: "Not provided",
       packaging: "Not provided",
       shelfLife: "Not provided",
       storage: "Not provided",
       certifications: listing.certifications.length ? listing.certifications.join(", ") : "Not provided",
+      farmerProfile: formatFarmerProfile(listing),
     },
   };
+}
+
+function formatListingDate(value: string) {
+  if (!value || value === "Not available") {
+    return "Not available";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
+
+function formatFarmerProfile(listing: Listing) {
+  const details = [listing.farmerName, listing.farmerFarmName, listing.farmerRegion, listing.farmerBio].filter(Boolean);
+
+  return details.length ? details.join(" - ") : undefined;
 }

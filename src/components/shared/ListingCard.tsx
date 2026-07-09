@@ -56,13 +56,13 @@ export function ListingCard({ listing }: ListingCardProps) {
           <div>
             <dt className="text-slate-500">Quantity</dt>
             <dd className="font-semibold text-slate-900">
-              {formatNumber(listing.quantity)} {listing.unit}
+              {listing.quantity !== undefined ? `${formatNumber(listing.quantity)} ${listing.unit}` : "Quantity not provided"}
             </dd>
           </div>
           <div>
             <dt className="text-slate-500">Price</dt>
             <dd className="font-semibold text-slate-900">
-              {formatCurrency(listing.pricePerUnit)} / {listing.unit}
+              {listing.pricePerUnit !== undefined ? `${formatCurrency(listing.pricePerUnit)} / ${listing.unit}` : "Price not provided"}
             </dd>
           </div>
           <div>

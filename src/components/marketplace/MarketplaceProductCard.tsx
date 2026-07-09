@@ -51,12 +51,18 @@ export function MarketplaceProductCard({ product, viewMode }: MarketplaceProduct
         </div>
 
         <div className="flex items-end gap-1">
-          <span className="text-2xl font-black text-emerald-800">{formatCurrency(product.price)}</span>
-          <span className="pb-0.5 text-xs font-semibold text-slate-400">/ {product.unit}</span>
+          {product.price !== undefined ? (
+            <>
+              <span className="text-2xl font-black text-emerald-800">{formatCurrency(product.price)}</span>
+              <span className="pb-0.5 text-xs font-semibold text-slate-400">/ {product.unit}</span>
+            </>
+          ) : (
+            <span className="text-lg font-black text-emerald-800">Price not provided</span>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-3 border-t border-emerald-100 pt-3">
-          <ProductMetric icon={<Package className="size-3.5" />} label="Quantity" value={`${product.quantity} ${product.unit}`} />
+          <ProductMetric icon={<Package className="size-3.5" />} label="Quantity" value={product.quantityValue > 0 || product.quantity === "0" ? `${product.quantity} ${product.unit}` : product.quantity} />
           <ProductMetric icon={<MapPin className="size-3.5" />} label="Location" value={product.location} />
         </div>
 
