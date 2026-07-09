@@ -182,7 +182,7 @@ function getAuthenticatedStatusErrorMessage(status: number, data: unknown) {
   }
 
   if (status === 404) {
-    return "Requested resource was not found.";
+    return getErrorMessage(data, "Requested resource was not found.");
   }
 
   return getStatusErrorMessage(status, data);
@@ -205,6 +205,12 @@ function formatErrorMessage(message: string, fallback: string) {
     .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+
+  const missingRouteMatch = text.match(/^Cannot\s+(GET|POST|PUT|PATCH|DELETE)\s+(.+)$/i);
+
+  if (missingRouteMatch?.[2]) {
+    return `Endpoint not found: ${missingRouteMatch[2].trim()}`;
+  }
 
   return text || fallback;
 }

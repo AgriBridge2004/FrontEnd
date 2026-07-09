@@ -1,7 +1,7 @@
 import { ApiError } from "@/lib/api";
 import { getStoredUser, updateStoredUser } from "@/lib/auth-storage";
 import { getBuyerProfileByUserId, syncStoredUserFromBuyerProfile } from "@/lib/buyer-api";
-import { getFarmerProfile } from "@/lib/farmer-profile-api";
+import { getFarmerProfile, isFarmerProfileEndpointUnavailableError } from "@/lib/farmer-profile-api";
 import { getDashboardPathByRole, normalizeRole, ONBOARDING_PROFILE_PATH } from "@/lib/profile-completion";
 import type { AuthUser } from "@/types/auth";
 
@@ -17,6 +17,26 @@ function getUserId(user: AuthUser | null | undefined) {
 
 function isNotFound(error: unknown) {
   return error instanceof ApiError && error.status === 404;
+}
+
+function hasLocalFarmerCompletion(user: AuthUser | null | undefined) {
+  if (user?.profileCompleted === true) {
+    return true;
+  }
+
+  const profile = user?.profile;
+
+  if (!profile || typeof profile !== "object" || Array.isArray(profile)) {
+    return false;
+  }
+
+  const record = profile as Record<string, unknown>;
+
+  return (
+    (typeof record.id === "string" && record.id.trim().length > 0) ||
+    (typeof record._id === "string" && record._id.trim().length > 0) ||
+    (typeof record.userId === "string" && record.userId.trim().length > 0)
+  );
 }
 
 function syncFarmerProfileToUser(profile: Awaited<ReturnType<typeof getFarmerProfile>>, user?: AuthUser | null) {
@@ -47,6 +67,11 @@ export async function resolveProfileCompletionStatus(user: AuthUser | null | und
       syncFarmerProfileToUser(profile, user);
       return { isComplete: true, redirectPath: dashboardPath };
     } catch (error) {
+      if (isFarmerProfileEndpointUnavailableError(error) && hasLocalFarmerCompletion(user)) {
+        updateStoredUser({ profileCompleted: true });
+        return { isComplete: true, redirectPath: dashboardPath };
+      }
+
       if (isNotFound(error)) {
         updateStoredUser({ profileCompleted: false });
         return { isComplete: false, redirectPath: ONBOARDING_PROFILE_PATH };
