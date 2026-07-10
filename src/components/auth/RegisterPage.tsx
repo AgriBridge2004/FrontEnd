@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Building2, Check, Tractor } from "lucide-react";
+import { Building2, Check, ShieldCheck, Tractor, UserCheck } from "lucide-react";
 import { FormEvent, useRef, useState } from "react";
 
 import { AuthLanguageSwitch } from "@/components/auth/AuthLanguageSwitch";
@@ -12,13 +12,27 @@ import { PasswordInput } from "@/components/auth/PasswordInput";
 import { registerUser } from "@/lib/auth-api";
 import { storePendingRegistrationProfile } from "@/lib/auth-storage";
 import { clearDevOtp, extractDevOtp, shouldShowDevOtp, storeDevOtp } from "@/lib/dev-otp";
+import type { UserRole } from "@/types";
 
-type Role = "farmer" | "buyer";
+type RegistrationRole = UserRole;
 
 const roles = [
   { id: "farmer" as const, label: "Farmer", icon: Tractor },
   { id: "buyer" as const, label: "Buyer", icon: Building2 },
 ];
+
+const temporaryRoleOptions: Array<{ id: RegistrationRole; label: string }> = [
+  { id: "buyer", label: "Buyer" },
+  { id: "farmer", label: "Farmer" },
+  { id: "admin", label: "Admin" },
+  { id: "quality_officer", label: "Quality Officer" },
+];
+
+// TEMPORARY ADMIN SETUP ONLY:
+// This role selector is used only to seed Admin and Quality Officer accounts.
+// Disable NEXT_PUBLIC_ENABLE_TEMP_ROLE_REGISTER immediately after creating the accounts.
+// TODO: Remove this temporary role selector after the seed accounts are created.
+const isTemporaryRoleRegisterEnabled = process.env.NEXT_PUBLIC_ENABLE_TEMP_ROLE_REGISTER === "true";
 
 const PASSWORD_ERROR_MESSAGE =
   "Password must be at least 8 characters and include an uppercase letter, a number, and a special character (@, #, $).";
@@ -29,7 +43,7 @@ function isStrongPassword(value: string) {
 
 export function RegisterPage() {
   const router = useRouter();
-  const [selectedRole, setSelectedRole] = useState<Role>("farmer");
+  const [selectedRole, setSelectedRole] = useState<RegistrationRole>("farmer");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -190,6 +204,30 @@ export function RegisterPage() {
                     );
                   })}
                 </div>
+
+                {isTemporaryRoleRegisterEnabled ? (
+                  <label className="mt-3 block">
+                    <span className="text-[11px] font-black uppercase tracking-wide text-slate-500">Temporary Role</span>
+                    <div className="mt-1.5 flex h-9 items-center rounded-full border border-slate-500 bg-white px-3.5 transition focus-within:border-emerald-700 focus-within:ring-2 focus-within:ring-emerald-700/10">
+                      {selectedRole === "admin" ? (
+                        <ShieldCheck className="mr-2 size-3.5 shrink-0 text-emerald-700" strokeWidth={2.2} />
+                      ) : selectedRole === "quality_officer" ? (
+                        <UserCheck className="mr-2 size-3.5 shrink-0 text-emerald-700" strokeWidth={2.2} />
+                      ) : null}
+                      <select
+                        className="h-full min-w-0 flex-1 bg-transparent text-xs font-medium text-slate-800 outline-none sm:text-sm"
+                        onChange={(event) => setSelectedRole(event.target.value as RegistrationRole)}
+                        value={selectedRole}
+                      >
+                        {temporaryRoleOptions.map((role) => (
+                          <option key={role.id} value={role.id}>
+                            {role.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </label>
+                ) : null}
 
                 <div className="mt-4 grid gap-2.5">
                   <input
