@@ -9,6 +9,7 @@ import { ClipboardEvent, FormEvent, KeyboardEvent, useEffect, useRef, useState }
 import { AuthSidePanel } from "@/components/auth/AuthSidePanel";
 import { OTPInput } from "@/components/auth/OTPInput";
 import { resendOtp, verifyOtp } from "@/lib/auth-api";
+import { clearDevOtp, extractDevOtp, readDevOtp, shouldShowDevOtp, storeDevOtp } from "@/lib/dev-otp";
 
 const OTP_LENGTH = 6;
 const INITIAL_SECONDS = 4 * 60 + 32;
@@ -18,12 +19,14 @@ export function OtpPage() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
   const flow = searchParams.get("flow") ?? "";
+  const devOtpFromQuery = searchParams.get("devOtp");
   const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(""));
   const [secondsLeft, setSecondsLeft] = useState(INITIAL_SECONDS);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [devOtp, setDevOtp] = useState("");
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const isSubmittingRef = useRef(false);
   const isResendingRef = useRef(false);
@@ -35,6 +38,41 @@ export function OtpPage() {
 
     return () => window.clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (shouldShowDevOtp()) {
+      console.log("[DEV OTP] NEXT_PUBLIC_SHOW_DEV_OTP:", process.env.NEXT_PUBLIC_SHOW_DEV_OTP);
+    }
+
+    let otp = email ? readDevOtp(email) : readDevOtp();
+
+    if (!otp && shouldShowDevOtp() && devOtpFromQuery) {
+      otp = devOtpFromQuery;
+      storeDevOtp(email, otp);
+    }
+
+    if (shouldShowDevOtp() && otp) {
+      console.log("[DEV OTP] OTP page read otp:", otp);
+    } else if (shouldShowDevOtp()) {
+      console.warn("[DEV OTP] Flag enabled but no OTP found in sessionStorage.");
+    }
+
+    setDevOtp(otp);
+  }, [devOtpFromQuery, email]);
+
+  useEffect(() => {
+    if (!shouldShowDevOtp() || !devOtp) {
+      return;
+    }
+
+    const devOtpDigits = devOtp.replace(/\D/g, "").slice(0, OTP_LENGTH).split("");
+
+    if (devOtpDigits.length !== OTP_LENGTH) {
+      return;
+    }
+
+    setDigits(devOtpDigits);
+  }, [devOtp]);
 
   const minutes = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
   const seconds = String(secondsLeft % 60).padStart(2, "0");
@@ -117,14 +155,17 @@ export function OtpPage() {
           response.resetToken ?? response.reset_token ?? response.token ?? response.data?.resetToken ?? response.data?.reset_token ?? response.data?.token;
 
         if (resetToken) {
+          clearDevOtp();
           router.push(`/auth/reset-password?token=${encodeURIComponent(resetToken)}`);
           return;
         }
 
+        clearDevOtp();
         setSuccessMessage(response.message ?? "OTP verified. Please use the reset link sent to your email.");
         return;
       }
 
+      clearDevOtp();
       router.push("/auth/login");
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to verify code. Please try again.");
@@ -151,10 +192,20 @@ export function OtpPage() {
       isResendingRef.current = true;
       setIsResending(true);
       const response = await resendOtp({ email });
+      const nextDevOtp = extractDevOtp(response);
+
+      if (shouldShowDevOtp() && nextDevOtp) {
+        storeDevOtp(email, nextDevOtp);
+        setDevOtp(nextDevOtp);
+        setSuccessMessage("New development OTP received.");
+      } else {
+        setDevOtp(readDevOtp(email));
+        setSuccessMessage(response.message ?? "Verification code resent successfully.");
+      }
+
       setDigits(Array(OTP_LENGTH).fill(""));
       setSecondsLeft(INITIAL_SECONDS);
       focusInput(0);
-      setSuccessMessage(response.message ?? "Verification code resent successfully.");
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to resend code. Please try again.");
     } finally {
@@ -212,6 +263,24 @@ export function OtpPage() {
               </p>
 
               <form className="mt-8" onSubmit={handleSubmit}>
+                {shouldShowDevOtp() && devOtp ? (
+                  <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-left">
+                    <p className="text-xs font-black uppercase tracking-wide text-amber-700">Development OTP</p>
+                    <div className="mt-2 flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-slate-700">
+                        Use this temporary code for testing: <span className="font-black text-slate-950">{devOtp}</span>
+                      </p>
+                      <button
+                        className="h-8 shrink-0 rounded-lg border border-amber-200 bg-white px-3 text-xs font-black text-amber-700 transition hover:border-amber-300 hover:text-amber-900"
+                        onClick={() => void navigator.clipboard?.writeText(devOtp)}
+                        type="button"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+
                 <OTPInput
                   digits={digits}
                   inputRefs={inputRefs}

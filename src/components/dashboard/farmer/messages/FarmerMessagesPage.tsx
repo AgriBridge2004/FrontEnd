@@ -204,7 +204,7 @@ function mapDealMessageFromApi(record: ApiRecord, conversationId: string): Dashb
   const senderRole = String(record.senderRole ?? record.role ?? "").toLowerCase();
 
   return {
-    body: String(record.text ?? record.body ?? record.message ?? ""),
+    body: String(record.text ?? record.body ?? record.message ?? record.content ?? ""),
     conversationId,
     id: String(record.id ?? record._id ?? ""),
     senderName: getString(sender.fullName ?? sender.name ?? record.senderName) ?? "User",

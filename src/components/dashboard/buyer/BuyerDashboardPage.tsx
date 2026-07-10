@@ -128,7 +128,7 @@ export function BuyerDashboardPage() {
             </Link>
             <Link
               className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-5 text-sm font-black text-slate-700 shadow-sm transition hover:border-emerald-200 hover:text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-700/30"
-              href="/rfq"
+              href="/buyer/rfqs"
             >
               <FileText className="size-4 text-emerald-700" />
               View RFQs

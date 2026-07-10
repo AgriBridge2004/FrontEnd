@@ -68,7 +68,15 @@ export type BuyerQuoteActionPayload = {
 function getList(response: ApiListResponse, key: "rfqs" | "deals" | "messages" | "notifications" | "buyers") {
   if (Array.isArray(response)) return response;
 
-  const value = response[key] ?? response.data ?? response.items ?? response.results;
+  const data = asRecord(response.data);
+  const value =
+    response[key] ??
+    data[key] ??
+    response.items ??
+    data.items ??
+    response.results ??
+    data.results ??
+    response.data;
   return Array.isArray(value) ? value : [];
 }
 
@@ -192,11 +200,18 @@ export async function getAllBuyers() {
 
 export async function getBuyerRfqs() {
   const response = await apiRequest<ApiListResponse>("/rfqs/my", { auth: true });
+  if (process.env.NODE_ENV === "development") {
+    console.log("[Buyer RFQs] GET /rfqs/my response:", response);
+  }
   return getList(response, "rfqs");
 }
 
 export async function getBuyerRfqById(id: string) {
-  return apiRequest<ApiRecord>(`/rfqs/${id}`, { auth: true });
+  const response = await apiRequest<ApiRecord>(`/rfqs/${id}`, { auth: true });
+  if (process.env.NODE_ENV === "development") {
+    console.log("[Buyer RFQs] GET /rfqs/{id} response:", response);
+  }
+  return response;
 }
 
 export async function createBuyerRfq(payload: BuyerRfqCreatePayload) {

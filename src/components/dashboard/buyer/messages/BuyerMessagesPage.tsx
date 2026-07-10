@@ -61,6 +61,8 @@ export function BuyerMessagesPage() {
   useEffect(() => {
     if (searchParams.get("notice") === "firstMessageFailed") {
       showToast("Conversation opened, but the first message was not sent.");
+    } else if (searchParams.get("notice") === "counterMessageFailed") {
+      showToast("Chat opened, but the counter message was not sent.");
     }
   }, [searchParams]);
 
@@ -230,7 +232,7 @@ function mapMessageFromApi(record: ApiRecord, conversationId: string): Dashboard
   const senderRole = String(record.senderRole ?? record.role ?? "").toLowerCase();
 
   return {
-    body: String(record.text ?? record.body ?? record.message ?? ""),
+    body: String(record.text ?? record.body ?? record.message ?? record.content ?? ""),
     conversationId,
     id: String(record.id ?? record._id ?? ""),
     senderName: getString(sender.fullName ?? sender.name ?? record.senderName) ?? "User",

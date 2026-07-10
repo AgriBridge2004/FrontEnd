@@ -18,7 +18,18 @@ import { buttonClasses } from "@/components/ui/Button";
 import { Pagination } from "@/components/shared/Pagination";
 import { cn } from "@/lib/cn";
 import { getListingInteractionUser } from "@/lib/listing-interactions";
-import { createRfq, getDealMessages, getMyRfqs, getOpenRfqs, getRfqById, sendDealMessage, submitRfqQuote, type ApiRecord } from "@/lib/workflow-api";
+import {
+  createDeal,
+  createRfq,
+  getDealMessages,
+  getMyRfqs,
+  getOpenRfqs,
+  getRfqById,
+  sendDealMessage,
+  submitRfqQuote,
+  type ApiRecord,
+  type DealCreatePayload,
+} from "@/lib/workflow-api";
 
 const initialFilters: RFQFilters = {
   commodityType: "All Commodities",
@@ -197,30 +208,44 @@ export function RFQPage() {
     setIsSubmitting(true);
 
     try {
-      const quoteResponse = await submitRfqQuote(selectedRequest.id, {
-        message: proposalForm.message.trim() || undefined,
+      const request = selectedRequest;
+      const proposalMessage = proposalForm.message.trim() || "Hi, I submitted a proposal for your RFQ.";
+      const quoteResponse = await submitRfqQuote(request.id, {
+        message: proposalMessage,
         price,
       });
-      const dealId = extractDealId(quoteResponse) ?? extractDealId(await getRfqById(selectedRequest.id));
+      const refreshedRfq = await getRfqById(request.id).catch(() => null);
+      let dealId = extractDealId(quoteResponse) ?? (refreshedRfq ? extractDealId(refreshedRfq) : undefined);
 
       setProposalForm(initialProposalForm);
       setSelectedRequest(null);
       setIsProposalOpen(false);
       await loadRfqs();
 
-      if (dealId) {
-        const proposalMessage = proposalForm.message.trim();
-
-        if (proposalMessage) {
-          await sendProposalMessageIfNeeded(dealId, proposalMessage);
+      if (!dealId) {
+        try {
+          dealId = extractDealId(await createDeal(mapRfqProposalToDealPayload(request, quoteResponse, price, proposalMessage)));
+        } catch {
+          setToastMessage("Proposal submitted, but chat could not be opened. Please try again.");
+          return;
         }
+      }
+
+      if (dealId) {
+        try {
+          await sendProposalMessageIfNeeded(dealId, proposalMessage);
+        } catch {
+          setToastMessage("Proposal submitted, but failed to open chat.");
+          return;
+        }
+
+        setToastMessage("Proposal sent. Opening chat...");
         router.push(`/farmer/messages?dealId=${encodeURIComponent(dealId)}`);
       } else {
-        // TODO: Backend should return/create a dealId on quote submission or quote acceptance for immediate chat.
-        setToastMessage("Proposal submitted. Chat will open once the buyer accepts the proposal.");
+        setToastMessage("Proposal submitted, but chat could not be opened. Please try again.");
       }
-    } catch {
-      setToastMessage("Failed to submit proposal.");
+    } catch (error) {
+      setToastMessage(isQuoteAlreadyCreatedError(error) ? "Proposal submitted, but chat could not be opened. Please try again." : "Failed to submit proposal.");
     } finally {
       setIsSubmitting(false);
     }
@@ -355,6 +380,28 @@ function extractDealId(record: ApiRecord): string | undefined {
   return getString(record.dealId ?? data.dealId ?? quote.dealId ?? deal.id ?? deal._id) ?? quoteDealId;
 }
 
+function mapRfqProposalToDealPayload(request: RFQRequest, quoteResponse: ApiRecord, price: number, message: string): DealCreatePayload {
+  const raw = asRecord(request.raw);
+  const quote = asRecord(quoteResponse.quote ?? asRecord(quoteResponse.data).quote ?? quoteResponse);
+  const farmer = asRecord(quote.farmer ?? quote.seller);
+  const storedUser = getListingInteractionUser().user;
+  const storedProfile = asRecord(storedUser?.profile);
+  const farmerId =
+    getString(quote.farmerId ?? farmer.id ?? farmer._id) ??
+    getString(storedUser?.farmerId ?? storedProfile.id ?? storedProfile._id ?? storedUser?.id ?? storedUser?.userId);
+  const quantity = getNumber(quote.quantity ?? raw.quantity ?? request.totalVolume) ?? 1;
+
+  return {
+    deliveryDate: getString(quote.deliveryDate ?? raw.deliveryDate ?? raw.deadline ?? request.deadline),
+    farmerId,
+    notes: message,
+    price,
+    quantity,
+    rfqId: request.id,
+    source: "rfq",
+  };
+}
+
 async function sendProposalMessageIfNeeded(dealId: string, message: string) {
   const existingMessages = await getDealMessages(dealId).catch(() => []);
   const hasSameMessage = existingMessages.some((record) => {
@@ -363,8 +410,12 @@ async function sendProposalMessageIfNeeded(dealId: string, message: string) {
   });
 
   if (!hasSameMessage) {
-    await sendDealMessage(dealId, { text: message }).catch(() => undefined);
+    await sendDealMessage(dealId, { text: message });
   }
+}
+
+function isQuoteAlreadyCreatedError(error: unknown) {
+  return error instanceof Error && /already submitted|already exists|409/i.test(error.message);
 }
 
 function RfqModal({ children, onClose, title }: { children: ReactNode; onClose: () => void; title: string }) {

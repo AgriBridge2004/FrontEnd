@@ -11,6 +11,7 @@ import { AuthSidePanel } from "@/components/auth/AuthSidePanel";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { registerUser } from "@/lib/auth-api";
 import { storePendingRegistrationProfile } from "@/lib/auth-storage";
+import { clearDevOtp, extractDevOtp, shouldShowDevOtp, storeDevOtp } from "@/lib/dev-otp";
 
 type Role = "farmer" | "buyer";
 
@@ -78,11 +79,24 @@ export function RegisterPage() {
     try {
       isSubmittingRef.current = true;
       setIsSubmitting(true);
-      await registerUser({
+      clearDevOtp();
+      const response = await registerUser({
         email: trimmedEmail,
         password,
         role: selectedRole,
       });
+      const devOtp = extractDevOtp(response);
+
+      if (shouldShowDevOtp() && devOtp) {
+        storeDevOtp(trimmedEmail, devOtp);
+      }
+
+      if (shouldShowDevOtp()) {
+        console.log("[DEV OTP] register raw response:", response);
+        console.log("[DEV OTP] extracted otp:", devOtp);
+        console.log("[DEV OTP] storage after save:", window.sessionStorage.getItem("agriBridgeDevOtp"));
+      }
+
       storePendingRegistrationProfile({
         email: trimmedEmail,
         fullName: fullName.trim(),
@@ -90,7 +104,8 @@ export function RegisterPage() {
         phone: phoneNumber.trim(),
         role: selectedRole,
       });
-      router.push(`/auth/otp?email=${encodeURIComponent(trimmedEmail)}&flow=register`);
+      const devOtpQuery = shouldShowDevOtp() && devOtp ? `&devOtp=${encodeURIComponent(devOtp)}` : "";
+      router.push(`/auth/otp?email=${encodeURIComponent(trimmedEmail)}&flow=register${devOtpQuery}`);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to create account. Please try again.");
     } finally {

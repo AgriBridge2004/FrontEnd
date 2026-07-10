@@ -62,8 +62,20 @@ function removeEmptyFields<T extends ApiRecord>(payload: T): Partial<T> {
 function getList(response: ApiListResponse, key: "rfqs" | "deals" | "messages" | "notifications") {
   if (Array.isArray(response)) return response;
 
-  const value = response[key] ?? response.data ?? response.items ?? response.results;
+  const data = asRecord(response.data);
+  const value =
+    response[key] ??
+    data[key] ??
+    response.items ??
+    data.items ??
+    response.results ??
+    data.results ??
+    response.data;
   return Array.isArray(value) ? value : [];
+}
+
+function asRecord(value: unknown): ApiRecord {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as ApiRecord) : {};
 }
 
 function encodePathPart(value: string) {
