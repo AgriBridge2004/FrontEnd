@@ -2,24 +2,30 @@
 
 import type { ReactNode } from "react";
 import { Archive, BadgeCheck, Calendar, FileText, Heart, Mail, MapPin, Star, Zap } from "lucide-react";
-import { useState } from "react";
 
 import type { MarketplaceProductDetails } from "@/components/marketplace/product-details/marketplace-product-details.types";
 import { buttonClasses } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 
 type ProductInfoPanelProps = {
+  isSaved: boolean;
+  isSaving?: boolean;
+  isStartingMessage?: boolean;
   product: MarketplaceProductDetails;
-  onToast: (message: string) => void;
+  onRequestQuote: () => void;
+  onSaveToggle: () => void;
+  onStartMessage: () => void;
 };
 
-export function ProductInfoPanel({ product, onToast }: ProductInfoPanelProps) {
-  const [isSaved, setIsSaved] = useState(false);
-
-  function toggleSaved() {
-    setIsSaved((value) => !value);
-  }
-
+export function ProductInfoPanel({
+  isSaved,
+  isSaving = false,
+  isStartingMessage = false,
+  product,
+  onRequestQuote,
+  onSaveToggle,
+  onStartMessage,
+}: ProductInfoPanelProps) {
   return (
     <section className="rounded-3xl bg-emerald-50/55 p-6 shadow-sm ring-1 ring-emerald-100/70 lg:p-8">
       <h1 className="max-w-xl text-4xl font-black leading-[1.08] tracking-normal text-slate-950">
@@ -72,7 +78,7 @@ export function ProductInfoPanel({ product, onToast }: ProductInfoPanelProps) {
       <div className="mt-6 grid gap-2.5 sm:grid-cols-[1fr_auto]">
         <button
           className={cn(buttonClasses("primary"), "h-10 rounded-full bg-emerald-800 px-4 text-xs font-black hover:bg-emerald-900")}
-          onClick={() => onToast("Request quote flow will be connected later.")}
+          onClick={onRequestQuote}
           type="button"
         >
           <FileText className="mr-2 size-3.5" />
@@ -81,7 +87,8 @@ export function ProductInfoPanel({ product, onToast }: ProductInfoPanelProps) {
         <button
           aria-pressed={isSaved}
           className={cn(buttonClasses("secondary"), "h-10 rounded-full px-5 text-xs font-black")}
-          onClick={toggleSaved}
+          disabled={isSaving}
+          onClick={onSaveToggle}
           type="button"
         >
           <Heart className={cn("mr-2 size-3.5", isSaved && "fill-rose-500 text-rose-500")} />
@@ -89,7 +96,8 @@ export function ProductInfoPanel({ product, onToast }: ProductInfoPanelProps) {
         </button>
         <button
           className={cn(buttonClasses("secondary"), "h-10 rounded-full text-xs font-black sm:col-span-2")}
-          onClick={() => onToast("Messaging flow will be connected later.")}
+          disabled={isStartingMessage}
+          onClick={onStartMessage}
           type="button"
         >
           <Mail className="mr-2 size-3.5" />

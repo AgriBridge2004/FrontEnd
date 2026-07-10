@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { FarmerDashboardLayout } from "@/components/dashboard/farmer/FarmerDashboardLayout";
 import { MessagesLayout } from "@/components/dashboard/shared/messages/MessagesLayout";
 import type { DashboardConversation, DashboardMessage } from "@/components/dashboard/shared/messages/messages.types";
-import { getDealMessages, getMyDeals, sendDealMessage, type ApiRecord } from "@/lib/workflow-api";
+import { getDealById, getDealMessages, getMyDeals, sendDealMessage, type ApiRecord } from "@/lib/workflow-api";
 
 export function FarmerMessagesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [conversations, setConversations] = useState<DashboardConversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState("");
   const [conversationSearch, setConversationSearch] = useState("");
@@ -20,16 +21,19 @@ export function FarmerMessagesPage() {
     async function loadConversations() {
       try {
         const records = await getMyDeals();
-        const nextConversations = records.map(mapDealToFarmerConversation);
+        const requestedDealId = searchParams.get("dealId");
+        const hasRequestedDeal = requestedDealId ? records.some((record) => String(record.id ?? record._id ?? "") === requestedDealId) : true;
+        const requestedDeal = requestedDealId && !hasRequestedDeal ? await getDealById(requestedDealId).catch(() => null) : null;
+        const nextConversations = [...records, ...(requestedDeal ? [requestedDeal] : [])].map(mapDealToFarmerConversation);
         setConversations(nextConversations);
-        setActiveConversationId(nextConversations[0]?.id ?? "");
+        setActiveConversationId(nextConversations.find((conversation) => conversation.dealId === requestedDealId || conversation.id === requestedDealId)?.id ?? nextConversations[0]?.id ?? "");
       } catch {
         setConversations([]);
       }
     }
 
     void loadConversations();
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!activeConversationId) {
@@ -47,6 +51,24 @@ export function FarmerMessagesPage() {
     }
 
     void loadMessages();
+  }, [activeConversationId]);
+
+  useEffect(() => {
+    if (!activeConversationId) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "hidden") {
+        return;
+      }
+
+      getDealMessages(activeConversationId)
+        .then((records) => setMessages(records.map((record) => mapDealMessageFromApi(record, activeConversationId))))
+        .catch(() => undefined);
+    }, 5000);
+
+    return () => window.clearInterval(intervalId);
   }, [activeConversationId]);
 
   function showToast(message: string) {

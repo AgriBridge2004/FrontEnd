@@ -15,7 +15,7 @@ import { getBuyerProfileByUserId, isNotFoundError, type BuyerProfile as ApiBuyer
 
 const buyerTopbarLinks = [
   { href: "/marketplace", label: "Marketplace" },
-  { href: "/buyer/rfqs", label: "RFQ" },
+  { href: "/rfq", label: "RFQ" },
 ];
 
 export function BuyerProfilePage() {

@@ -1,5 +1,7 @@
 "use client";
 
+// Legacy disabled page. RFQ flow now uses /rfq.
+
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -11,7 +13,7 @@ import { getBuyerRfqs, type ApiRecord } from "@/lib/buyer-api";
 
 const buyerTopbarLinks = [
   { href: "/marketplace", label: "Marketplace" },
-  { href: "/buyer/rfqs", label: "RFQ" },
+  { href: "/rfq", label: "RFQ" },
 ];
 
 export default function BuyerRfqsPage() {
@@ -64,7 +66,7 @@ export default function BuyerRfqsPage() {
             <h1 className="text-2xl font-black text-slate-950">My RFQs</h1>
             <p className="mt-1 text-sm font-medium text-slate-600">Track purchase requests and farmer quotes.</p>
           </div>
-          <Link className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-emerald-800 px-5 text-sm font-black text-white" href="/buyer/rfqs/create">
+          <Link className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-emerald-800 px-5 text-sm font-black text-white" href="/rfq">
             <Plus className="size-4" />
             Create RFQ
           </Link>

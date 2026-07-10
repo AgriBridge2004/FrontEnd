@@ -27,7 +27,7 @@ export function FarmerDashboardLayout({
       hideTopbar={hideTopbar}
       navLinks={[
         { href: "/marketplace", label: "Marketplace" },
-        { href: "/farmer/rfqs", label: "RFQ" },
+        { href: "/rfq", label: "RFQ" },
       ]}
       notificationCount={3}
       onSearchChange={onSearchChange}

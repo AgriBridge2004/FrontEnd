@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 
 type RFQRequestListProps = {
   requests: RFQRequest[];
-  onSubmitProposal: () => void;
+  onSubmitProposal: (request: RFQRequest) => void;
 };
 
 export function RFQRequestList({ requests, onSubmitProposal }: RFQRequestListProps) {

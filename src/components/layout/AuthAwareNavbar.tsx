@@ -191,9 +191,15 @@ export function AuthenticatedUserCluster({
     }
 
     void loadNotifications();
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState !== "hidden") {
+        void loadNotifications();
+      }
+    }, 45000);
 
     return () => {
       isMounted = false;
+      window.clearInterval(intervalId);
     };
   }, [role]);
 
@@ -375,12 +381,12 @@ function mapDashboardNotification(record: ApiRecord, role: DashboardRole): Dashb
 function getNotificationHref(role: DashboardRole, dealId?: string, rfqId?: string) {
   if (role === "buyer") {
     if (dealId) return `/buyer/deals/${dealId}`;
-    if (rfqId) return "/buyer/rfqs";
+    if (rfqId) return "/rfq";
   }
 
   if (role === "farmer") {
     if (dealId) return `/farmer/deals/${dealId}`;
-    if (rfqId) return "/farmer/rfqs";
+    if (rfqId) return "/rfq";
   }
 
   return undefined;

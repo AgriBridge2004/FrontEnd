@@ -34,7 +34,7 @@ export function HeroSection() {
             </Link>
             <Link
               className="inline-flex h-14 items-center justify-center rounded-full border-2 border-white/85 px-8 text-base font-black text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/80 focus:ring-offset-2 focus:ring-offset-emerald-950"
-              href="/buyer/rfqs/create"
+              href="/rfq"
             >
               Post an RFQ
             </Link>

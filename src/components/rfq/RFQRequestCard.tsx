@@ -11,7 +11,7 @@ import { cn } from "@/lib/cn";
 
 type RFQRequestCardProps = {
   request: RFQRequest;
-  onSubmitProposal: () => void;
+  onSubmitProposal: (request: RFQRequest) => void;
 };
 
 export function RFQRequestCard({ request, onSubmitProposal }: RFQRequestCardProps) {
@@ -58,7 +58,7 @@ export function RFQRequestCard({ request, onSubmitProposal }: RFQRequestCardProp
           <Metric label="Total Volume" value={request.totalVolume} />
           <button
             className={cn(buttonClasses("primary"), "h-9 rounded-lg bg-emerald-800 px-5 text-sm font-black hover:bg-emerald-900")}
-            onClick={onSubmitProposal}
+            onClick={() => onSubmitProposal(request)}
             type="button"
           >
             Submit Proposal

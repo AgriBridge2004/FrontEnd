@@ -4,6 +4,7 @@ export const PRODUCT_IMAGE_FALLBACK = "/images/farmer/create-listing/placeholder
 
 export const MARKETPLACE_PRODUCT_DETAILS: MarketplaceProductDetails = {
   id: "fresh-organic-tomatoes",
+  farmerId: "farmer-1",
   title: "Fresh Organic Tomatoes",
   category: "Vegetables",
   farmerName: "Al-Nour Farm",

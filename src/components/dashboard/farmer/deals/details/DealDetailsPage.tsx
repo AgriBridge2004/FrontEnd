@@ -46,7 +46,7 @@ export function DealDetailsPage({ dealId, getContractById = getDigitalContract, 
       ? {
           navLinks: [
             { href: "/marketplace", label: "Marketplace" },
-            { href: "/buyer/rfqs", label: "RFQ" },
+            { href: "/rfq", label: "RFQ" },
           ],
           profileHref: "/buyer/profile",
           searchPlaceholder: "Search by product, farmer, or deal ID...",
@@ -57,7 +57,7 @@ export function DealDetailsPage({ dealId, getContractById = getDigitalContract, 
       : {
           navLinks: [
             { href: "/marketplace", label: "Marketplace" },
-            { href: "/farmer/rfqs", label: "RFQ" },
+            { href: "/rfq", label: "RFQ" },
           ],
           profileHref: "/farmer/profile",
           searchPlaceholder: "Search by contract ID, product, or buyer name",

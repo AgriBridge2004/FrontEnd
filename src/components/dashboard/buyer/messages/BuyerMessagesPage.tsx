@@ -1,17 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { buyerSidebarItems } from "@/components/dashboard/buyer/BuyerSidebarConfig";
 import { DashboardLayout } from "@/components/dashboard/shared/DashboardLayout";
 import { MessagesLayout } from "@/components/dashboard/shared/messages/MessagesLayout";
 import type { DashboardConversation, DashboardMessage } from "@/components/dashboard/shared/messages/messages.types";
 import { getStoredUser } from "@/lib/auth-storage";
-import { getBuyerDealMessages, getBuyerDeals, sendBuyerDealMessage, type ApiRecord } from "@/lib/buyer-api";
+import { getBuyerDealById, getBuyerDealMessages, getBuyerDeals, sendBuyerDealMessage, type ApiRecord } from "@/lib/buyer-api";
 
 const buyerTopbarLinks = [
   { href: "/marketplace", label: "Marketplace" },
-  { href: "/buyer/rfqs", label: "RFQ" },
+  { href: "/rfq", label: "RFQ" },
 ];
 
 function conversationMatchesSearch(conversation: DashboardConversation, searchQuery: string) {
@@ -30,6 +31,7 @@ function conversationMatchesSearch(conversation: DashboardConversation, searchQu
 }
 
 export function BuyerMessagesPage() {
+  const searchParams = useSearchParams();
   const [conversations, setConversations] = useState<DashboardConversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState("");
   const [conversationSearch, setConversationSearch] = useState("");
@@ -42,16 +44,25 @@ export function BuyerMessagesPage() {
     async function loadConversations() {
       try {
         const records = await getBuyerDeals();
-        const nextConversations = records.map(mapDealToConversation);
+        const requestedDealId = searchParams.get("dealId");
+        const hasRequestedDeal = requestedDealId ? records.some((record) => String(record.id ?? record._id ?? "") === requestedDealId) : true;
+        const requestedDeal = requestedDealId && !hasRequestedDeal ? await getBuyerDealById(requestedDealId).catch(() => null) : null;
+        const nextConversations = [...records, ...(requestedDeal ? [requestedDeal] : [])].map(mapDealToConversation);
         setConversations(nextConversations);
-        setActiveConversationId(nextConversations[0]?.id ?? "");
+        setActiveConversationId(nextConversations.find((conversation) => conversation.dealId === requestedDealId || conversation.id === requestedDealId)?.id ?? nextConversations[0]?.id ?? "");
       } catch {
         setConversations([]);
       }
     }
 
     void loadConversations();
-  }, []);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (searchParams.get("notice") === "firstMessageFailed") {
+      showToast("Conversation opened, but the first message was not sent.");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!activeConversationId) {
@@ -69,6 +80,24 @@ export function BuyerMessagesPage() {
     }
 
     void loadMessages();
+  }, [activeConversationId]);
+
+  useEffect(() => {
+    if (!activeConversationId) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "hidden") {
+        return;
+      }
+
+      getBuyerDealMessages(activeConversationId)
+        .then((records) => setMessages(records.map((record) => mapMessageFromApi(record, activeConversationId))))
+        .catch(() => undefined);
+    }, 5000);
+
+    return () => window.clearInterval(intervalId);
   }, [activeConversationId]);
 
   function showToast(message: string) {

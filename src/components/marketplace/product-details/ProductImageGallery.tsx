@@ -9,13 +9,15 @@ import { cn } from "@/lib/cn";
 
 type ProductImageGalleryProps = {
   images: string[];
+  isFavorite: boolean;
+  isSaving?: boolean;
+  onToggleFavorite: () => void;
   title: string;
 };
 
-export function ProductImageGallery({ images, title }: ProductImageGalleryProps) {
+export function ProductImageGallery({ images, isFavorite, isSaving = false, onToggleFavorite, title }: ProductImageGalleryProps) {
   const safeImages = images.length > 0 ? images : [PRODUCT_IMAGE_FALLBACK];
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [activeImageSrc, setActiveImageSrc] = useState(safeImages[0]);
   const visibleThumbnails = safeImages.slice(0, 6);
   const extraCount = Math.max(safeImages.length - visibleThumbnails.length + 1, 0);
@@ -44,7 +46,8 @@ export function ProductImageGallery({ images, title }: ProductImageGalleryProps)
             "absolute right-4 top-4 grid size-10 place-items-center rounded-full bg-white text-slate-600 shadow-md transition hover:text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/30",
             isFavorite && "text-rose-500",
           )}
-          onClick={() => setIsFavorite((value) => !value)}
+          disabled={isSaving}
+          onClick={onToggleFavorite}
           type="button"
         >
           <Heart className={cn("size-5", isFavorite && "fill-current")} />

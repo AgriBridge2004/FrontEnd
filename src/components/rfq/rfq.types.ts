@@ -8,7 +8,9 @@ export type RFQRequest = {
   description: string;
   deadline: string;
   totalVolume: string;
-  category: "Vegetables" | "Oils & Fats" | "Grains" | "Fruits";
+  category: string;
+  budget?: number;
+  raw?: Record<string, unknown>;
   status: RFQStatus;
   image: string;
 };

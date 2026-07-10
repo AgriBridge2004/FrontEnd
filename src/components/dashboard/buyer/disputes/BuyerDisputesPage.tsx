@@ -16,7 +16,7 @@ import { getStoredUser } from "@/lib/auth-storage";
 
 const buyerTopbarLinks = [
   { href: "/marketplace", label: "Marketplace" },
-  { href: "/buyer/rfqs", label: "RFQ" },
+  { href: "/rfq", label: "RFQ" },
 ];
 
 const casesPerPage = 4;

@@ -1,5 +1,7 @@
 "use client";
 
+// Legacy disabled page. RFQ flow now uses /rfq.
+
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useState } from "react";
 
@@ -10,7 +12,7 @@ import { createBuyerRfq } from "@/lib/buyer-api";
 
 const buyerTopbarLinks = [
   { href: "/marketplace", label: "Marketplace" },
-  { href: "/buyer/rfqs", label: "RFQ" },
+  { href: "/rfq", label: "RFQ" },
 ];
 
 type RfqForm = {
@@ -69,7 +71,7 @@ export default function CreateBuyerRfqPage() {
         quantity,
       });
       setMessage("RFQ created successfully.");
-      window.setTimeout(() => router.push("/buyer/rfqs"), 700);
+      window.setTimeout(() => router.push("/rfq"), 700);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to create RFQ.");
       setIsSaving(false);

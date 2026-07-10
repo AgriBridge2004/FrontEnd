@@ -36,7 +36,7 @@ const footerLinkHrefs: Record<string, string> = {
   FAQs: "#faq",
   "How It Works": "#how-it-works",
   "List Your Products": "/farmer/listings/create",
-  "RFQ & Quotations": "/buyer/rfqs/create",
+  "RFQ & Quotations": "/rfq",
   Resources: "#faq",
 };
 

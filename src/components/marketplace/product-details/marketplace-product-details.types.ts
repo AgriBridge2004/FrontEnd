@@ -14,6 +14,7 @@ export type ProductDetailsSpec = {
 
 export type MarketplaceProductDetails = {
   id: string;
+  farmerId: string;
   title: string;
   category: string;
   farmerName: string;

@@ -1,5 +1,7 @@
 "use client";
 
+// Legacy disabled page. RFQ flow now uses /rfq.
+
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 
 import { FarmerDashboardLayout } from "@/components/dashboard/farmer/FarmerDashboardLayout";

@@ -16,7 +16,7 @@ export function RFQOpportunitiesCard({ opportunities }: RFQOpportunitiesCardProp
     <section className="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm transition hover:bg-emerald-50/20 hover:shadow-md">
       <div className="flex items-start justify-between gap-4">
         <h2 className="max-w-40 text-lg font-black leading-6 text-slate-900">Recent RFQ Opportunities</h2>
-        <Link className="text-xs font-black leading-5 text-emerald-700 hover:text-emerald-900" href="/farmer/rfqs">
+        <Link className="text-xs font-black leading-5 text-emerald-700 hover:text-emerald-900" href="/rfq">
           View all RFQs
         </Link>
       </div>
@@ -38,7 +38,7 @@ export function RFQOpportunitiesCard({ opportunities }: RFQOpportunitiesCardProp
               <p className="text-[11px] font-black text-slate-800">{item.quantity}</p>
               <Link
                 className="mt-2 inline-flex h-8 items-center justify-center rounded-md border border-slate-200 bg-white px-3 text-[11px] font-black text-slate-700 transition hover:border-emerald-200 hover:text-emerald-800"
-                href="/farmer/rfqs"
+                href="/rfq"
               >
                 View Details
               </Link>
