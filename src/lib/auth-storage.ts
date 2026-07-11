@@ -6,8 +6,37 @@ const REFRESH_TOKEN_KEY = "agribridge_refresh_token";
 const USER_KEY = "agribridge_user";
 const ROLE_KEY = "agribridge_role";
 const PENDING_REGISTRATION_PROFILE_KEY = "agribridge_pending_registration_profile";
+const AUTH_LOCAL_STORAGE_KEYS = [
+  ACCESS_TOKEN_KEY,
+  REFRESH_TOKEN_KEY,
+  USER_KEY,
+  ROLE_KEY,
+  PENDING_REGISTRATION_PROFILE_KEY,
+  "agribridge:auth-token",
+  "agribridge:access-token",
+  "agribridge:token",
+  "agribridge:user",
+  "accessToken",
+  "token",
+  "user",
+];
+const AUTH_SESSION_STORAGE_KEYS = [
+  "agriBridgeDevOtp",
+  "agriBridgeOtpEmail",
+  "agribridge:dev-otp",
+];
+const AUTH_COOKIE_KEYS = [
+  ACCESS_TOKEN_KEY,
+  REFRESH_TOKEN_KEY,
+  "accessToken",
+  "refreshToken",
+  "token",
+];
 
 type PendingRegistrationProfile = Pick<AuthUser, "email" | "fullName" | "name" | "phone" | "role">;
+type LogoutRouter = {
+  replace: (href: string) => void;
+};
 
 const AUTH_CHANGED_EVENT = "agribridge:auth-changed";
 
@@ -206,10 +235,29 @@ export function clearAuthSession() {
     return;
   }
 
-  window.localStorage.removeItem(ACCESS_TOKEN_KEY);
-  window.localStorage.removeItem(REFRESH_TOKEN_KEY);
-  window.localStorage.removeItem(USER_KEY);
-  window.localStorage.removeItem(ROLE_KEY);
-  window.localStorage.removeItem(PENDING_REGISTRATION_PROFILE_KEY);
+  AUTH_LOCAL_STORAGE_KEYS.forEach((key) => window.localStorage.removeItem(key));
+  AUTH_SESSION_STORAGE_KEYS.forEach((key) => window.sessionStorage.removeItem(key));
+  AUTH_COOKIE_KEYS.forEach((key) => {
+    document.cookie = `${key}=; Max-Age=0; path=/`;
+  });
   emitAuthChanged();
+}
+
+export function logoutAndRedirectHome(router?: LogoutRouter) {
+  clearAuthSession();
+
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (window.location.pathname === "/") {
+    return;
+  }
+
+  if (router) {
+    router.replace("/");
+    return;
+  }
+
+  window.location.replace("/");
 }

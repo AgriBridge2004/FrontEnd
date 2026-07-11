@@ -10,7 +10,7 @@ import { Bell, ChevronDown, LayoutDashboard, LogOut, Search, Settings, User } fr
 import { DashboardNotificationDropdown } from "@/components/dashboard/shared/DashboardNotificationDropdown";
 import { NotificationButton } from "@/components/dashboard/shared/NotificationButton";
 import type { DashboardNotification, DashboardRole } from "@/components/dashboard/shared/dashboard-notifications.types";
-import { clearAuthSession, getAccessToken, getStoredUser, subscribeToAuthChanges } from "@/lib/auth-storage";
+import { getAccessToken, getStoredUser, logoutAndRedirectHome, subscribeToAuthChanges } from "@/lib/auth-storage";
 import { cn } from "@/lib/cn";
 import { getDashboardPathByRole, normalizeRole } from "@/lib/profile-completion";
 import { getRoleProfileHref } from "@/lib/profile-status";
@@ -218,10 +218,9 @@ export function AuthenticatedUserCluster({
   }, []);
 
   function handleLogout() {
-    clearAuthSession();
     setIsUserMenuOpen(false);
     setIsNotificationOpen(false);
-    router.push("/auth/login");
+    logoutAndRedirectHome(router);
   }
 
   function handleMarkAllAsRead() {

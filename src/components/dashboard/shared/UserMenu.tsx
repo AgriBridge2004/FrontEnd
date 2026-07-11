@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Bell, ChevronDown, LayoutDashboard, LogOut, Settings, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { clearAuthSession } from "@/lib/auth-storage";
+import { logoutAndRedirectHome } from "@/lib/auth-storage";
 import { getDashboardPathByRole } from "@/lib/profile-completion";
 import type { DashboardRole } from "@/components/dashboard/shared/dashboard-notifications.types";
 
@@ -36,8 +36,7 @@ export function UserMenu({ avatar, avatarInitials = "RK", name, profileHref, rol
   }, []);
 
   function handleLogout() {
-    clearAuthSession();
-    router.push("/auth/login");
+    logoutAndRedirectHome(router);
   }
 
   const dashboardHref = getDashboardPathByRole(role);

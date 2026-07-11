@@ -13,6 +13,7 @@ import {
   rfqs,
   users,
 } from "@/lib/mock-data";
+import { clearAuthSession, logoutAndRedirectHome } from "@/lib/auth-storage";
 
 export const DEFAULT_API_TIMEOUT_MS = 60_000;
 
@@ -24,14 +25,6 @@ const AUTH_TOKEN_KEYS = [
   "agribridge:token",
   "accessToken",
   "token",
-];
-const AUTH_STORAGE_KEYS = [
-  ...AUTH_TOKEN_KEYS,
-  "agribridge_refresh_token",
-  "agribridge_user",
-  "agribridge_role",
-  "agribridge:user",
-  "user",
 ];
 
 type ApiRequestDebugOptions = {
@@ -119,17 +112,11 @@ function removeUndefinedFields(value: unknown): unknown {
 }
 
 export function clearStoredAuth() {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  AUTH_STORAGE_KEYS.forEach((key) => window.localStorage.removeItem(key));
+  clearAuthSession();
 }
 
 export function redirectToLogin() {
-  if (typeof window !== "undefined" && window.location.pathname !== "/auth/login") {
-    window.location.assign("/auth/login");
-  }
+  logoutAndRedirectHome();
 }
 
 function getErrorMessage(data: unknown, fallback: string) {

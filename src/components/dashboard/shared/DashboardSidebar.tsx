@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import { LogOut, X } from "lucide-react";
 
-import { clearAuthSession } from "@/lib/auth-storage";
+import { logoutAndRedirectHome } from "@/lib/auth-storage";
 import { cn } from "@/lib/cn";
 
 export type DashboardSidebarItem = {
@@ -28,8 +28,7 @@ export function DashboardSidebar({ isOpen, items, onClose }: DashboardSidebarPro
   const router = useRouter();
 
   function handleLogout() {
-    clearAuthSession();
-    router.push("/login");
+    logoutAndRedirectHome(router);
   }
 
   return (

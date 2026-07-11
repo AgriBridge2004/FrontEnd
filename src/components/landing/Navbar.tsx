@@ -9,7 +9,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { DashboardNotificationDropdown } from "@/components/dashboard/shared/DashboardNotificationDropdown";
 import type { DashboardNotification, DashboardRole } from "@/components/dashboard/shared/dashboard-notifications.types";
 import { getAvatar, getDisplayName, getInitials, getRoleLabel, getString } from "@/components/layout/AuthAwareNavbar";
-import { clearAuthSession, getAccessToken, getStoredRole, getStoredUser } from "@/lib/auth-storage";
+import { getAccessToken, getStoredRole, getStoredUser, logoutAndRedirectHome } from "@/lib/auth-storage";
 import { getFarmerAvatarUrl } from "@/lib/farmer-display";
 import { getDashboardPathByRole, normalizeRole } from "@/lib/profile-completion";
 import { getRoleProfileHref } from "@/lib/profile-status";
@@ -91,7 +91,6 @@ export function Navbar({ authenticatedFarmerOnly = false }: NavbarProps) {
   const avatarInitial = useMemo(() => getInitials(userLabel), [userLabel]);
 
   function handleLogout() {
-    clearAuthSession();
     setIsLoggedIn(false);
     setIsFarmer(false);
     setUser(null);
@@ -100,7 +99,7 @@ export function Navbar({ authenticatedFarmerOnly = false }: NavbarProps) {
     setDashboardHref("/marketplace");
     setIsOpen(false);
     setIsUserMenuOpen(false);
-    router.push("/auth/login");
+    logoutAndRedirectHome(router);
   }
 
   if (authenticatedFarmerOnly) {
