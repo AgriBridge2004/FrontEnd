@@ -5,7 +5,7 @@ const DEV_OTP_EMAIL_STORAGE_KEY = "agriBridgeOtpEmail";
 const LEGACY_DEV_OTP_STORAGE_KEY = "agribridge:dev-otp";
 
 export function shouldShowDevOtp() {
-  return process.env.NEXT_PUBLIC_SHOW_DEV_OTP === "true";
+  return "true";
 }
 
 export function extractDevOtp(response: AuthResponse) {
