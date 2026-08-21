@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { BuyerRFQsPage } from "@/components/dashboard/buyer/rfqs/BuyerRFQsPage";
 
-export default function BuyerRfqsPage() {
-  return (
-    <PlaceholderPage
-      description="A future workspace for buyer purchase requests and farmer quotes."
-      title="Buyer RFQs"
-    />
-  );
+export default function BuyerRfqsRoute() {
+  return <BuyerRFQsPage />;
 }

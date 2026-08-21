@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { MarketplaceProductDetailsPage } from "@/components/marketplace/product-details/MarketplaceProductDetailsPage";
 
-export default function MarketplaceListingPage() {
-  return (
-    <PlaceholderPage
-      description="A future detail page for crop information, quality data, and seller context."
-      title="Marketplace Listing"
-    />
-  );
+export default function Page() {
+  return <MarketplaceProductDetailsPage />;
 }

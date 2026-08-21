@@ -1,0 +1,10 @@
+export function AdminDisputesHeader() {
+  return (
+    <header>
+      <h1 className="text-[22px] font-black leading-tight tracking-tight text-slate-950">Dispute Review & Resolution</h1>
+      <p className="mt-1 text-[13px] font-medium leading-5 text-slate-500">
+        Review all evidence and issue a final, binding resolution.
+      </p>
+    </header>
+  );
+}

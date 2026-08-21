@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { AdminUserManagementPage } from "@/components/dashboard/admin/users/AdminUserManagementPage";
 
-export default function AdminUsersPage() {
-  return (
-    <PlaceholderPage
-      description="A future workspace for managing farmers, buyers, officers, and admins."
-      title="Admin Users"
-    />
-  );
+export default function Page() {
+  return <AdminUserManagementPage />;
 }

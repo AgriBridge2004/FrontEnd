@@ -18,10 +18,10 @@ export function PublicNavbar() {
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <Link className={buttonClasses("ghost")} href="/login">
+          <Link className={buttonClasses("ghost")} href="/auth/login">
             Login
           </Link>
-          <Link className={buttonClasses("primary")} href="/register">
+          <Link className={buttonClasses("primary")} href="/auth/register">
             Register
           </Link>
         </div>

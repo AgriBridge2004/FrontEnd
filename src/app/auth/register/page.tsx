@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { RegisterPage } from "@/components/auth/RegisterPage";
 
-export default function AuthRegisterPage() {
-  return (
-    <PlaceholderPage
-      description="A future onboarding page for farmers, buyers, officers, and admins."
-      title="Register"
-    />
-  );
+export default function AuthRegisterRoute() {
+  return <RegisterPage />;
 }

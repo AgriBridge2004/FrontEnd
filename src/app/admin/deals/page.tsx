@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { AdminDealsManagementPage } from "@/components/dashboard/admin/deals/AdminDealsManagementPage";
 
-export default function AdminDealsPage() {
-  return (
-    <PlaceholderPage
-      description="A future workspace for monitoring and resolving platform deals."
-      title="Admin Deals"
-    />
-  );
+export default function Page() {
+  return <AdminDealsManagementPage />;
 }

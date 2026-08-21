@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { FarmerDashboardPage } from "@/components/dashboard/farmer/FarmerDashboardPage";
 
-export default function FarmerDashboardPage() {
-  return (
-    <PlaceholderPage
-      description="A future dashboard for farmer listings, offers, contracts, and sales insights."
-      title="Farmer Dashboard"
-    />
-  );
+export default function Page() {
+  return <FarmerDashboardPage />;
 }

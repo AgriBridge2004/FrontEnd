@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { AdminSettingsPage } from "@/components/dashboard/admin/settings/AdminSettingsPage";
 
-export default function AdminSettingsPage() {
-  return (
-    <PlaceholderPage
-      description="A future page for platform configuration and operational preferences."
-      title="Admin Settings"
-    />
-  );
+export default function Page() {
+  return <AdminSettingsPage />;
 }

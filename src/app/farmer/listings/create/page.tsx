@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { CreateListingPage } from "@/components/dashboard/farmer/create-listing/CreateListingPage";
 
 export default function CreateFarmerListingPage() {
-  return (
-    <PlaceholderPage
-      description="A future form for publishing crops, quantities, pricing, and quality details."
-      title="Create Listing"
-    />
-  );
+  return <CreateListingPage />;
 }

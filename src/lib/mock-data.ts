@@ -254,8 +254,7 @@ export const listings: Listing[] = [
     status: "active",
     qualityGrade: "A",
     certifications: ["Pesticide residue tested"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1592841200221-a6898f307baa?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/tomatoes.jpg",
   },
   {
     id: "listing-2",
@@ -274,8 +273,7 @@ export const listings: Listing[] = [
     status: "active",
     qualityGrade: "A",
     certifications: ["Organic"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/olives.jpg",
   },
   {
     id: "listing-3",
@@ -294,8 +292,7 @@ export const listings: Listing[] = [
     status: "reserved",
     qualityGrade: "A",
     certifications: ["Food safety audit"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/background.jpg",
   },
   {
     id: "listing-4",
@@ -314,8 +311,7 @@ export const listings: Listing[] = [
     status: "active",
     qualityGrade: "B",
     certifications: ["Export packhouse partner"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/wheat.jpg",
   },
   {
     id: "listing-5",
@@ -334,8 +330,7 @@ export const listings: Listing[] = [
     status: "active",
     qualityGrade: "A",
     certifications: ["Local quality certificate"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1537640538966-79f369143f8f?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/background.jpg",
   },
   {
     id: "listing-6",
@@ -354,8 +349,7 @@ export const listings: Listing[] = [
     status: "active",
     qualityGrade: "B",
     certifications: ["Pesticide residue tested"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1604977042946-1eecc30f269e?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/background.jpg",
   },
   {
     id: "listing-7",
@@ -374,8 +368,7 @@ export const listings: Listing[] = [
     status: "active",
     qualityGrade: "A",
     certifications: ["Food safety audit"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1515586000433-45406d8e6662?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/background.jpg",
   },
   {
     id: "listing-8",
@@ -394,8 +387,7 @@ export const listings: Listing[] = [
     status: "sold",
     qualityGrade: "B",
     certifications: ["Export packhouse partner"],
-    imageUrl:
-      "https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=900&q=80",
+    imageUrl: "/images/marketspace/orange.jpg",
   },
 ];
 
@@ -800,3 +792,325 @@ export const adminStats: AdminDashboardStats = {
   ).length,
   openDisputes: disputes.filter((dispute) => dispute.status !== "resolved").length,
 };
+
+export type FarmerListingStatus = "Active" | "Expired" | "Draft";
+
+export type FarmerListingItem = {
+  id: string;
+  name: string;
+  status: FarmerListingStatus;
+  price: string;
+  currency: string;
+  unit: string;
+  quantity: string;
+  views: number;
+  rfqsReceived: number;
+  image: string;
+};
+
+export const farmerListingStats = [
+  { label: "Total Listings", value: "12", icon: "total" },
+  { label: "Active Listings", value: "8", icon: "active" },
+  { label: "Expiring Soon", value: "2", icon: "expiring" },
+  { label: "Total Views", value: "234", icon: "views" },
+];
+
+export const farmerListingItems: FarmerListingItem[] = [
+  {
+    id: "fresh-tomatoes",
+    name: "Fresh Tomatoes",
+    status: "Active",
+    price: "28.00",
+    currency: "SAR",
+    unit: "kg",
+    quantity: "1,000 kg",
+    views: 234,
+    rfqsReceived: 5,
+    image: "/images/farmer/listings/tomatoes-listing.jpg",
+  },
+  {
+    id: "green-olives",
+    name: "Green Olives",
+    status: "Active",
+    price: "95.00",
+    currency: "SAR",
+    unit: "kg",
+    quantity: "500 kg",
+    views: 234,
+    rfqsReceived: 5,
+    image: "/images/farmer/listings/green-olives-listing.jpg",
+  },
+  {
+    id: "premium-wheat",
+    name: "Wheat (Premium)",
+    status: "Expired",
+    price: "22.00",
+    currency: "SAR",
+    unit: "kg",
+    quantity: "2,000 kg",
+    views: 234,
+    rfqsReceived: 5,
+    image: "/images/farmer/listings/wheat-listing.jpg",
+  },
+  {
+    id: "organic-cucumbers",
+    name: "Organic Cucumbers",
+    status: "Active",
+    price: "18.00",
+    currency: "SAR",
+    unit: "kg",
+    quantity: "850 kg",
+    views: 188,
+    rfqsReceived: 4,
+    image: "/images/farmer/listings/tomatoes-listing.jpg",
+  },
+  {
+    id: "olive-oil-batch",
+    name: "Olive Oil Batch",
+    status: "Draft",
+    price: "42.00",
+    currency: "SAR",
+    unit: "liter",
+    quantity: "300 liters",
+    views: 96,
+    rfqsReceived: 2,
+    image: "/images/farmer/listings/green-olives-listing.jpg",
+  },
+  {
+    id: "durum-wheat",
+    name: "Durum Wheat",
+    status: "Active",
+    price: "25.00",
+    currency: "SAR",
+    unit: "kg",
+    quantity: "1,600 kg",
+    views: 211,
+    rfqsReceived: 6,
+    image: "/images/farmer/listings/wheat-listing.jpg",
+  },
+  {
+    id: "cherry-tomatoes",
+    name: "Cherry Tomatoes",
+    status: "Active",
+    price: "34.00",
+    currency: "SAR",
+    unit: "kg",
+    quantity: "420 kg",
+    views: 172,
+    rfqsReceived: 3,
+    image: "/images/farmer/listings/tomatoes-listing.jpg",
+  },
+  {
+    id: "green-olive-crates",
+    name: "Green Olive Crates",
+    status: "Expired",
+    price: "88.00",
+    currency: "SAR",
+    unit: "kg",
+    quantity: "650 kg",
+    views: 143,
+    rfqsReceived: 2,
+    image: "/images/farmer/listings/green-olives-listing.jpg",
+  },
+  {
+    id: "wheat-flour-grade-a",
+    name: "Wheat Flour Grade A",
+    status: "Active",
+    price: "31.00",
+    currency: "SAR",
+    unit: "kg",
+    quantity: "900 kg",
+    views: 207,
+    rfqsReceived: 5,
+    image: "/images/farmer/listings/wheat-listing.jpg",
+  },
+  {
+    id: "tomato-bulk-pack",
+    name: "Tomato Bulk Pack",
+    status: "Draft",
+    price: "24.00",
+    currency: "SAR",
+    unit: "kg",
+    quantity: "1,200 kg",
+    views: 84,
+    rfqsReceived: 1,
+    image: "/images/farmer/listings/tomatoes-listing.jpg",
+  },
+  {
+    id: "picked-olives",
+    name: "Picked Olives",
+    status: "Active",
+    price: "72.00",
+    currency: "SAR",
+    unit: "kg",
+    quantity: "760 kg",
+    views: 195,
+    rfqsReceived: 4,
+    image: "/images/farmer/listings/green-olives-listing.jpg",
+  },
+  {
+    id: "harvest-wheat",
+    name: "Harvest Wheat",
+    status: "Active",
+    price: "20.00",
+    currency: "SAR",
+    unit: "kg",
+    quantity: "2,400 kg",
+    views: 221,
+    rfqsReceived: 7,
+    image: "/images/farmer/listings/wheat-listing.jpg",
+  },
+];
+
+export type FarmerDealStatus = "Active" | "Pending" | "Completed" | "Disputed" | "Cancelled";
+
+export type FarmerDealItem = {
+  id: string;
+  product: string;
+  quantity?: string;
+  buyer: string;
+  status: FarmerDealStatus;
+  amount: string;
+  currency: string;
+  date: string;
+  image: string;
+};
+
+export const farmerDealStats = [
+  { label: "Active Deals", value: "5", icon: "active", tone: "green" },
+  { label: "Pending Payment", value: "2", icon: "payment", tone: "yellow" },
+  { label: "Completed", value: "156", icon: "completed", tone: "slate" },
+  { label: "Total Value", value: "89,000", suffix: "SAR", icon: "value", tone: "green" },
+];
+
+export const farmerDeals: FarmerDealItem[] = [
+  {
+    id: "DEAL-1042",
+    product: "Tomatoes",
+    quantity: "500kg",
+    buyer: "Green Kitchen",
+    status: "Active",
+    amount: "7,000",
+    currency: "SAR",
+    date: "March 2025",
+    image: "/images/farmer/listings/tomatoes-listing.jpg",
+  },
+  {
+    id: "DEAL-1038",
+    product: "Olives",
+    quantity: "200kg",
+    buyer: "Food Factory",
+    status: "Completed",
+    amount: "4,500",
+    currency: "SAR",
+    date: "March 2025",
+    image: "/images/farmer/listings/green-olives-listing.jpg",
+  },
+  {
+    id: "DEAL-1035",
+    product: "Wheat",
+    buyer: "Pending Inspection",
+    status: "Pending",
+    amount: "12,000",
+    currency: "SAR",
+    date: "March 2025",
+    image: "/images/farmer/listings/wheat-listing.jpg",
+  },
+  {
+    id: "DEAL-1030",
+    product: "Tomatoes",
+    buyer: "Fresh Mart",
+    status: "Disputed",
+    amount: "7,000",
+    currency: "SAR",
+    date: "March 2025",
+    image: "/images/farmer/listings/tomatoes-listing.jpg",
+  },
+  {
+    id: "DEAL-1028",
+    product: "Green Olives",
+    quantity: "350kg",
+    buyer: "Al Madinah Mills",
+    status: "Active",
+    amount: "9,800",
+    currency: "SAR",
+    date: "February 2025",
+    image: "/images/farmer/listings/green-olives-listing.jpg",
+  },
+  {
+    id: "DEAL-1025",
+    product: "Wheat",
+    quantity: "1,200kg",
+    buyer: "Saudi Fresh Ltd.",
+    status: "Pending",
+    amount: "15,500",
+    currency: "SAR",
+    date: "February 2025",
+    image: "/images/farmer/listings/wheat-listing.jpg",
+  },
+  {
+    id: "DEAL-1021",
+    product: "Tomatoes",
+    quantity: "750kg",
+    buyer: "Daily Fresh",
+    status: "Active",
+    amount: "8,200",
+    currency: "SAR",
+    date: "January 2025",
+    image: "/images/farmer/listings/tomatoes-listing.jpg",
+  },
+  {
+    id: "DEAL-1018",
+    product: "Olives",
+    buyer: "Gulf Traders",
+    status: "Cancelled",
+    amount: "3,900",
+    currency: "SAR",
+    date: "January 2025",
+    image: "/images/farmer/listings/green-olives-listing.jpg",
+  },
+  {
+    id: "DEAL-1015",
+    product: "Wheat",
+    quantity: "900kg",
+    buyer: "Healthy Basket",
+    status: "Completed",
+    amount: "11,400",
+    currency: "SAR",
+    date: "December 2024",
+    image: "/images/farmer/listings/wheat-listing.jpg",
+  },
+  {
+    id: "DEAL-1012",
+    product: "Tomatoes",
+    quantity: "400kg",
+    buyer: "Urban Plate",
+    status: "Active",
+    amount: "5,600",
+    currency: "SAR",
+    date: "December 2024",
+    image: "/images/farmer/listings/tomatoes-listing.jpg",
+  },
+  {
+    id: "DEAL-1009",
+    product: "Olives",
+    quantity: "280kg",
+    buyer: "Golden Foods",
+    status: "Active",
+    amount: "6,300",
+    currency: "SAR",
+    date: "November 2024",
+    image: "/images/farmer/listings/green-olives-listing.jpg",
+  },
+  {
+    id: "DEAL-1005",
+    product: "Wheat",
+    quantity: "2,000kg",
+    buyer: "Levant Wholesale",
+    status: "Completed",
+    amount: "18,000",
+    currency: "SAR",
+    date: "November 2024",
+    image: "/images/farmer/listings/wheat-listing.jpg",
+  },
+];

@@ -1,0 +1,29 @@
+"use client";
+
+import { Bell } from "lucide-react";
+
+type NotificationButtonProps = {
+  "aria-expanded"?: boolean;
+  count?: number;
+  onClick?: () => void;
+};
+
+export function NotificationButton({ "aria-expanded": ariaExpanded = false, count = 0, onClick }: NotificationButtonProps) {
+  return (
+    <button
+      aria-expanded={ariaExpanded}
+      aria-haspopup="menu"
+      aria-label="Open notifications"
+      className="relative grid size-8 place-items-center rounded-full text-slate-500 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+      onClick={onClick}
+      type="button"
+    >
+      <Bell className="size-4" />
+      {count > 0 ? (
+        <span className="absolute right-0.5 top-0 grid size-4 place-items-center rounded-full bg-red-500 text-[9px] font-black text-white">
+          {count}
+        </span>
+      ) : null}
+    </button>
+  );
+}
