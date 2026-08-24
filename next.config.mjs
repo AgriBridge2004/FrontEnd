@@ -10,6 +10,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "backend-rog8.onrender.com",
       },
+      {
+        protocol: "https",
+        hostname: "agribridge-backend.apps.taqat.academy",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
     ],
   },
 };
