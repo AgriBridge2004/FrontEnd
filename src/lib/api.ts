@@ -17,7 +17,6 @@ import { clearAuthSession, logoutAndRedirectHome } from "@/lib/auth-storage";
 
 export const DEFAULT_API_TIMEOUT_MS = 60_000;
 
-const DEFAULT_API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://backend-rog8.onrender.com";
 const AUTH_TOKEN_KEYS = [
   "agribridge_access_token",
   "agribridge:auth-token",
@@ -54,7 +53,7 @@ export class ApiError extends Error {
 }
 
 function getApiBaseUrl() {
-  return (process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL).replace(/\/+$/, "");
+  return (process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "").replace(/\/+$/, "");
 }
 
 function getApiTimeoutMs() {
